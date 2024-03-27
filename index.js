@@ -13,10 +13,10 @@ app.use(cors());
 app.use(cookieParser());
 
 // Internal Dependencies
-const routes = require("./routes");
+const routes = require("routes");
 
 app.use(express.json());
-app.use(express.static('./routes/uploads'));
+app.use(express.static('routes'));
 // Routes
 app.get("/", (req, res) => res.json({ message: "hello world" }));
 
