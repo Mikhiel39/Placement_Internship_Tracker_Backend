@@ -11,7 +11,6 @@ const studentSchema = new mongoose.Schema({
   },
   InstructoremailId: {
     type: String,
-    required: true,
   },
   firstname: {
     type: String,
@@ -36,7 +35,6 @@ const studentSchema = new mongoose.Schema({
   about: {
     type: String,
     trim: true,
-    required: true,
   },
 
   contactNumber: {
@@ -55,15 +53,12 @@ const studentSchema = new mongoose.Schema({
   },
   skills: {
     type: String,
-    required: true,
   },
   LinkedIN: {
     type: String,
-    required: true,
   },
   Github: {
     type: String,
-    required: true,
   },
   password: {
     type: String,
@@ -72,9 +67,31 @@ const studentSchema = new mongoose.Schema({
 
   image: {
     type: String,
-    required: true,
   },
   resume: {
+    type: String,
+    required: true,
+  },
+  intershipStatus: {
+    type: Boolean,
+    enum: ["Yes", "No"],
+    required: true,
+  },
+
+  placementStatus: {
+    type: Boolean,
+    enum: ["Yes", "No"],
+    required: true,
+  },
+  cgpa: {
+    type: Float,
+    required: true,
+  },
+  year: {
+    type: Number,
+    required: true,
+  },
+  department: {
     type: String,
     required: true,
   },

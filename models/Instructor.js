@@ -38,16 +38,18 @@ const instructorSchema = new mongoose.Schema({
   students: {
     firstname: {
       type: String,
-      required: true,
     },
     lastname: {
       type: String,
-      required: true,
     },
     prnNo: {
       type: Number,
       required: true,
     },
+  },
+  department: {
+    type: String,
+    required: true,
   },
 });
 

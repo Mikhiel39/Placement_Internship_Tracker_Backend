@@ -14,6 +14,15 @@ const internshipSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  offerLetter: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  completionLetter: {
+    type: String,
+    trim: true,
+  },
 
   intershipDescription: {
     type: String,
@@ -35,8 +44,9 @@ const internshipSchema = new mongoose.Schema({
     required: true,
   },
 
-  company: {
+  companyname: {
     type: String,
+    required: true,
   },
 
   internTitle: {

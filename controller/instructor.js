@@ -2,7 +2,6 @@ const Student=require("../models/Student");
 const Internship=require("../models/Internship");
 const Placement = require("../models/Placement");
 const Question=require("../models/Question");
-const Progress = require("../models/Progress");
 const Instructor = require("../models/Instructor");
 
 async function getInstructorByEmailID(res, req) {
@@ -24,36 +23,36 @@ async function getStudentByprnno(res, req) {
 }
 
 async function getInternshipByprnno(res, req) {
-    const progress = await Progress.find({
+    const student = await Student.find({
       prnNo: req.params.prnNo,
     }).exec();
   const internship = await Internship.find({
     prnNo: req.params.prnNo,
   }).exec();
-  if (progress.intershipStatus=="Yes"){
-        if (!internship)
-          return res
-            .status(404)
-            .json({ error: "No internship available" });
-        return res.json(internship);
-  }else{
-    return progress.intershipStatus;
+  if (student.intershipStatus == "Yes") {
+    if (!internship)
+      return res.status(404).json({ error: "No internship available" });
+    return res.json(internship);
+  } else {
+    return student.intershipStatus;
   }
 }
 
 async function getPlacementByprnno(res, req) {
-    const progress = await Progress.find({
-      prnNo: req.params.prnNo,
-    }).exec();
+    const student = await Student
+      .find({
+        prnNo: req.params.prnNo,
+      })
+      .exec();
   const placement = await Placement.find({
     prnNo: req.params.prnNo,
   }).exec();
-  if (progress.placementStatus == "Yes") {
+  if (student.placementStatus == "Yes") {
     if (!placement)
       return res.status(404).json({ error: "No placement available" });
     return res.json(placement);
   } else {
-    return progress.placementStatus;
+    return student.placementStatus;
   }
 }
 

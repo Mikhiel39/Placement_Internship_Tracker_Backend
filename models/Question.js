@@ -9,7 +9,11 @@ const questionSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  companykexp: {
+  companyexp: {
+    type: String,
+    required: true,
+  },
+  puzzlelink: {
     type: String,
     required: true,
   },
