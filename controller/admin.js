@@ -50,11 +50,9 @@ async function getStudentByInstructor(res, req) {
 }
 
 async function getInternshipByprnno(res, req) {
-  const student = await Student
-    .find({
-      prnNo: req.params.prnNo,
-    })
-    .exec();
+  const student = await Student.find({
+    prnNo: req.params.prnNo,
+  }).exec();
   const internship = await Internship.find({
     prnNo: req.params.prnNo,
   }).exec();
@@ -68,11 +66,9 @@ async function getInternshipByprnno(res, req) {
 }
 
 async function getInternshipByInstructor(res, req) {
-  const student = await Student
-    .find({
-      prnNo: req.params.InstructoremailId,
-    })
-    .exec();
+  const student = await Student.find({
+    prnNo: req.params.InstructoremailId,
+  }).exec();
   const internship = await Internship.find({
     prnNo: req.params.InstructoremailId,
   }).exec();
@@ -86,11 +82,9 @@ async function getInternshipByInstructor(res, req) {
 }
 
 async function getPlacementByInstructor(res, req) {
-  const student = await Student
-    .find({
-      prnNo: req.params.InstructoremailId,
-    })
-    .exec();
+  const student = await Student.find({
+    prnNo: req.params.InstructoremailId,
+  }).exec();
   const placement = await Placement.find({
     prnNo: req.params.InstructoremailId,
   }).exec();
@@ -103,11 +97,9 @@ async function getPlacementByInstructor(res, req) {
   }
 }
 async function getPlacementByprnno(res, req) {
-  const student = await Student
-    .find({
-      prnNo: req.params.prnNo,
-    })
-    .exec();
+  const student = await Student.find({
+    prnNo: req.params.prnNo,
+  }).exec();
   const placement = await Placement.find({
     prnNo: req.params.prnNo,
   }).exec();
@@ -210,7 +202,6 @@ async function addPlacement(req, res) {
   }
 }
 
-
 async function addInstructor(res, req) {
   const body = req.body;
   if (
@@ -231,7 +222,7 @@ async function addInstructor(res, req) {
     contactNumber: body.contactNumber,
     emailId: body.emailId,
     password: body.password,
-    department:body.department,
+    department: body.department,
   });
   return res.status(201).json({ msg: "success" });
 }
@@ -344,10 +335,7 @@ async function addBatch(req, res) {
 async function updateCompletionLetterInternship(res, req) {
   const body = req.body;
   try {
-    await Internship.findByIdAndUpdate(
-      prnNo,
-      { completionLetter: body.prnNo },
-    );
+    await Internship.findByIdAndUpdate(prnNo, { completionLetter: body.prnNo });
     return res.status(201).json({ msg: "success" });
   } catch (error) {
     return res.status(500).json({ msg: "Internal server error" });
