@@ -1,7 +1,13 @@
 const mongoose = require("mongoose");
+require("dotenv").config();
+
 
 // Make Resume Schema
 const applicationSchema = mongoose.Schema({
+  prnNo: {
+    type: Number,
+    required: true,
+  },
   profile: {
     type: Object,
   },

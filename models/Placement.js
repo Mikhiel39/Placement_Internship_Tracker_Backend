@@ -1,8 +1,14 @@
 //1.Importing mongoose
 const mongoose=required("mongoose");
+require("dotenv").config();
+
 
 //2.Creating Schema
 const placementSchema = new mongoose.Schema({
+  prnNo: {
+    type: Number,
+    required: true,
+  },
   role: {
     type: String,
     required: true,
@@ -14,40 +20,23 @@ const placementSchema = new mongoose.Schema({
     required: true,
   },
 
-  duration: {
-    type: date,
-    required: true,
-  },
-
   location: {
     type: string,
     required: true,
   },
-
-  ratingAndReviwes: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "RatingAndReview",
-    },
-  ],
 
   salary: {
     type: Number,
     required: true,
   },
 
-  company: {
-    type: String,
-  },
-
-  domain: {
+  companyname: {
     type: String,
     required: true,
   },
 
-  internalInstructor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Instructor",
+  domain: {
+    type: String,
     required: true,
   },
 });

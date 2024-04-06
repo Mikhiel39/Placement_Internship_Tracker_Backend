@@ -1,8 +1,14 @@
 //1.Importing mongoose
 const mongoose=required("mongoose");
+require("dotenv").config();
+
 
 //2.Creating Schema
 const internshipSchema = new mongoose.Schema({
+  prnNo: {
+    type: Number,
+    required: true,
+  },
   intershipName: {
     type: String,
     required: true,
@@ -24,13 +30,6 @@ const internshipSchema = new mongoose.Schema({
     required: true,
   },
 
-  ratingAndReviwes: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "RatingAndReview",
-    },
-  ],
-
   stipend: {
     type: Number,
     required: true,
@@ -39,19 +38,13 @@ const internshipSchema = new mongoose.Schema({
   company: {
     type: String,
   },
-  
+
   internTitle: {
     type: String,
     required: true,
   },
   domain: {
     type: String,
-    required: true,
-  },
-
-  internalInstructor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Instructor",
     required: true,
   },
 

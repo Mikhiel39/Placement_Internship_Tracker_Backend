@@ -1,18 +1,16 @@
-
-//Tempalte of database connection
-const mongoose=required("mongoose");
+const mongoose = require("mongoose");
 require("dotenv").config();
 
-exports.connect=()=>{
-    mongoose.connect(process.env.MONGODB_URL,{
-        useNewUrlParser:true,
-        useUnifiedTopology:true,
-    })
-    .then(()=>console.log("Database Connection is Successfullt done!!"))
-    .catch((error)=>{
-        console.log("Unfortunately Database connection Failed!!");
-        console.error(error);
-        process.exit(1);
-    })
+async function connectMongoDB(url){
+    return mongoose
+      .connect(url, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      })
+      .then(() => console.log("Connected to MongoDB successfully"))
+      .catch((err) => console.error("Error connecting to MongoDB:", err));
+}
 
-};
+module.exports={
+    connectMongoDB,
+}

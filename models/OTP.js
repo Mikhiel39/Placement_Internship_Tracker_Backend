@@ -1,5 +1,7 @@
 //1.Importing mongoose
 const mongoose=required("mongoose");
+require("dotenv").config();
+
 
 //2.Creating Schema
 const OTPSchema=new mongoose.Schema({

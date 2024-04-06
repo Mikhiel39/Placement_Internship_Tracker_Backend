@@ -1,29 +1,41 @@
-const mongoose = require("mongoose");
+// In ../models/Admin.js
 
-// Make Admin Schema
-const adminSchema = mongoose.Schema({
-  firstName: {
-    type: String,
-    required: [true, "Please enter first name"]
+const mongoose = require("mongoose");
+require("dotenv").config();
+
+
+
+const adminSchema = new mongoose.Schema({
+  firstname: {
+    type: String, // Capitalized "String"
+    required: true,
   },
-  lastName: {
-    type: String,
-    required: [true, "Please enter last name"]
+
+  lastname: {
+    type: String, // Capitalized "String"
+    required: true,
   },
-  email: {
+
+  gender: {
     type: String,
-    unique: true,
-    required: [true, "Please enter email"]
+    required: true,
+    enum: ["Male", "Female"],
+  },
+
+  contactNumber: {
+    type: Number, // Capitalized "Number"
+    trim: true,
+  },
+  emailId: {
+    type: String, // Capitalized "String", corrected property name to "emailId"
+    required: true,
   },
   password: {
     type: String,
-    required: [true, "Please enter password"]
-  }
+    required: true,
+  },
 });
 
-// Make model
 const Admin = mongoose.model("Admin", adminSchema);
 
-module.exports = Object.freeze({
-  Admin,
-});
+module.exports = Admin;
