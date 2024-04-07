@@ -1,14 +1,14 @@
 const Student = require("../models/Student");
 const Question = require("../models/Question");
 
-async function getQuestions(res, req) {
+async function getQuestions(req, res) {
   const questions = await Question.find().exec();
   if (!questions)
     return res.status(404).json({ error: "No Such Instructor available" });
   return res.json(questions);
 }
 
-async function updateAbout(res, req) {
+async function updateAbout(req, res) {
   const body = req.body;
   try {
     await Student.findOneAndUpdate({prnNo:req.params.prnNo}, { about: body.about });
@@ -17,7 +17,7 @@ async function updateAbout(res, req) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
-async function updateSkills(res, req) {
+async function updateSkills(req, res) {
   const body = req.body;
   try {
     await Student.findOneAndUpdate({prnNo:req.params.prnNo}, {
@@ -28,7 +28,7 @@ async function updateSkills(res, req) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
-async function updateLinkedIN(res, req) {
+async function updateLinkedIN(req, res) {
   const body = req.body;
   try {
     await Student.findOneAndUpdate({prnNo:req.params.prnNo}, {
@@ -39,7 +39,7 @@ async function updateLinkedIN(res, req) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
-async function updateGithub(res, req) {
+async function updateGithub(req, res) {
   const body = req.body;
   try {
     await Student.findOneAndUpdate({prnNo:req.params.prnNo}, {
@@ -50,7 +50,7 @@ async function updateGithub(res, req) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
-async function updateimage(res, req) {
+async function updateimage(req, res) {
   const body = req.body;
   try {
     await Student.findOneAndUpdate({prnNo:req.params.prnNo}, {
@@ -61,7 +61,7 @@ async function updateimage(res, req) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
-async function updateresume(res, req) {
+async function updateresume(req, res) {
   const body = req.body;
   try {
     await Student.findOneAndUpdate({prnNo:req.params.prnNo}, {
@@ -73,7 +73,7 @@ async function updateresume(res, req) {
   }
 }
 
-async function getQuestionBycompanyname(res, req) {
+async function getQuestionBycompanyname(req, res) {
   const question = await Question.find({
     companyname: req.params.companyname,
   }).exec();
@@ -81,7 +81,7 @@ async function getQuestionBycompanyname(res, req) {
     return res.status(404).json({ error: "No question available" });
   return res.json(question);
 }
-async function getQuestionByprnnocompanyname(res, req) {
+async function getQuestionByprnnocompanyname(req, res) {
   const question = await Question.find({
     prnNo: req.params.prnNo,
     companyname: req.params.companyname,
@@ -134,7 +134,7 @@ async function addQuestion(req, res) {
   }
   
 }
-async function deleteQuestionByprnnocompanyname(res, req) {
+async function deleteQuestionByprnnocompanyname(req, res) {
   const question=await Question.findOneAndDelete({
    prnNo: req.params.prnNo,
    companyname: req.params.companyname,

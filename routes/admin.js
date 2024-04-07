@@ -29,8 +29,8 @@ const { addBatch, deleteBatch } = require("../controller/instructor");
 router.route("/instructor").get(getInstructor).post(addInstructor);
 router.route("/admin").get(getAdmin).post(addAdmin);
 router.route("/student").get(getStudent).post(addStudent);
-router.route("/student/internship").post(addInternship);
-router.route("/student/placement").post(addPlacement);
+router.route("/:prnNo/internship").post(addInternship);
+router.route("/:prnNo/placement").post(addPlacement);
 router
   .route("/:adminemailId/:instructoremailId")
   .get(getInstructorByEmailID)

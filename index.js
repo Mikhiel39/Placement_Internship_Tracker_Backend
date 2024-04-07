@@ -35,10 +35,9 @@ app.use((err, req, res, next) => {
 
 // Routes
 app.get("/", (req, res) => res.send("Hello World"));
-// app.use("/admin", admin_routes);
 app.use("/students", studentRouter);
 app.use("/instructors", instructorRouter);
-app.use("/admin", adminRouter);
+app.use("/admins", adminRouter);
 
 // listen for requests
 const PORT = process.env.PORT || 5000;
