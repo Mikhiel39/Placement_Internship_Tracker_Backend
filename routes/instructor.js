@@ -1,20 +1,27 @@
 const express = require("express");
 const router = express.Router();
 const {
-  getInstructorByEmailID,
+  addBatch,
+  deleteBatch,
+} = require("../controller/instructor");
+
+const {
   getStudentByprnno,
   getInternshipByprnno,
   getPlacementByprnno,
   getQuestionByprnno,
-} = require("../controller/instructor");
+  getInstructorByEmailID,
+} = require("../controller/admin");
 
-router.route("/:emailID").get(getInstructorByEmailID);
+router.route("/:instructoremailId").get(getInstructorByEmailID);
 router
-  .route("/:emailID/:prnNo")
+  .route("/:instructoremailId/:prnNo")
   .get(
     getStudentByprnno,
     getInternshipByprnno,
     getPlacementByprnno,
     getQuestionByprnno
-  );
+  )
+  .post(addBatch)
+  .delete(deleteBatch)
 module.exports = router;

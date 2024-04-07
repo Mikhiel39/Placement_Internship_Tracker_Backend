@@ -1,5 +1,5 @@
 //1.Importing mongoose
-const mongoose=required("mongoose");
+const mongoose=require("mongoose");
 require("dotenv").config();
 
 
@@ -16,7 +16,6 @@ const internshipSchema = new mongoose.Schema({
   },
   offerLetter: {
     type: String,
-    required: true,
     trim: true,
   },
   completionLetter: {
@@ -30,12 +29,12 @@ const internshipSchema = new mongoose.Schema({
   },
 
   duration: {
-    type: date,
+    type: Date,
     required: true,
   },
 
   location: {
-    type: string,
+    type: String,
     required: true,
   },
 
@@ -65,7 +64,7 @@ const internshipSchema = new mongoose.Schema({
         required: true,
         trim: true,
       },
-      email: {
+      externalInstructorsemailId: {
         type: String,
         required: true,
         trim: true,

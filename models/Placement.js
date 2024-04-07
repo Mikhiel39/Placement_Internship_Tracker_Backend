@@ -1,5 +1,5 @@
 //1.Importing mongoose
-const mongoose=required("mongoose");
+const mongoose=require("mongoose");
 require("dotenv").config();
 
 
@@ -16,7 +16,6 @@ const placementSchema = new mongoose.Schema({
   },
   offerLetter: {
     type: String,
-    required: true,
     trim: true,
   },
   jobDescription: {
@@ -25,7 +24,7 @@ const placementSchema = new mongoose.Schema({
   },
 
   location: {
-    type: string,
+    type: String,
     required: true,
   },
 

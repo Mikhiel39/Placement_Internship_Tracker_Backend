@@ -1,4 +1,4 @@
-const mongoose = required("mongoose");
+const mongoose = require("mongoose");
 require("dotenv").config();
 
 
@@ -7,6 +7,10 @@ require("dotenv").config();
 const questionSchema = new mongoose.Schema({
   prnNo: {
     type: Number,
+    required: true,
+  },
+  companyname: {
+    type: String,
     required: true,
   },
   companyexp: {

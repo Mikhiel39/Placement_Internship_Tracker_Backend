@@ -26,8 +26,8 @@ const adminSchema = new mongoose.Schema({
     type: Number, // Capitalized "Number"
     trim: true,
   },
-  emailId: {
-    type: String, // Capitalized "String", corrected property name to "emailId"
+  adminemailId: {
+    type: String, 
     required: true,
   },
   password: {

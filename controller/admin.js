@@ -25,7 +25,7 @@ async function getAdmin(res, req) {
 }
 async function getInstructorByEmailID(res, req) {
   const instructor = await Instructor.find({
-    emailID: req.params.emailID,
+    instructoremailID: req.params.instructoremailID,
   }).exec();
   if (!instructor)
     return res.status(404).json({ error: "No Such Instructor available" });
@@ -130,51 +130,72 @@ async function getQuestionByprnno(res, req) {
 }
 async function addInternship(req, res) {
   const body = req.body;
-  if (
-    !body.prnNo ||
-    !body.intershipName ||
-    !body.offerLetter ||
-    !body.intershipDescription ||
-    !body.duration ||
-    !body.location ||
-    !body.stipend ||
-    !body.companyname ||
-    !body.internTitle ||
-    !body.domain ||
-    !body.externalInstructors ||
-    !body.externalInstructors.name ||
-    !body.externalInstructors.email
-  ) {
-    return res.status(400).json({ msg: "All fields are required" });
+  const internship = Internship.findOne({
+    prnNo: body.prnNo,
+  });
+  if(!internship){
+     if (
+       !body.prnNo ||
+       !body.intershipName ||
+       !body.intershipDescription ||
+       !body.duration ||
+       !body.location ||
+       !body.stipend ||
+       !body.companyname ||
+       !body.internTitle ||
+       !body.domain ||
+       !body.externalInstructors ||
+       !body.externalInstructors.name ||
+       !body.externalInstructors.externalInstructorsemailId
+     ) {
+       return res.status(400).json({ msg: "All fields are required" });
+     }
+     const result = await Placement.create({
+       prnNo: body.prnNo,
+       intershipName: body.intershipName,
+       intershipDescription: body.intershipDescription,
+       duration: body.duration,
+       location: body.location,
+       companyname: body.companyname,
+       internTitle: body.internTitle,
+       domain: body.domain,
+       externalInstructors: {
+         name: body.externalInstructors.name,
+         externalInstructorsemailId:
+           body.externalInstructors.externalInstructorsemailId,
+       },
+     });
+     await Student.findByIdAndUpdate(body.prnNo, { placementStatus: "Yes" });
+  }else{
+    await Internship.findOneAndUpdate(
+      { prnNo: body.prnNo },
+      {
+        intershipName: body.intershipName,
+        intershipDescription: body.intershipDescription,
+        duration: body.duration,
+        location: body.location,
+        companyname: body.companyname,
+        internTitle: body.internTitle,
+        domain: body.domain,
+        externalInstructors: {
+          name: body.externalInstructors.name,
+          externalInstructorsemailId:
+            body.externalInstructors.externalInstructorsemailId,
+        },
+      }
+    );
   }
-  try {
-    const result = await Internship.create({
-      prnNo: body.prnNo,
-      intershipName: body.intershipName,
-      offerLetter: body.offerLetter,
-      intershipDescription: body.intershipDescription,
-      duration: body.duration,
-      location: body.location,
-      companyname: body.companyname,
-      internTitle: body.internTitle,
-      domain: body.domain,
-      externalInstructors: {
-        name: body.externalInstructors.name,
-        email: body.externalInstructors.email,
-      },
-    });
-    await Student.findByIdAndUpdate(body.prnNo, { intershipStatus: "Yes" });
-    return res.status(201).json({ msg: "success" });
-  } catch (error) {
-    return res.status(500).json({ msg: "Internal server error" });
-  }
+  return res.status(500).json({ msg: "Internal server error" });
 }
 async function addPlacement(req, res) {
   const body = req.body;
-  if (
+  const placement = Placement.findOne({
+    prnNo: body.prnNo,
+  });
+  if(!placement){
+    if (
     !body.prnNo ||
     !body.role ||
-    !body.offerLetter ||
     !body.jobDescription ||
     !body.location ||
     !body.salary ||
@@ -183,12 +204,9 @@ async function addPlacement(req, res) {
   ) {
     return res.status(400).json({ msg: "All fields are required" });
   }
-  try {
     const result = await Placement.create({
       prnNo: body.prnNo,
       role: body.role,
-      offerLetter: body.offerLetter,
-      offerLetter: body.offerLetter,
       jobDescription: body.jobDescriptionn,
       location: body.location,
       companyname: body.companyname,
@@ -196,161 +214,264 @@ async function addPlacement(req, res) {
       domain: body.domain,
     });
     await Student.findByIdAndUpdate(body.prnNo, { placementStatus: "Yes" });
-    return res.status(201).json({ msg: "success" });
-  } catch (error) {
-    return res.status(500).json({ msg: "Internal server error" });
+  }else{
+    await Placement.findOneAndUpdate(
+      { prnNo: body.prnNo },
+      {
+        role: body.role,
+        jobDescription: body.jobDescriptionn,
+        location: body.location,
+        companyname: body.companyname,
+        salary: body.salary,
+        domain: body.domain,
+      }
+    );
   }
+  return res.status(201).json({ msg: "success" });
+  
 }
 
-async function addInstructor(res, req) {
-  const body = req.body;
-  if (
-    !body.firstname ||
-    !body.lastname ||
-    !body.gender ||
-    !body.contactNumber ||
-    !body.emailId ||
-    !body.department ||
-    !body.password
-  ) {
-    return res.status(400).json({ msg: "msg:All field required" });
-  }
-  const result = await Instructor.create({
-    firstname: body.firstname,
-    lastname: body.lastname,
-    gender: body.gender,
-    contactNumber: body.contactNumber,
-    emailId: body.emailId,
-    password: body.password,
-    department: body.department,
-  });
-  return res.status(201).json({ msg: "success" });
-}
 async function addStudent(res, req) {
   const body = req.body;
-  if (
-    !body.prnNo ||
-    !body.dateOfBirth ||
-    !body.regId ||
-    !body.firstname ||
-    !body.lastname ||
-    !body.gender ||
-    !body.intershipStatus ||
-    !body.placementStatus ||
-    !body.cgpa ||
-    !body.year ||
-    !body.department ||
-    !body.contactNumber ||
-    !body.emailId ||
-    !body.password
-  ) {
-    return res.status(400).json({ msg: "msg:All field required" });
-  }
-  const result = await Student.create({
+  const student = Student.findOne({
     prnNo: body.prnNo,
-    dateOfBirth: body.dateOfBirth,
-    regId: body.regId,
-    firstname: body.firstname,
-    lastname: body.lastname,
-    gender: body.gender,
-    contactNumber: body.contactNumber,
-    intershipStatus: body.intershipStatus,
-    placementStatus: body.placementStatus,
-    cgpa: body.cgpa,
-    year: body.year,
-    department: body.department,
-    emailId: body.emailId,
-    password: body.password,
   });
+  if(!student){
+    if (
+      !body.prnNo ||
+      !body.dateOfBirth ||
+      !body.regId ||
+      !body.firstname ||
+      !body.lastname ||
+      !body.gender ||
+      !body.intershipStatus ||
+      !body.placementStatus ||
+      !body.cgpa ||
+      !body.year ||
+      !body.department ||
+      !body.contactNumber ||
+      !body.studentemailId ||
+      !body.password
+    ) {
+      return res.status(400).json({ msg: "msg:All field required" });
+    }
+    const result = await Student.create({
+      prnNo: body.prnNo,
+      dateOfBirth: body.dateOfBirth,
+      regId: body.regId,
+      firstname: body.firstname,
+      lastname: body.lastname,
+      gender: body.gender,
+      contactNumber: body.contactNumber,
+      intershipStatus: body.intershipStatus,
+      placementStatus: body.placementStatus,
+      cgpa: body.cgpa,
+      year: body.year,
+      department: body.department,
+      studentemailId: body.studentemailId,
+      password: body.password,
+    });
+  }else{
+    await Student.findOneAndUpdate(
+      { prnNo: body.prnNo },
+      {
+        dateOfBirth: body.dateOfBirth,
+        regId: body.regId,
+        firstname: body.firstname,
+        lastname: body.lastname,
+        gender: body.gender,
+        contactNumber: body.contactNumber,
+        intershipStatus: body.intershipStatus,
+        placementStatus: body.placementStatus,
+        cgpa: body.cgpa,
+        year: body.year,
+        department: body.department,
+        studentemailId: body.studentemailId,
+        password: body.password,
+      }
+    );
+  }
+  
   return res.status(201).json({ msg: "success" });
 }
 async function addAdmin(res, req) {
   const body = req.body;
-  if (
-    !body.firstname ||
-    !body.lastname ||
-    !body.gender ||
-    !body.contactNumber ||
-    !body.department ||
-    !body.emailId ||
-    !body.password
-  ) {
-    return res.status(400).json({ msg: "msg:All field required" });
-  }
-  const result = await Admin.create({
-    firstname: body.firstname,
-    lastname: body.lastname,
-    gender: body.gender,
-    contactNumber: body.contactNumber,
-    department: body.department,
-    emailId: body.emailId,
-    password: body.password,
+  const admin = Admin.findOne({
+    adminemailId: body.adminemailId,
   });
+  if(!admin){
+    if (
+      !body.firstname ||
+      !body.lastname ||
+      !body.gender ||
+      !body.contactNumber ||
+      !body.department ||
+      !body.adminemailId ||
+      !body.password
+    ) {
+      return res.status(400).json({ msg: "msg:All field required" });
+    }
+    const result = await Admin.create({
+      firstname: body.firstname,
+      lastname: body.lastname,
+      gender: body.gender,
+      contactNumber: body.contactNumber,
+      department: body.department,
+      adminemailId: body.adminemailId,
+      password: body.password,
+    });
+  }else{
+    await Admin.findOneAndUpdate(
+      { adminemailId: body.adminemailId },
+      {
+        firstname: body.firstname,
+        lastname: body.lastname,
+        gender: body.gender,
+        contactNumber: body.contactNumber,
+        department: body.department,
+        password: body.password,
+      }
+    ); 
+  }
   return res.status(201).json({ msg: "success" });
 }
 async function addInstructor(res, req) {
   const body = req.body;
-  if (
-    !body.firstname ||
-    !body.lastname ||
-    !body.gender ||
-    !body.contactNumber ||
-    !body.emailId ||
-    !body.password
-  ) {
-    return res.status(400).json({ msg: "msg:All field required" });
-  }
-  const result = await Instructor.create({
-    firstname: body.firstname,
-    lastname: body.lastname,
-    gender: body.gender,
-    contactNumber: body.contactNumber,
-    emailId: body.emailId,
-    password: body.password,
+  const instructor = Instructor.findOne({
+    instructoremailId: body.instructoremailId,
   });
+  if(!instructor){
+      if (
+        !body.firstname ||
+        !body.lastname ||
+        !body.gender ||
+        !body.contactNumber ||
+        !body.instructoremailId ||
+        !body.password
+      ) {
+        return res.status(400).json({ msg: "msg:All field required" });
+      }
+      const result = await Instructor.create({
+        firstname: body.firstname,
+        lastname: body.lastname,
+        gender: body.gender,
+        contactNumber: body.contactNumber,
+        instructoremailId: body.instructoremailId,
+        password: body.password,
+      });
+  }else{
+    await Instructor.findOneAndUpdate(
+      { instructoremailId: body.instructoremailId },
+      {
+        firstname: body.firstname,
+        lastname: body.lastname,
+        gender: body.gender,
+        contactNumber: body.contactNumber,
+        password: body.password,
+      }
+    ); 
+  }
   return res.status(201).json({ msg: "success" });
 }
-async function addBatch(req, res) {
-  try {
-    const batch = await Instructor.findOne({ emailId: req.params.emailId });
-    const body = req.body;
-    if (
-      !body.students ||
-      !body.students.firstname ||
-      !body.students.lastname ||
-      !body.students.prnNo ||
-      !body.department
-    ) {
-      return res.status(400).json({ msg: "All fields are required" });
-    }
-    batch.students.push(body.students);
-    await batch.save();
-    return res.status(201).json({ msg: "Success" });
-  } catch (err) {
-    console.error(err.message);
-    return res.status(500).json({ msg: "Server Error" });
-  }
-}
-
 async function updateCompletionLetterInternship(res, req) {
   const body = req.body;
   try {
-    await Internship.findByIdAndUpdate(prnNo, { completionLetter: body.prnNo });
+    const completion=Internship.findOne({ prnNo: req.params.prnNo })
+    if(completion){
+         await Internship.findOneAndUpdate({prnNo:req.params.prnNo}, {
+           completionLetter: body.completionLetter,
+         });
+    }
     return res.status(201).json({ msg: "success" });
   } catch (error) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
-async function updateInstructorMail(res, req) {
+async function updateOfferLetterInternship(res, req) {
   const body = req.body;
   try {
-    await Student.findByIdAndUpdate(prnNo, { InstructoremailId: body.emailID });
+    const internship = Internship.findOne({ prnNo: req.params.prnNo });
+    if(internship){
+        await Internship.findOneAndUpdate({prnNo:req.params.prnNo}, {
+          offerLetter: body.offerLetter,
+        });
+    }
     return res.status(201).json({ msg: "success" });
   } catch (error) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
-
+async function updateOfferLetterPlacement(res, req) {
+  const body = req.body;
+  try {
+    const placement = Placement.findOne({ prnNo: req.params.prnNo });
+    if(placement){
+        await Placement.findOneAndUpdate({prnNo:req.params.prnNo}, {
+          offerLetter: body.offerLetter,
+        });
+    }
+    return res.status(201).json({ msg: "success" });
+  } catch (error) {
+    return res.status(500).json({ msg: "Internal server error" });
+  }
+}
+async function deleteInstructor(res, req) {
+  const body = req.body;
+  try {
+    const instructor = Instructor.findOne({
+      instructoremailId: req.params.instructoremailId,
+    });
+    if(instructor){
+      await Instructor.findOneAndDelete({
+        instructoremailId: req.params.instructoremailId,
+      });
+    }
+    return res.status(201).json({ msg: "success" });
+  } catch (error) {
+    return res.status(500).json({ msg: "Internal server error" });
+  }
+}
+async function deleteAdmin(res, req) {
+  const body = req.body;
+  try {
+     const admin = Instructor.findOne({
+       adminemailId: req.params.emailId,
+     });
+    if(admin){
+         await Admin.findOneAndDelete({
+           adminemailId: req.params.emailId,
+         });
+    }
+    return res.status(201).json({ msg: "success" });
+  } catch (error) {
+    return res.status(500).json({ msg: "Internal server error" });
+  }
+}
+async function deleteStudent(res, req) {
+  const body = req.body;
+  try {
+    const student = Student.findOne({
+      adminemailId: req.params.emailId,
+    });
+    if(student){
+        await Student.findOneAndDelete({
+          prnNo: req.params.prnNo,
+        });
+        const instructor = Instructor.findOne({
+          instructoremailId: req.params.instructoremailId,
+        });
+        if (instructor) {
+          await Instructor.updateOne(
+            { instructoremailId: req.params.instructoremailId },
+            { $pull: { students: { prnNo: req.params.prnNo } } }
+          );
+        }
+    }
+    return res.status(201).json({ msg: "success" });
+  } catch (error) {
+    return res.status(500).json({ msg: "Internal server error" });
+  }
+}
 module.exports = {
   getInstructor,
   getStudent,
@@ -360,7 +481,6 @@ module.exports = {
   addAdmin,
   addInternship,
   addPlacement,
-  addBatch,
   getStudentByInstructor,
   getInstructorByEmailID,
   getStudentByprnno,
@@ -371,5 +491,9 @@ module.exports = {
   getQuestionByprnno,
   getQuestionByInstructor,
   updateCompletionLetterInternship,
-  updateInstructorMail,
+  updateOfferLetterInternship,
+  updateOfferLetterPlacement,
+  deleteAdmin,
+  deleteInstructor,
+  deleteStudent,
 };

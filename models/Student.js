@@ -2,14 +2,13 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-
 //2.Creating Schema
 const studentSchema = new mongoose.Schema({
   prnNo: {
     type: Number,
     required: true,
   },
-  InstructoremailId: {
+  instructoremailId: {
     type: String,
   },
   firstname: {
@@ -42,7 +41,7 @@ const studentSchema = new mongoose.Schema({
     trim: true,
     required: true,
   },
-  emailId: {
+  studentemailId: {
     type: String,
     required: true,
     trim: true,
@@ -70,7 +69,6 @@ const studentSchema = new mongoose.Schema({
   },
   resume: {
     type: String,
-    required: true,
   },
   intershipStatus: {
     type: Boolean,
@@ -84,7 +82,7 @@ const studentSchema = new mongoose.Schema({
     required: true,
   },
   cgpa: {
-    type: Float,
+    type: Number,
     required: true,
   },
   year: {
@@ -97,6 +95,5 @@ const studentSchema = new mongoose.Schema({
   },
 });
 
-const student=mongoose.model("Student", studentSchema);
-module.exports=student;
-
+const student = mongoose.model("Student", studentSchema);
+module.exports = student;

@@ -27,7 +27,7 @@ const instructorSchema = new mongoose.Schema({
     type: Number, // Capitalized "Number"
     trim: true,
   },
-  emailId: {
+  instructoremailId: {
     type: String, // Capitalized "String", corrected property name to "emailId"
     required: true,
   },
@@ -36,16 +36,20 @@ const instructorSchema = new mongoose.Schema({
     required: true,
   },
   students: {
-    firstname: {
-      type: String,
-    },
-    lastname: {
-      type: String,
-    },
-    prnNo: {
-      type: Number,
-      required: true,
-    },
+    type: [
+      {
+        firstname: {
+          type: String,
+        },
+        lastname: {
+          type: String,
+        },
+        prnNo: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
   },
   department: {
     type: String,

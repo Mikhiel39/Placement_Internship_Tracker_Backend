@@ -1,14 +1,15 @@
 // Set environment variables
 require("dotenv").config();
-const studentRouter =require("./routes/student");
+const studentRouter = require("./routes/student");
 const instructorRouter = require("./routes/instructor");
-
+const adminRouter = require("./routes/admin");
 // External Dependencies
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const bodyParser=require("body-parser");
 
-const {connectMongoDB}=require("./config/database");
+const { connectMongoDB } = require("./config/database");
 
 connectMongoDB(process.env.USER);
 
@@ -22,10 +23,9 @@ const app = express();
 app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-// // Routes
-// app.get("/", (req, res) => res.json({ message: "hello world" }));
-// // app.use("/admin", admin_routes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -33,11 +33,15 @@ app.use((err, req, res, next) => {
   res.status(500).send("Something broke!");
 });
 
-//Routes
-app.get("/students", studentRouter);
-app.get("/instructors", instructorRouter);
+// Routes
+app.get("/", (req, res) => res.send("Hello World"));
+// app.use("/admin", admin_routes);
+app.use("/students", studentRouter);
+app.use("/instructors", instructorRouter);
+app.use("/admin", adminRouter);
+
 // listen for requests
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
