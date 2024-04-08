@@ -9,7 +9,7 @@ const internshipSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  intershipName: {
+  internshipName: {
     type: String,
     required: true,
     trim: true,
@@ -24,13 +24,13 @@ const internshipSchema = new mongoose.Schema({
     trim: true,
   },
 
-  intershipDescription: {
+  internshipDescription: {
     type: String,
     required: true,
   },
 
   duration: {
-    type: Date,
+    type: String,
     required: true,
   },
 

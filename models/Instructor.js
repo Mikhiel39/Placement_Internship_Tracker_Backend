@@ -2,9 +2,6 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-
-
-
 // 2. Creating Schema
 const instructorSchema = new mongoose.Schema({
   firstname: {
@@ -35,21 +32,19 @@ const instructorSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  students: {
-    type: [
-      {
-        firstname: {
-          type: String,
-        },
-        lastname: {
-          type: String,
-        },
-        prnNo: {
-          type: Number,
-        },
+  students: [
+    {
+      firstname: {
+        type: String,
       },
-    ],
-  },
+      lastname: {
+        type: String,
+      },
+      prnNo: {
+        type: Number,
+      },
+    },
+  ],
   department: {
     type: String,
     required: true,

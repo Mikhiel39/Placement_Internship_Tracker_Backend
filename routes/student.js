@@ -27,8 +27,6 @@ router
   .route("/:prnNo")
   .get(
     getStudentByprnno,
-    getInternshipByprnno,
-    getPlacementByprnno,
     getQuestionByprnno,
     getQuestions
   )
@@ -41,7 +39,12 @@ router
     updateresume,
     updateCompletionLetterInternship,
   )
-  .post(addQuestion, addInternship, addPlacement);
+  .post(addQuestion);
+  router
+    .route("/:prnNo/internship")
+    .get(getInternshipByprnno)
+    .post(addInternship);
+  router.route("/:prnNo/placement").get(getPlacementByprnno).post(addPlacement);
   router
   .route("/:prnNo/:companyname")
   .get(getQuestionBycompanyname, getQuestionByprnnocompanyname)

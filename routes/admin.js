@@ -18,40 +18,55 @@ const {
   getPlacementByInstructor,
   getQuestionByprnno,
   getQuestionByInstructor,
-  updateCompletionLetterInternship,
   deleteAdmin,
   deleteInstructor,
   deleteStudent,
 } = require("../controller/admin");
 const { addBatch, deleteBatch } = require("../controller/instructor");
-router.route("/instructor").get(getInstructor).post(addInstructor);
-router.route("/admin").get(getAdmin).post(addAdmin);
-router.route("/student").get(getStudent).post(addStudent);
-router.route("/:prnNo/internship").post(addInternship);
-router.route("/:prnNo/placement").post(addPlacement);
+router
+  .route("/:adminemailId/instructor")
+  .get(getInstructor)
+  .post(addInstructor);
+router
+  .route("/:adminemailId/admin")
+  .get(getAdmin)
+  .post(addAdmin);
+router
+  .route("/:adminemailId/student")
+  .get(getStudent)
+  .post(addStudent);
+router
+  .route("/:adminemailId/:prnNo/internship")
+  .post(addInternship)
+  .get(getInternshipByprnno);
+router
+  .route("/:adminemailId/:prnNo/placement")
+  .post(addPlacement)
+  .get(getPlacementByprnno);
+router.route("/:adminemailId/:prnNo/question").get(getQuestionByprnno);
 router
   .route("/:adminemailId/:instructoremailId")
   .get(getInstructorByEmailID)
-  .post(addBatch)
   .delete(deleteInstructor);
 router
   .route("/:adminemailId/:prnNo")
   .get(getStudentByprnno)
-  .get(getInternshipByprnno)
-  .get(getPlacementByprnno)
-  .get(getQuestionByprnno)
-  .patch(
-    updateCompletionLetterInternship,
-  )
-  .delete(deleteStudent);
+router.route("/:adminemailId/:prnNo/delete").delete(deleteStudent);
 router
   .route("/:adminemailId/:instructoremailId/:prnNo")
-  .get(
-    getStudentByInstructor,
-    getInternshipByInstructor,
-    getPlacementByInstructor,
-    getQuestionByInstructor
-  )
+  .get(getStudentByInstructor)
+  .post(addBatch)
   .delete(deleteBatch);
-router.route("/:adminemailId/:emailId").delete(deleteAdmin);
+  router
+    .route("/:adminemailId/:instructoremailId/:prnNo/internship")
+    .get(getInternshipByInstructor);
+  router
+    .route("/:adminemailId/:instructoremailId/:prnNo/placement")
+    .get(getPlacementByInstructor);
+  router
+    .route("/:adminemailId/:instructoremailId/:prnNo/question")
+    .get(getQuestionByInstructor);
+router
+    .route("/:adminemailId/:emailId")
+    .delete(deleteAdmin);
 module.exports = router;
