@@ -23,6 +23,12 @@ async function getAdmin(req, res) {
     return res.status(404).json({ error: "No Such Instructor available" });
   return res.json(admin);
 }
+// async function getQuestion(req, res) {
+//   const question = await Question.find().exec();
+//   if (!question)
+//     return res.status(404).json({ error: "No Such Instructor available" });
+//   return res.json(admin);
+// }
 async function getInstructorByEmailID(req, res) {
   const instructor = await Instructor.find({
     instructoremailID: req.params.instructoremailID,
@@ -42,7 +48,8 @@ async function getStudentByprnno(req, res) {
 }
 async function getStudentByInstructor(req, res) {
   const student = await Student.find({
-    prnNo: req.params.InstructoremailId,
+    instructoremailId: req.params.instructoremailId,
+    prnNo: req.params.prnNo,
   }).exec();
   if (!student)
     return res.status(404).json({ error: "No Such Student available" });
@@ -67,10 +74,11 @@ async function getInternshipByprnno(req, res) {
 
 async function getInternshipByInstructor(req, res) {
   const student = await Student.find({
-    prnNo: req.params.InstructoremailId,
+    instructoremailId: req.params.instructoremailId,
+    prnNo: req.params.prnNo,
   }).exec();
   const internship = await Internship.find({
-    prnNo: req.params.InstructoremailId,
+    prnNo: req.params.prnNo,
   }).exec();
   if (student.intershipStatus == "Yes") {
     if (!internship)
@@ -83,10 +91,11 @@ async function getInternshipByInstructor(req, res) {
 
 async function getPlacementByInstructor(req, res) {
   const student = await Student.find({
-    prnNo: req.params.InstructoremailId,
+    instructoremailId: req.params.InstructoremailId,
+    prnNo: req.params.prnNo,
   }).exec();
   const placement = await Placement.find({
-    prnNo: req.params.InstructoremailId,
+    prnNo: req.params.prnNo,
   }).exec();
   if (student.placementStatus == "Yes") {
     if (!placement)
@@ -112,8 +121,13 @@ async function getPlacementByprnno(req, res) {
   }
 }
 async function getQuestionByInstructor(req, res) {
+  const student = await Student.find({
+    instructoremailId: req.params.InstructoremailId,
+    prnNo: req.params.prnNo,
+  }).exec();
   const question = await Question.find({
-    prnNo: req.params.InstructoremailId,
+    _id:req.params._id,
+    prnNo: student.prnNo,
   }).exec();
   if (!question)
     return res.status(404).json({ error: "No question available" });
@@ -130,7 +144,8 @@ async function getQuestionByprnno(req, res) {
 }
 async function addInternship(req, res) {
   const body = req.body;
-  const internship = Internship.findOne({
+  const internship = await Internship.findOne({
+    _id:req.params._id,
     prnNo: body.prnNo,
   });
   if (!internship) {
@@ -139,6 +154,7 @@ async function addInternship(req, res) {
       !body.intershipName ||
       !body.intershipDescription ||
       !body.duration ||
+      !body.offerLetter ||
       !body.location ||
       !body.stipend ||
       !body.companyname ||
@@ -150,12 +166,13 @@ async function addInternship(req, res) {
     ) {
       return res.status(400).json({ msg: "All fields are required" });
     }
-    const result = await Placement.create({
+    const result = await Internship.create({
       prnNo: body.prnNo,
       intershipName: body.intershipName,
       intershipDescription: body.intershipDescription,
       duration: body.duration,
       location: body.location,
+      offerLetter:body.offerLetter,
       companyname: body.companyname,
       internTitle: body.internTitle,
       domain: body.domain,
@@ -165,7 +182,8 @@ async function addInternship(req, res) {
           body.externalInstructors.externalInstructorsemailId,
       },
     });
-    await Student.findByIdAndUpdate(body.prnNo, { placementStatus: "Yes" });
+    await Student.findOneAndUpdate(
+      { prnNo: body.prnNo }, { internshipStatus: "Yes" });
   } else {
     await Internship.findOneAndUpdate(
       { prnNo: body.prnNo },
@@ -189,7 +207,8 @@ async function addInternship(req, res) {
 }
 async function addPlacement(req, res) {
   const body = req.body;
-  const placement = Placement.findOne({
+  const placement = await Placement.findOne({
+    _id: req.params._id,
     prnNo: body.prnNo,
   });
   if (!placement) {
@@ -198,6 +217,7 @@ async function addPlacement(req, res) {
       !body.role ||
       !body.jobDescription ||
       !body.location ||
+      !body.offerLetter||
       !body.salary ||
       !body.companyname ||
       !body.domain
@@ -209,11 +229,15 @@ async function addPlacement(req, res) {
       role: body.role,
       jobDescription: body.jobDescriptionn,
       location: body.location,
+      offerLetter:body.offerLetter,
       companyname: body.companyname,
       salary: body.salary,
       domain: body.domain,
     });
-    await Student.findByIdAndUpdate(body.prnNo, { placementStatus: "Yes" });
+    await Student.findOneAndUpdate(
+      { prnNo: body.prnNo },
+      { placementStatus: "Yes" }
+    );
   } else {
     await Placement.findOneAndUpdate(
       { prnNo: body.prnNo },
@@ -232,18 +256,23 @@ async function addPlacement(req, res) {
 
 async function addStudent(req, res) {
   const body = req.body;
-  const student = Student.findOne({
-    prnNo: body.prnNo,
-  });
-  if (!student) {
+
+  try {
     if (
       !body.prnNo ||
       !body.dateOfBirth ||
+      !body.instructoremailId ||
+      !body.about ||
+      !body.skills ||
+      !body.LinkedIN ||
+      !body.Github ||
+      !body.image ||
+      !body.resume ||
       !body.regId ||
       !body.firstname ||
       !body.lastname ||
       !body.gender ||
-      !body.intershipStatus ||
+      !body.internshipStatus ||
       !body.placementStatus ||
       !body.cgpa ||
       !body.year ||
@@ -252,50 +281,66 @@ async function addStudent(req, res) {
       !body.studentemailId ||
       !body.password
     ) {
-      return res.status(400).json({ msg: "msg:All field required" });
+      return res.status(400).json({ msg: "All fields are required" });
     }
-    const result = await Student.create({
-      prnNo: body.prnNo,
-      dateOfBirth: body.dateOfBirth,
-      regId: body.regId,
-      firstname: body.firstname,
-      lastname: body.lastname,
-      gender: body.gender,
-      contactNumber: body.contactNumber,
-      intershipStatus: body.intershipStatus,
-      placementStatus: body.placementStatus,
-      cgpa: body.cgpa,
-      year: body.year,
-      department: body.department,
-      studentemailId: body.studentemailId,
-      password: body.password,
-    });
-  } else {
-    await Student.findOneAndUpdate(
-      { prnNo: body.prnNo },
-      {
+
+    let student = await Student.findOne({ prnNo: body.prnNo });
+
+    if (!student) {
+      student = await Student.create({
+        prnNo: body.prnNo,
         dateOfBirth: body.dateOfBirth,
+        about: body.about,
+        skills: body.skills,
+        LinkedIN: body.LinkedIN,
+        Github: body.Github,
+        image: body.image,
+        resume: body.resume,
         regId: body.regId,
         firstname: body.firstname,
         lastname: body.lastname,
         gender: body.gender,
         contactNumber: body.contactNumber,
-        intershipStatus: body.intershipStatus,
+        internshipStatus: body.internshipStatus,
         placementStatus: body.placementStatus,
         cgpa: body.cgpa,
         year: body.year,
+        instructoremailId: body.instructoremailId,
         department: body.department,
         studentemailId: body.studentemailId,
         password: body.password,
-      }
-    );
-  }
+      });
+    } else {
+      await Student.findOneAndUpdate(
+        { prnNo: body.prnNo },
+        {
+          dateOfBirth: body.dateOfBirth,
+          regId: body.regId,
+          firstname: body.firstname,
+          lastname: body.lastname,
+          gender: body.gender,
+          contactNumber: body.contactNumber,
+          internshipStatus: body.internshipStatus,
+          placementStatus: body.placementStatus,
+          cgpa: body.cgpa,
+          year: body.year,
+          department: body.department,
+          studentemailId: body.studentemailId,
+          password: body.password,
+        }
+      );
+    }
 
-  return res.status(201).json({ msg: "success" });
+    return res.status(201).json({ msg: "Success" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: "Internal server error" });
+  }
 }
+
 async function addAdmin(req, res) {
   const body = req.body;
-  const admin = Admin.findOne({
+  const admin = await Admin.findOne({
     adminemailId: body.adminemailId,
   });
   if (!admin) {
@@ -336,28 +381,33 @@ async function addAdmin(req, res) {
 }
 async function addInstructor(req, res) {
   const body = req.body;
-  const instructor = Instructor.findOne({
-    instructoremailId: body.instructoremailId,
-  });
+
   try {
+    if (
+      !body.firstname ||
+      !body.lastname ||
+      !body.gender ||
+      !body.contactNumber ||
+      !body.instructoremailId ||
+      !body.password ||
+      !body.department
+    ) {
+      return res.status(400).json({ msg: "All fields are required" });
+    }
+
+    let instructor = await Instructor.findOne({
+      instructoremailId: body.instructoremailId,
+    });
+
     if (!instructor) {
-      if (
-        !body.firstname ||
-        !body.lastname ||
-        !body.gender ||
-        !body.contactNumber ||
-        !body.instructoremailId ||
-        !body.password
-      ) {
-        return res.status(400).json({ msg: "msg:All field required" });
-      }
-      const result = await Instructor.insertOne({
+      instructor = await Instructor.create({
         firstname: body.firstname,
         lastname: body.lastname,
         gender: body.gender,
         contactNumber: body.contactNumber,
         instructoremailId: body.instructoremailId,
         password: body.password,
+        department: body.department
       });
     } else {
       await Instructor.findOneAndUpdate(
@@ -368,21 +418,26 @@ async function addInstructor(req, res) {
           gender: body.gender,
           contactNumber: body.contactNumber,
           password: body.password,
+          department: body.department,
         }
       );
     }
-    return res.status(201).json({ msg: "success" });
+    return res.status(201).json({ msg: "Success" });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
+
 async function updateCompletionLetterInternship(req, res) {
   const body = req.body;
   try {
-    const completion = Internship.findOne({ prnNo: req.params.prnNo });
+    const completion = Internship.findOne({ 
+      _id:req.params._id,
+      prnNo: req.params.prnNo });
     if (completion) {
       await Internship.findOneAndUpdate(
-        { prnNo: req.params.prnNo },
+        { _id: req.params._id, prnNo: req.params.prnNo },
         {
           completionLetter: body.completionLetter,
         }
@@ -393,44 +448,43 @@ async function updateCompletionLetterInternship(req, res) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
-async function updateOfferLetterInternship(req, res) {
-  const body = req.body;
-  try {
-    const internship = Internship.findOne({ prnNo: req.params.prnNo });
-    if (internship) {
-      await Internship.findOneAndUpdate(
-        { prnNo: req.params.prnNo },
-        {
-          offerLetter: body.offerLetter,
-        }
-      );
-    }
-    return res.status(201).json({ msg: "success" });
-  } catch (error) {
-    return res.status(500).json({ msg: "Internal server error" });
-  }
-}
-async function updateOfferLetterPlacement(req, res) {
-  const body = req.body;
-  try {
-    const placement = Placement.findOne({ prnNo: req.params.prnNo });
-    if (placement) {
-      await Placement.findOneAndUpdate(
-        { prnNo: req.params.prnNo },
-        {
-          offerLetter: body.offerLetter,
-        }
-      );
-    }
-    return res.status(201).json({ msg: "success" });
-  } catch (error) {
-    return res.status(500).json({ msg: "Internal server error" });
-  }
-}
+// async function updateOfferLetterInternship(req, res) {
+//   const body = req.body;
+//   try {
+//     const internship = Internship.findOne({ prnNo: req.params.prnNo });
+//     if (internship) {
+//       await Internship.findOneAndUpdate(
+//         { prnNo: req.params.prnNo },
+//         {
+//           offerLetter: body.offerLetter,
+//         }
+//       );
+//     }
+//     return res.status(201).json({ msg: "success" });
+//   } catch (error) {
+//     return res.status(500).json({ msg: "Internal server error" });
+//   }
+// }
+// async function updateOfferLetterPlacement(req, res) {
+//   const body = req.body;
+//   try {
+//     const placement = Placement.findOne({ prnNo: req.params.prnNo });
+//     if (placement) {
+//       await Placement.findOneAndUpdate(
+//         { prnNo: req.params.prnNo },
+//         {
+//           offerLetter: body.offerLetter,
+//         }
+//       );
+//     }
+//     return res.status(201).json({ msg: "success" });
+//   } catch (error) {
+//     return res.status(500).json({ msg: "Internal server error" });
+//   }
+// }
 async function deleteInstructor(req, res) {
-  const body = req.body;
   try {
-    const instructor = Instructor.findOne({
+    const instructor =  await Instructor.findOne({
       instructoremailId: req.params.instructoremailId,
     });
     if (instructor) {
@@ -444,9 +498,8 @@ async function deleteInstructor(req, res) {
   }
 }
 async function deleteAdmin(req, res) {
-  const body = req.body;
   try {
-    const admin = Instructor.findOne({
+    const admin = await Instructor.findOne({
       adminemailId: req.params.emailId,
     });
     if (admin) {
@@ -460,18 +513,25 @@ async function deleteAdmin(req, res) {
   }
 }
 async function deleteStudent(req, res) {
-  const body = req.body;
   try {
-    const student = Student.findOne({
+    // Find the student based on the admin's email
+    const student = await Student.findOne({
       adminemailId: req.params.emailId,
     });
+
+    // If student exists, proceed with deletion
     if (student) {
+      // Delete the student based on the PRN number
       await Student.findOneAndDelete({
         prnNo: req.params.prnNo,
       });
-      const instructor = Instructor.findOne({
+
+      // Check if instructor exists based on the instructor's email
+      const instructor = await Instructor.findOne({
         instructoremailId: req.params.instructoremailId,
       });
+
+      // If instructor exists, update their list of students
       if (instructor) {
         await Instructor.updateOne(
           { instructoremailId: req.params.instructoremailId },
@@ -479,11 +539,15 @@ async function deleteStudent(req, res) {
         );
       }
     }
-    return res.status(201).json({ msg: "success" });
+
+    // Respond with success message
+    return res.status(201).json({ msg: "Success" });
   } catch (error) {
+    // Handle errors
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
+
 module.exports = {
   getInstructor,
   getStudent,
@@ -503,8 +567,6 @@ module.exports = {
   getQuestionByprnno,
   getQuestionByInstructor,
   updateCompletionLetterInternship,
-  updateOfferLetterInternship,
-  updateOfferLetterPlacement,
   deleteAdmin,
   deleteInstructor,
   deleteStudent,

@@ -17,6 +17,7 @@ const placementSchema = new mongoose.Schema({
   offerLetter: {
     type: String,
     trim: true,
+    required: true,
   },
   jobDescription: {
     type: String,

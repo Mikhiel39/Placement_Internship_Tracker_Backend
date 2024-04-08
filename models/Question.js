@@ -13,13 +13,25 @@ const questionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  companyexp: {
-    type: String,
-    required: true,
-  },
   puzzlelink: {
-    type: String,
-    required: true,
+    question: {
+      type: String,
+      required: true,
+    },
+    answer: {
+      type: String,
+      required: true,
+    },
+  },
+  interview: {
+    question: {
+      type: String,
+      required: true,
+    },
+    answer: {
+      type: String,
+      required: true,
+    },
   },
   QA: {
     question: {

@@ -17,6 +17,7 @@ const internshipSchema = new mongoose.Schema({
   offerLetter: {
     type: String,
     trim: true,
+    required: true,
   },
   completionLetter: {
     type: String,

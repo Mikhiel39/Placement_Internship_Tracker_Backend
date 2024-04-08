@@ -19,8 +19,6 @@ const {
   getQuestionByprnno,
   getQuestionByInstructor,
   updateCompletionLetterInternship,
-  updateOfferLetterInternship,
-  updateOfferLetterPlacement,
   deleteAdmin,
   deleteInstructor,
   deleteStudent,
@@ -44,8 +42,6 @@ router
   .get(getQuestionByprnno)
   .patch(
     updateCompletionLetterInternship,
-    updateOfferLetterInternship,
-    updateOfferLetterPlacement
   )
   .delete(deleteStudent);
 router

@@ -47,7 +47,7 @@ const studentSchema = new mongoose.Schema({
     trim: true,
   },
   regId: {
-    type: Number,
+    type: String,
     required: true,
   },
   skills: {
@@ -70,14 +70,14 @@ const studentSchema = new mongoose.Schema({
   resume: {
     type: String,
   },
-  intershipStatus: {
-    type: Boolean,
+  internshipStatus: {
+    type: String,
     enum: ["Yes", "No"],
     required: true,
   },
 
   placementStatus: {
-    type: Boolean,
+    type: String,
     enum: ["Yes", "No"],
     required: true,
   },

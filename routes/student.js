@@ -15,8 +15,6 @@ const {
 } = require("../controller/student");
 const {
   updateCompletionLetterInternship,
-  updateOfferLetterInternship,
-  updateOfferLetterPlacement,
   addInternship,
   addPlacement,
   getStudentByprnno,
@@ -42,8 +40,6 @@ router
     updateimage,
     updateresume,
     updateCompletionLetterInternship,
-    updateOfferLetterInternship,
-    updateOfferLetterPlacement
   )
   .post(addQuestion, addInternship, addPlacement);
   router

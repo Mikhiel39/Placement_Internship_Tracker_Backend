@@ -46,7 +46,6 @@ const instructorSchema = new mongoose.Schema({
         },
         prnNo: {
           type: Number,
-          required: true,
         },
       },
     ],
