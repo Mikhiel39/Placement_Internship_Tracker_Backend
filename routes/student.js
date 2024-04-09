@@ -9,6 +9,7 @@ const {
   getQuestionBycompanyname,
   addQuestion,
   deleteQuestionByprnno,
+  getQuestionByprncompanyoopen,
 } = require("../controller/student");
 const {
   updateCompletionLetterInternship,
@@ -38,8 +39,8 @@ router
 router.route("/student/questions/open/").get(getQuestionByprnnoopen);
 router.route("/questions/").get(getQuestions);
 router.route("/questions/company/").get(getQuestionBycompanyname);
-router.route("/questions/company/open").get(getQuestionByprnnoopen);
-router.route("/student/image/").get(updateimage);
-router.route("/student/bgimage/").get(updatebgimage);
+router.route("/questions/company/open/").get(getQuestionByprncompanyoopen);
+router.route("/student/image/").patch(updateimage);
+router.route("/student/bgimage/").patch(updatebgimage);
 
 module.exports = router;

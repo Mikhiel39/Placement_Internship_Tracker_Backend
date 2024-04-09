@@ -89,10 +89,8 @@ async function updateresume(req, res) {
 }
 
 async function getQuestionBycompanyname(req, res) {
-  const question = await Question_model.find({
-    questions: {
+  const question = await Question.find({
       companyname: req.query.companyname,
-    },
   }).exec();
   if (!question)
     return res.status(404).json({ error: "No question available" });
@@ -221,6 +219,13 @@ async function addQuestion(req, res) {
     });
 
     if (questionModel) {
+      const nQuestion={
+          Question_no: body.Question_no,
+          companyname: body.companyname,
+          companylogo: body.companylogo,
+      };
+      questionModel.questions.push(nQuestion);
+      await questionModel.save();
       return res.status(400).json({ msg: "Question model is found" });
     }
     const nQuestion = await Question_model.create({
@@ -233,8 +238,6 @@ async function addQuestion(req, res) {
     });
 
     // Push the new question to the questions array
-    // questionModel.questions.push(nQuestion);
-    // await questionModel.save();
 
     return res.status(201).json({ msg: "Question added successfully" });
   } catch (error) {
@@ -242,6 +245,17 @@ async function addQuestion(req, res) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
+
+async function getQuestionByprncompanyoopen(req, res) {
+  const question = await Question.findOne({
+    prnNo: req.query.prnNo,
+    companyname: req.query.companyname,
+  }).exec();
+  if (!question)
+    return res.status(404).json({ error: "No question available" });
+  return res.json(question);
+}
+
 
 async function getQuestionByprnnoopen(req, res) {
   const question = await Question.findOne({
@@ -254,15 +268,15 @@ async function getQuestionByprnnoopen(req, res) {
 }
 
 async function deleteQuestionByprnno(req, res) {
-  const question=await Question_model.findOneAndDelete({
-   prnNo: req.params.prnNo,
-   Question_no: req.query.Question_no
- });
+  const result = await Question_model.updateOne(
+    { prnNo: req.query.prnNo },
+    { $pull: { questions: { Question_no: req.query.Question_no } } }
+  );
  const questions = await Question.findOneAndDelete({
-   prnNo: req.params.prnNo,
+   prnNo: req.query.prnNo,
    Question_no: req.query.Question_no,
  });
-  if (!question||!questions)
+  if (!questions||!result)
     return res.status(404).json({ error: "No question available" });
  return res.status(201).json({ msg: "Question deleted successfully" });
 }
@@ -282,6 +296,7 @@ module.exports = {
   deleteQuestionByprnno,
   getQuestionByprnnoopen,
   updateProfile,
+  getQuestionByprncompanyoopen,
 };
 
 

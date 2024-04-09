@@ -108,7 +108,7 @@ async function updatebgimage(req, res) {
 async function updateimage(req, res) {
   const body = req.body;
   try {
-    await Student.findOneAndUpdate(
+    await Instructor.findOneAndUpdate(
       { instructoremailId: req.query.instructoremailId },
       {
         image: body.image,
