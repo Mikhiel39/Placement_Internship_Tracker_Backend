@@ -3,6 +3,8 @@ const router = express.Router();
 const {
   addBatch,
   deleteBatch,
+  updatebgimage,
+  updateimage,
 } = require("../controller/instructor");
 
 const {
@@ -13,15 +15,18 @@ const {
   getInstructorByEmailID,
 } = require("../controller/admin");
 
-router.route("/:instructoremailId").get(getInstructorByEmailID);
+const { getQuestionByprnnoopen } = require("../controller/student");
+
+router.route("/").get(getInstructorByEmailID);
+router.route("/image/").patch(updateimage);
+router.route("/bgimage/").patch(updatebgimage);
 router
-  .route("/:instructoremailId/:prnNo")
-  .get(
-    getStudentByprnno,
-    getInternshipByprnno,
-    getPlacementByprnno,
-    getQuestionByprnno
-  )
+  .route("/student/")
+  .get(getStudentByprnno)
   .post(addBatch)
-  .delete(deleteBatch)
-module.exports = router;
+  .delete(deleteBatch);
+router.route("/student/internship/").get(getInternshipByprnno),
+  router.route("/student/placement/").get(getPlacementByprnno),
+  router.route("/student/question/").get(getQuestionByprnno),
+  router.route("/student/question/open").get(getQuestionByprnnoopen),
+  (module.exports = router);

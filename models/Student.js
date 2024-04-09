@@ -5,7 +5,7 @@ require("dotenv").config();
 //2.Creating Schema
 const studentSchema = new mongoose.Schema({
   prnNo: {
-    type: Number,
+    type: String,
     required: true,
   },
   instructoremailId: {
@@ -67,6 +67,9 @@ const studentSchema = new mongoose.Schema({
   image: {
     type: String,
   },
+  bgimage: {
+    type: String,
+  },
   resume: {
     type: String,
   },
@@ -83,7 +86,6 @@ const studentSchema = new mongoose.Schema({
   },
   cgpa: {
     type: Number,
-    required: true,
   },
   year: {
     type: Number,

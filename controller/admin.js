@@ -4,43 +4,64 @@ const Internship = require("../models/Internship");
 const Placement = require("../models/Placement");
 const Question = require("../models/Question");
 const Instructor = require("../models/Instructor");
+const Question_model=require("../models/Question_model")
 
 async function getInstructor(req, res) {
   const instructor = await Instructor.find().exec();
   if (!instructor)
-    return res.status(404).json({ error: "No Such Instructor available" });
+    return res.status(404).json({ error: "No Instructor available" });
   return res.json(instructor);
 }
 async function getStudent(req, res) {
   const student = await Student.find().exec();
   if (!student)
-    return res.status(404).json({ error: "No Such Instructor available" });
+    return res.status(404).json({ error: "No Student available" });
   return res.json(student);
 }
 async function getAdmin(req, res) {
   const admin = await Admin.find().exec();
   if (!admin)
-    return res.status(404).json({ error: "No Such Instructor available" });
+    return res.status(404).json({ error: "No Admin available" });
   return res.json(admin);
 }
-// async function getQuestion(req, res) {
-//   const question = await Question.find().exec();
-//   if (!question)
-//     return res.status(404).json({ error: "No Such Instructor available" });
-//   return res.json(admin);
-// }
+
+async function getAdminbyadminemailId(req, res) {
+  try {
+    const admin = await Admin.findOne({
+      adminemailId: req.query.adminemailId,
+    }).exec();
+
+    if (!admin) {
+      return res.status(404).json({ error: "No Such Admin available" });
+    }
+
+    return res.json(admin);
+  } catch (error) {
+    console.error("Error fetching instructor by email:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
 async function getInstructorByEmailID(req, res) {
-  const instructor = await Instructor.find({
-    instructoremailID: req.params.instructoremailID,
-  }).exec();
-  if (!instructor)
-    return res.status(404).json({ error: "No Such Instructor available" });
-  return res.json(instructor);
+  try {
+    const instructor = await Instructor.findOne({
+      instructoremailId: req.query.instructoremailId,
+    }).exec();
+
+    if (!instructor) {
+      return res.status(404).json({ error: "No Such Instructor available" });
+    }
+
+    return res.json(instructor);
+  } catch (error) {
+    console.error("Error fetching instructor by email:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
 }
 
 async function getStudentByprnno(req, res) {
-  const student = await Student.find({
-    prnNo: req.params.prnNo,
+  const student = await Student.findOne({
+    prnNo: req.query.prnNo,
   }).exec();
   if (!student)
     return res.status(404).json({ error: "No Such Student available" });
@@ -58,12 +79,12 @@ async function getStudentByInstructor(req, res) {
 
 async function getInternshipByprnno(req, res) {
   try {
-    const student = await Student.findOne({ prnNo: req.params.prnNo }).exec();
+    const student = await Student.findOne({ prnNo: req.query.prnNo }).exec();
     if (!student || student.internshipStatus !== "Yes") {
       return res.status(404).json({ error: "No internship available" });
     }
     const internships = await Internship.find({
-      prnNo: req.params.prnNo,
+      prnNo: req.query.prnNo,
     }).exec();
     return res.json(internships);
   } catch (error) {
@@ -75,8 +96,8 @@ async function getInternshipByprnno(req, res) {
 async function getInternshipByInstructor(req, res) {
   try {
     const student = await Student.findOne({
-      instructoremailId: req.params.instructoremailId,
-      prnNo: req.params.prnNo,
+      instructoremailId: req.query.instructoremailId,
+      prnNo: req.query.prnNo,
     }).exec();
 
     if (!student) {
@@ -88,7 +109,7 @@ async function getInternshipByInstructor(req, res) {
     }
 
     const internships = await Internship.find({
-      prnNo: req.params.prnNo,
+      prnNo: req.query.prnNo,
     }).exec();
 
     if (internships.length === 0) {
@@ -106,8 +127,8 @@ async function getInternshipByInstructor(req, res) {
 async function getPlacementByInstructor(req, res) {
   try {
     const student = await Student.findOne({
-      instructoremailId: req.params.instructoremailId,
-      prnNo: req.params.prnNo,
+      instructoremailId: req.query.instructoremailId,
+      prnNo: req.query.prnNo,
     }).exec();
 
     if (!student) {
@@ -120,7 +141,7 @@ async function getPlacementByInstructor(req, res) {
         .json({ error: "Placement not available for this student" });
     }
 
-    const placement = await Placement.find({ prnNo: req.params.prnNo }).exec();
+    const placement = await Placement.find({ prnNo: req.query.prnNo }).exec();
 
     if (placement.length === 0) {
       return res
@@ -136,14 +157,14 @@ async function getPlacementByInstructor(req, res) {
 }
 async function getPlacementByprnno(req, res) {
   try {
-    const student = await Student.findOne({ prnNo: req.params.prnNo }).exec();
+    const student = await Student.findOne({ prnNo: req.query.prnNo }).exec();
     if (!student) {
       return res.status(404).json({ error: "Student not found" });
     }
 
     if (student.placementStatus === "Yes") {
       const placement = await Placement.findOne({
-        prnNo: req.params.prnNo,
+        prnNo: req.query.prnNo,
       }).exec();
       if (!placement) {
         return res.status(404).json({ error: "No placement available" });
@@ -159,21 +180,32 @@ async function getPlacementByprnno(req, res) {
 }
 async function getQuestionByInstructor(req, res) {
   const student = await Student.find({
-    instructoremailId: req.params.InstructoremailId,
-    prnNo: req.params.prnNo,
+    instructoremailId: req.query.instructoremailId,
+    prnNo: req.query.prnNo,
   }).exec();
-  const question = await Question.find({
-    _id:req.params._id,
+  const question = await Question_model.find({
     prnNo: student.prnNo,
   }).exec();
   if (!question)
     return res.status(404).json({ error: "No question available" });
   return res.json(question);
 }
-
-async function getQuestionByprnno(req, res) {
+async function getQuestionByInstructoropen(req, res) {
+  const student = await Student.find({
+    instructoremailId: req.query.instructoremailId,
+    prnNo: req.query.prnNo,
+  }).exec();
   const question = await Question.find({
-    prnNo: req.params.prnNo,
+    prnNo: student.prnNo,
+    Question_no: req.query.Question_no,
+  }).exec();
+  if (!question)
+    return res.status(404).json({ error: "No question available" });
+  return res.json(question);
+}
+async function getQuestionByprnno(req, res) {
+  const question = await Question_model.find({
+    prnNo: req.query.prnNo,
   }).exec();
   if (!question)
     return res.status(404).json({ error: "No question available" });
@@ -182,11 +214,17 @@ async function getQuestionByprnno(req, res) {
 async function addInternship(req, res) {
   try {
     const body = req.body;
-    const internship = await Internship.findOne({ _id: req.params._id });
+    const prnNo = req.query.prnNo; // Corrected to access prnNo from query parameters
+
+    const internship = await Internship.findOne({
+      prnNo: prnNo, // Corrected to use the prnNo variable
+      internshipName: body.internshipName,
+    });
+
     if (!internship) {
       // Add validation for required fields here
       const result = await Internship.create({
-        prnNo: req.params.prnNo,
+        prnNo: prnNo, // Corrected to use the prnNo variable
         internshipName: body.internshipName,
         internshipDescription: body.internshipDescription,
         duration: body.duration,
@@ -198,17 +236,17 @@ async function addInternship(req, res) {
         domain: body.domain,
         externalInstructors: body.externalInstructors,
       });
+
       await Student.findOneAndUpdate(
-        { prnNo: req.params.prnNo },
+        { prnNo: prnNo }, // Corrected to use the prnNo variable
         { internshipStatus: "Yes" }
       );
 
       return res.status(200).json({ msg: "Internship added successfully" });
     } else {
       await Internship.findOneAndUpdate(
-        { _id: req.params._id },
+        { prnNo: prnNo, internshipName: body.internshipName }, // Corrected to use the prnNo variable
         {
-          internshipName: body.internshipName,
           internshipDescription: body.internshipDescription,
           duration: body.duration,
           location: body.location,
@@ -233,8 +271,9 @@ async function addPlacement(req, res) {
   try {
     const body = req.body;
     const placement = await Placement.findOne({
-      _id: req.params._id,
-      prnNo: req.params.prnNo,
+      role:body.role,
+      companyname:body.companyname,
+      prnNo: req.query.prnNo,
     });
 
     if (!placement) {
@@ -251,7 +290,7 @@ async function addPlacement(req, res) {
       }
 
       const result = await Placement.create({
-        prnNo: req.params.prnNo,
+        prnNo: req.query.prnNo,
         role: body.role,
         jobDescription: body.jobDescription, // Fix typo
         location: body.location,
@@ -262,17 +301,15 @@ async function addPlacement(req, res) {
       });
 
       await Student.findOneAndUpdate(
-        { prnNo: req.params.prnNo },
+        { prnNo: req.query.prnNo },
         { placementStatus: "Yes" }
       );
     } else {
       await Placement.findOneAndUpdate(
-        { prnNo: req.params.prnNo },
+        { role: body.role, companyname: body.companyname, prnNo: req.query.prnNo },
         {
-          role: body.role,
-          jobDescription: body.jobDescription, 
+          jobDescription: body.jobDescription,
           location: body.location,
-          companyname: body.companyname,
           salary: body.salary,
           domain: body.domain,
         }
@@ -292,20 +329,20 @@ async function addStudent(req, res) {
     if (
       !body.prnNo ||
       !body.dateOfBirth ||
-      !body.instructoremailId ||
-      !body.about ||
-      !body.skills ||
-      !body.LinkedIN ||
-      !body.Github ||
-      !body.image ||
-      !body.resume ||
+      // !body.instructoremailId ||
+      // !body.about ||
+      // !body.skills ||
+      // !body.LinkedIN ||
+      // !body.Github ||
+      // !body.image ||
+      // !body.resume ||
       !body.regId ||
       !body.firstname ||
       !body.lastname ||
       !body.gender ||
       !body.internshipStatus ||
       !body.placementStatus ||
-      !body.cgpa ||
+      // !body.cgpa ||
       !body.year ||
       !body.department ||
       !body.contactNumber ||
@@ -322,11 +359,12 @@ async function addStudent(req, res) {
         prnNo: body.prnNo,
         dateOfBirth: body.dateOfBirth,
         about: body.about,
-        skills: body.skills,
-        LinkedIN: body.LinkedIN,
-        Github: body.Github,
-        image: body.image,
-        resume: body.resume,
+        skills: null,
+        LinkedIN: null,
+        Github: null,
+        image: null,
+        resume: null,
+        bgimage:null,
         regId: body.regId,
         firstname: body.firstname,
         lastname: body.lastname,
@@ -334,9 +372,9 @@ async function addStudent(req, res) {
         contactNumber: body.contactNumber,
         internshipStatus: body.internshipStatus,
         placementStatus: body.placementStatus,
-        cgpa: body.cgpa,
+        cgpa: null,
         year: body.year,
-        instructoremailId: body.instructoremailId,
+        instructoremailId: null,
         department: body.department,
         studentemailId: body.studentemailId,
         password: body.password,
@@ -346,6 +384,13 @@ async function addStudent(req, res) {
         { prnNo: body.prnNo },
         {
           dateOfBirth: body.dateOfBirth,
+          about: body.about,
+          skills: null,
+          LinkedIN: null,
+          Github: null,
+          image: null,
+          resume: null,
+          bgimage: null,
           regId: body.regId,
           firstname: body.firstname,
           lastname: body.lastname,
@@ -353,8 +398,9 @@ async function addStudent(req, res) {
           contactNumber: body.contactNumber,
           internshipStatus: body.internshipStatus,
           placementStatus: body.placementStatus,
-          cgpa: body.cgpa,
+          cgpa: null,
           year: body.year,
+          instructoremailId: null,
           department: body.department,
           studentemailId: body.studentemailId,
           password: body.password,
@@ -438,7 +484,9 @@ async function addInstructor(req, res) {
         contactNumber: body.contactNumber,
         instructoremailId: body.instructoremailId,
         password: body.password,
-        department: body.department
+        bgimage: null,
+        image:null,
+        department: body.department,
       });
     } else {
       await Instructor.findOneAndUpdate(
@@ -449,6 +497,8 @@ async function addInstructor(req, res) {
           gender: body.gender,
           contactNumber: body.contactNumber,
           password: body.password,
+          bgimage: null,
+          image: null,
           department: body.department,
         }
       );
@@ -463,12 +513,12 @@ async function addInstructor(req, res) {
 async function updateCompletionLetterInternship(req, res) {
   const body = req.body;
   try {
-    const completion = Internship.findOne({ 
-      _id:req.params._id,
-      prnNo: req.params.prnNo });
+    const completion = Internship.findOne({
+      internshipName:req.query.internshipName, 
+      prnNo: req.query.prnNo });
     if (completion) {
       await Internship.findOneAndUpdate(
-        { _id: req.params._id, prnNo: req.params.prnNo },
+        { internshipName: req.query.internshipName, prnNo: req.query.prnNo },
         {
           completionLetter: body.completionLetter,
         }
@@ -516,11 +566,11 @@ async function updateCompletionLetterInternship(req, res) {
 async function deleteInstructor(req, res) {
   try {
     const instructor =  await Instructor.findOne({
-      instructoremailId: req.params.instructoremailId,
+      instructoremailId: req.query.instructoremailId,
     });
     if (instructor) {
       await Instructor.findOneAndDelete({
-        instructoremailId: req.params.instructoremailId,
+        instructoremailId: req.query.instructoremailId,
       });
     }
     return res.status(201).json({ msg: "success" });
@@ -530,12 +580,12 @@ async function deleteInstructor(req, res) {
 }
 async function deleteAdmin(req, res) {
   try {
-    const admin = await Instructor.findOne({
-      adminemailId: req.params.emailId,
+    const admin = await Admin.findOne({
+      adminemailId: req.query.emailId,
     });
     if (admin) {
       await Admin.findOneAndDelete({
-        adminemailId: req.params.emailId,
+        adminemailId: req.query.emailId,
       });
     }
     return res.status(201).json({ msg: "success" });
@@ -546,17 +596,17 @@ async function deleteAdmin(req, res) {
 async function deleteStudent(req, res) {
   try {
     // Find the student based on the student's PRN number
-    const student = await Student.findOne({ prnNo: req.params.prnNo });
+    const student = await Student.findOne({ prnNo: req.query.prnNo });
 
     // If student exists, proceed with deletion
     if (student) {
       const emailId = student.instructoremailId;
 
       // Delete student and related information
-      await Student.findOneAndDelete({ prnNo: req.params.prnNo });
-      await Internship.findOneAndDelete({ prnNo: req.params.prnNo });
-      await Placement.findOneAndDelete({ prnNo: req.params.prnNo });
-      await Question.findOneAndDelete({ prnNo: req.params.prnNo });
+      await Student.findOneAndDelete({ prnNo: req.query.prnNo });
+      await Internship.findOneAndDelete({ prnNo: req.query.prnNo });
+      await Placement.findOneAndDelete({ prnNo: req.query.prnNo });
+      await Question.findOneAndDelete({ prnNo: req.query.prnNo });
 
       // Check if instructor exists based on the instructor's email
       const instructor = await Instructor.findOne({
@@ -567,7 +617,7 @@ async function deleteStudent(req, res) {
       if (instructor) {
         const result = await Instructor.updateOne(
           { instructoremailId: emailId },
-          { $pull: { students: { prnNo: req.params.prnNo } } }
+          { $pull: { students: { prnNo: req.query.prnNo } } }
         );
       }
     }
@@ -593,6 +643,7 @@ module.exports = {
   addPlacement,
   getStudentByInstructor,
   getInstructorByEmailID,
+  getAdminbyadminemailId,
   getStudentByprnno,
   getInternshipByInstructor,
   getInternshipByprnno,
@@ -600,6 +651,7 @@ module.exports = {
   getPlacementByInstructor,
   getQuestionByprnno,
   getQuestionByInstructor,
+  getQuestionByInstructoropen,
   updateCompletionLetterInternship,
   deleteAdmin,
   deleteInstructor,

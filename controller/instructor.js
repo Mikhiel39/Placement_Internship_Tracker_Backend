@@ -4,7 +4,10 @@ const mongoose=require("mongoose");
 
 async function addBatch(req, res) {
   try {
-    const { prnNo, instructoremailId } = req.params;
+    if(req.query.prnNo!=body.prnNo){
+      return res.status(404).json({ msg: "prnNo does not match" });
+    }
+    const { prnNo, instructoremailId } = req.query;
     const { students } = req.body;
 
     // Find the instructor by email
@@ -65,15 +68,15 @@ async function deleteBatch(req, res) {
     // console.log("Student PRN:", req.params.prnNo);
 
     const result = await Instructor.updateOne(
-      { instructoremailId: req.params.instructoremailId },
-      { $pull: { students: { prnNo:req.params.prnNo } } }
+      { instructoremailId: req.query.instructoremailId },
+      { $pull: { students: { prnNo:req.query.prnNo } } }
     );
 
     // console.log("Update result:", result);
 
     // Update the student's instructor email to null
     await Student.findOneAndUpdate(
-      { prnNo: req.params.prnNo },
+      { prnNo: req.query.prnNo },
       { instructoremailId: null }
     );
 
@@ -88,10 +91,40 @@ async function deleteBatch(req, res) {
     return res.status(500).json({ success: false, message: "Server Error" });
   }
 }
+async function updatebgimage(req, res) {
+  const body = req.body;
+  try {
+    await Instructor.findOneAndUpdate(
+      { instructoremailId: req.query.instructoremailId },
+      {
+        bgimage: body.bgimage,
+      }
+    );
+    return res.status(201).json({ msg: "success" });
+  } catch (error) {
+    return res.status(500).json({ msg: "Internal server error" });
+  }
+}
+async function updateimage(req, res) {
+  const body = req.body;
+  try {
+    await Student.findOneAndUpdate(
+      { instructoremailId: req.query.instructoremailId },
+      {
+        image: body.image,
+      }
+    );
+    return res.status(201).json({ msg: "success" });
+  } catch (error) {
+    return res.status(500).json({ msg: "Internal server error" });
+  }
+}
 
 
 
 module.exports = {
   addBatch,
+  updatebgimage,
+  updateimage,
   deleteBatch,
 };

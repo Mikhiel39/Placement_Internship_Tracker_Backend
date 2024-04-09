@@ -6,7 +6,7 @@ require("dotenv").config();
 //2.Creating Schema
 const internshipSchema = new mongoose.Schema({
   prnNo: {
-    type: Number,
+    type: String,
     required: true,
   },
   internshipName: {

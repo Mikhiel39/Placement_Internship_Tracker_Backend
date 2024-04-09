@@ -4,7 +4,7 @@ require("dotenv").config();
 //2.Creating Schema
 const progressSchema = new mongoose.Schema({
   prnNo: {
-    type: Number,
+    type: String,
     required: true,
   },
   intershipStatus: {

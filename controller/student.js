@@ -1,8 +1,9 @@
 const Student = require("../models/Student");
 const Question = require("../models/Question");
+const Question_model = require("../models/Question_model");
 
 async function getQuestions(req, res) {
-  const questions = await Question.find().exec();
+  const questions = await Question_model.find().exec();
   if (!questions)
     return res.status(404).json({ error: "No questions available" });
   return res.json(questions);
@@ -23,6 +24,20 @@ async function updateSkills(req, res) {
     await Student.findOneAndUpdate({prnNo:req.params.prnNo}, {
       skills: body.skills,
     });
+    return res.status(201).json({ msg: "success" });
+  } catch (error) {
+    return res.status(500).json({ msg: "Internal server error" });
+  }
+}
+async function updatebgimage(req, res) {
+  const body = req.body;
+  try {
+    await Student.findOneAndUpdate(
+      { prnNo: req.query.prnNo },
+      {
+        bgimage: body.bgimage,
+      }
+    );
     return res.status(201).json({ msg: "success" });
   } catch (error) {
     return res.status(500).json({ msg: "Internal server error" });
@@ -53,7 +68,7 @@ async function updateGithub(req, res) {
 async function updateimage(req, res) {
   const body = req.body;
   try {
-    await Student.findOneAndUpdate({prnNo:req.params.prnNo}, {
+    await Student.findOneAndUpdate({prnNo:req.query.prnNo}, {
       image: body.image,
     });
     return res.status(201).json({ msg: "success" });
@@ -74,8 +89,10 @@ async function updateresume(req, res) {
 }
 
 async function getQuestionBycompanyname(req, res) {
-  const question = await Question.find({
-    companyname: req.params.companyname,
+  const question = await Question_model.find({
+    questions: {
+      companyname: req.query.companyname,
+    },
   }).exec();
   if (!question)
     return res.status(404).json({ error: "No question available" });
@@ -83,8 +100,8 @@ async function getQuestionBycompanyname(req, res) {
 }
 async function getQuestionByprnnocompanyname(req, res) {
   const question = await Question.find({
-    prnNo: req.params.prnNo,
-    companyname: req.params.companyname,
+    prnNo: req.query.prnNo,
+    companyname: req.query.companyname,
   }).exec();
   if (!question)
     return res.status(404).json({ error: "No question available" });
@@ -93,16 +110,7 @@ async function getQuestionByprnnocompanyname(req, res) {
 async function updateProfile(req, res) {
   const body = req.body;
   const {
-    prnNo,
-    regId,
-    password,
-    firstname,
-    lastname,
-    studentemailId,
-    contactNumber,
-    instructoremailId,
-    dateOfBirth,
-    gender,
+    // instructoremailId,
     about,
     skills,
     LinkedIN,
@@ -116,6 +124,7 @@ async function updateProfile(req, res) {
   } = body;
 
   if (
+    // !instructoremailId ||
     !about ||
     !skills ||
     !LinkedIN ||
@@ -132,21 +141,12 @@ async function updateProfile(req, res) {
 
   try {
     await Student.findOneAndUpdate(
-      { prnNo: prnNo },
+      { prnNo: req.query.prnNo },
       {
-        prnNo: prnNo,
-        regId: regId,
-        password: password,
-        firstname: firstname,
-        lastname: lastname,
-        studentemailId: studentemailId,
-        contactNumber: contactNumber,
-        instructoremailId: instructoremailId,
-        dateOfBirth: dateOfBirth,
-        gender: gender,
+        // instructoremailId: instructoremailId,
         about: about,
         skills: skills,
-        LinkedIn: LinkedIN,
+        LinkedIN: LinkedIN,
         Github: Github,
         resume: resume,
         cgpa: cgpa,
@@ -168,14 +168,23 @@ async function updateProfile(req, res) {
 
 async function addQuestion(req, res) {
   const body = req.body;
-  const question = await Question.findOne({
-    _id: req.params._id,
-    prnNo: req.params.prnNo,
-  });
-  if(!question){
-    body.prnNo = req.params.prnNo;
+
+  try {
+    // Check if the question already exists
+    const existingQuestion = await Question.findOne({
+      prnNo: req.query.prnNo,
+      Question_no: body.Question_no,
+    });
+
+    if (existingQuestion) {
+      return res.status(400).json({ msg: "Question already exists" });
+    }
+
+    // Validate required fields
     if (
       !body.companyname ||
+      !body.companylogo ||
+      !body.Question_no ||
       !body.puzzlelink.question ||
       !body.puzzlelink.answer ||
       !body.interview.question ||
@@ -185,54 +194,77 @@ async function addQuestion(req, res) {
     ) {
       return res.status(400).json({ msg: "All fields are required" });
     }
-     const result = await Question.create({
-       prnNo: body.prnNo,
-       puzzlelink: {
-         question: body.puzzlelink.question,
-         answer: body.puzzlelink.answer,
-       },
-       interview: {
-         question: body.interview.question,
-         answer: body.interview.answer,
-       },
-       QA: {
-         question: body.QA.question,
-         answer: body.QA.answer,
-       },
-       companyname: body.companyname,
-     });
-     return res.status(201).json({ msg: "success" });
-  }else{
-     await Question.findOneAndUpdate(
-       { _id:req.params._id, 
-        prnNo: req.params.prnNo },
-       {
-         puzzlelink: {
-           question: body.puzzlelink.question,
-           answer: body.puzzlelink.answer,
-         },
-         interview: {
-           question: body.interview.question,
-           answer: body.interview.answer,
-         },
-         QA: {
-           question: body.QA.question,
-           answer: body.QA.answer,
-         },
-         companyname: body.companyname,
-       }
-     ); 
+
+    // Create the new question
+    const newQuestion = await Question.create({
+      prnNo: req.query.prnNo,
+      Question_no: body.Question_no,
+      companylogo: body.companylogo,
+      puzzlelink: {
+        question: body.puzzlelink.question,
+        answer: body.puzzlelink.answer,
+      },
+      interview: {
+        question: body.interview.question,
+        answer: body.interview.answer,
+      },
+      QA: {
+        question: body.QA.question,
+        answer: body.QA.answer,
+      },
+      companyname: body.companyname,
+    });
+
+    // Find the question model and update it
+    const questionModel = await Question_model.findOne({
+      prnNo: req.query.prnNo,
+    });
+
+    if (questionModel) {
+      return res.status(400).json({ msg: "Question model is found" });
+    }
+    const nQuestion = await Question_model.create({
+      prnNo:req.query.prnNo,
+      questions:{
+        Question_no: body.Question_no,
+        companyname: body.companyname,
+        companylogo: body.companylogo,
+      },
+    });
+
+    // Push the new question to the questions array
+    // questionModel.questions.push(nQuestion);
+    // await questionModel.save();
+
+    return res.status(201).json({ msg: "Question added successfully" });
+  } catch (error) {
+    console.error("Error adding question:", error);
+    return res.status(500).json({ msg: "Internal server error" });
   }
-  
 }
-async function deleteQuestionByprnnocompanyname(req, res) {
-  const question=await Question.findOneAndDelete({
-   prnNo: req.params.prnNo,
-   companyname: req.params.companyname,
- });
+
+async function getQuestionByprnnoopen(req, res) {
+  const question = await Question.findOne({
+    prnNo: req.query.prnNo,
+    Question_no: req.query.Question_no,
+  }).exec();
   if (!question)
     return res.status(404).json({ error: "No question available" });
   return res.json(question);
+}
+
+async function deleteQuestionByprnno(req, res) {
+  const question=await Question_model.findOneAndDelete({
+   prnNo: req.params.prnNo,
+   Question_no: req.query.Question_no
+ });
+ const questions = await Question.findOneAndDelete({
+   prnNo: req.params.prnNo,
+   Question_no: req.query.Question_no,
+ });
+  if (!question||!questions)
+    return res.status(404).json({ error: "No question available" });
+ return res.status(201).json({ msg: "Question deleted successfully" });
 }
 
 module.exports = {
@@ -242,11 +274,13 @@ module.exports = {
   updateLinkedIN,
   updateGithub,
   updateimage,
+  updatebgimage,
   updateresume,
   getQuestionBycompanyname,
   getQuestionByprnnocompanyname,
   addQuestion,
-  deleteQuestionByprnnocompanyname,
+  deleteQuestionByprnno,
+  getQuestionByprnnoopen,
   updateProfile,
 };
 

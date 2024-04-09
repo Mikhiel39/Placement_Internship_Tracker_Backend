@@ -28,6 +28,12 @@ const instructorSchema = new mongoose.Schema({
     type: String, // Capitalized "String", corrected property name to "emailId"
     required: true,
   },
+  image: {
+    type: String,
+  },
+  bgimage: {
+    type: String,
+  },
   password: {
     type: String,
     required: true,
@@ -41,7 +47,7 @@ const instructorSchema = new mongoose.Schema({
         type: String,
       },
       prnNo: {
-        type: Number,
+        type: String,
       },
     },
   ],

@@ -6,6 +6,14 @@ require("dotenv").config();
 //2.Creating Schema
 const questionSchema = new mongoose.Schema({
   prnNo: {
+    type: String,
+    required: true,
+  },
+  companylogo: {
+    type: String,
+    required: true,
+  },
+  Question_no: {
     type: Number,
     required: true,
   },

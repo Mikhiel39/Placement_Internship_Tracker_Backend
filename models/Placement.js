@@ -6,7 +6,7 @@ require("dotenv").config();
 //2.Creating Schema
 const placementSchema = new mongoose.Schema({
   prnNo: {
-    type: Number,
+    type: String,
     required: true,
   },
   role: {
