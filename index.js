@@ -34,10 +34,10 @@ app.use((err, req, res, next) => {
 });
 
 // Routes
-app.get("/", (req, res) => res.send("Hello World"));
-app.use("/students", studentRouter);
-app.use("/instructors", instructorRouter);
-app.use("/admins", adminRouter);
+app.get("/api", (req, res) => res.send("Hello World"));
+app.use("/api/students", studentRouter);
+app.use("/api/instructors", instructorRouter);
+app.use("/api/admins", adminRouter);
 
 // listen for requests
 const PORT = process.env.PORT || 5000;
