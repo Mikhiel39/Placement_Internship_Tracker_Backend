@@ -50,6 +50,14 @@ const {getTnpByName,
   updateTnpByName,
   getTnp,} = require("../controller/tnpcoordinator");
 
+  //Importing controller for Notification
+const{ getNotificationAll, 
+  getNotificationByTitle, 
+  addNotification, 
+  deleteNotificationByCompanyName,  
+  updateNotificationByCompanyName,
+}=require("../controller/notification");
+
 
 router.route("/").get(getAdminbyadminemailId);
 router
@@ -99,5 +107,9 @@ router.route
 router.route("/tnpcoordinator/").get(getTnp).post(addTnp);
 router.route("/tnpcoordinator/name/").get(getTnpByName).patch(updateTnpByName).delete(deleteTnpByName);
 
+// New route for Notification by admins
+router.route("/notification/").get(getNotificationAll).post(addNotification);
+router.route("/notification/title/").get(getNotificationByTitle);
+router.route("/notification/companyname/").patch(updateNotificationByCompanyName).delete(deleteNotificationByCompanyName);
 
 module.exports = router;

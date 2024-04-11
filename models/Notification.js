@@ -13,13 +13,21 @@ const notificationSchema = new mongoose.Schema({
     required: true,
   },
 
+  title: {
+    type: String,
+    required: true,
+  },
+
   description: {
     type: String,
     required: true,
   },
+
+  postedAt: {
+    type: Date,
+    default: Date.now, // Set the default value to the current timestamp
+  },
   
 });
 
-const Company = mongoose.model("Notification", notificationSchema);
-
-module.exports = Notification;
+module.exports = mongoose.model("Notification", notificationSchema);
