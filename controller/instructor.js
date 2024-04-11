@@ -1,10 +1,28 @@
-const Student=require("../models/Student");
+const Student = require("../models/Student");
 const Instructor = require("../models/Instructor");
-const mongoose=require("mongoose");
+const mongoose = require("mongoose");
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads");
+  },
+  filename: function (req, file, cb) {
+    let instructoremailId = null; // Changed const to let
+    if (req.body.instructoremailId != null) 
+      instructoremailId = req.body.instructoremailId;
+    if (req.query.instructoremailId != null)
+      instructoremailId = req.query.instructoremailId; 
+    const uniqueSuffix = instructoremailId || "default";
+    cb(null, file.fieldname + "-" + uniqueSuffix);
+  },
+});
+
+const upload = multer({ storage: storage });
 
 async function addBatch(req, res) {
   try {
-    if(req.query.prnNo!=body.prnNo){
+    if (req.query.prnNo != body.prnNo) {
       return res.status(404).json({ msg: "prnNo does not match" });
     }
     const { prnNo, instructoremailId } = req.query;
@@ -60,8 +78,6 @@ async function addBatch(req, res) {
   }
 }
 
-
-
 async function deleteBatch(req, res) {
   try {
     // console.log("Instructor email:", req.params.instructoremailId);
@@ -69,7 +85,7 @@ async function deleteBatch(req, res) {
 
     const result = await Instructor.updateOne(
       { instructoremailId: req.query.instructoremailId },
-      { $pull: { students: { prnNo:req.query.prnNo } } }
+      { $pull: { students: { prnNo: req.query.prnNo } } }
     );
 
     // console.log("Update result:", result);
@@ -80,47 +96,63 @@ async function deleteBatch(req, res) {
       { instructoremailId: null }
     );
 
-    return res
-      .status(201)
-      .json({
-        success: true,
-        message: "Student removed from batch successfully.",
-      });
+    return res.status(201).json({
+      success: true,
+      message: "Student removed from batch successfully.",
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ success: false, message: "Server Error" });
   }
 }
+
 async function updatebgimage(req, res) {
-  const body = req.body;
   try {
+    let img = null; // Changed const to let
+    await upload.single("bgimage")(req, res); // Moved multer middleware here to properly handle the file upload
+
+    // Access the uploaded file path from req.file
+    if (req.file) {
+      img = req.file.path;
+    } else {
+      throw new Error("No bgimage uploaded");
+    }
     await Instructor.findOneAndUpdate(
       { instructoremailId: req.query.instructoremailId },
       {
-        bgimage: body.bgimage,
+        bgimage: img,
       }
     );
     return res.status(201).json({ msg: "success" });
   } catch (error) {
+    console.error(error.message);
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
+
 async function updateimage(req, res) {
-  const body = req.body;
   try {
+    let img = null; // Changed const to let
+    await upload.single("image")(req, res); // Moved multer middleware here to properly handle the file upload
+
+    // Access the uploaded file path from req.file
+    if (req.file) {
+      img = req.file.path;
+    } else {
+      throw new Error("No image uploaded");
+    }
     await Instructor.findOneAndUpdate(
       { instructoremailId: req.query.instructoremailId },
       {
-        image: body.image,
+        image: img,
       }
     );
     return res.status(201).json({ msg: "success" });
   } catch (error) {
+    console.error(error.message);
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
-
-
 
 module.exports = {
   addBatch,

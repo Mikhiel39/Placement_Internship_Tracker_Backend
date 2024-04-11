@@ -1,6 +1,23 @@
 const Student = require("../models/Student");
 const Question = require("../models/Question");
 const Question_model = require("../models/Question_model");
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads");
+  },
+  filename: function (req, file, cb) {
+    let prnNo = null;
+    if (req.body.prnNo != null) prnNo = req.body.prnNo;
+    if (req.query.prnNo != null) prnNo = req.query.prnNo;
+    const uniqueSuffix = prnNo || "default";
+    cb(null, file.fieldname + "-" + uniqueSuffix);
+  },
+});
+
+const upload = multer({ storage: storage });
+
 
 async function getQuestions(req, res) {
   const questions = await Question_model.find().exec();
@@ -30,12 +47,19 @@ async function updateSkills(req, res) {
   }
 }
 async function updatebgimage(req, res) {
-  const body = req.body;
+  // const body = req.body;
   try {
+    await upload.single("bgimage")(req, res);
+    let img = null;
+    if (req.file) {
+      img = req.file.path;
+    } else {
+      throw new Error("No image uploaded");
+    }
     await Student.findOneAndUpdate(
       { prnNo: req.query.prnNo },
       {
-        bgimage: body.bgimage,
+        bgimage: img,
       }
     );
     return res.status(201).json({ msg: "success" });
@@ -66,20 +90,29 @@ async function updateGithub(req, res) {
   }
 }
 async function updateimage(req, res) {
-  const body = req.body;
+  // const body = req.body;
   try {
-    await Student.findOneAndUpdate({prnNo:req.query.prnNo}, {
-      image: body.image,
-    });
+    await upload.single("image")(req, res);
+    let img = null;
+    if (req.file) {
+      img = req.file.path;
+    } else {
+      throw new Error("No image uploaded");
+    }
+    await Student.findOneAndUpdate(
+      { prnNo: req.query.prnNo },
+      {
+        image: img,
+      }
+    );
     return res.status(201).json({ msg: "success" });
   } catch (error) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
 async function updateresume(req, res) {
-  const body = req.body;
   try {
-    await Student.findOneAndUpdate({prnNo:req.params.prnNo}, {
+    await Student.findOneAndUpdate({prnNo:req.query.prnNo}, {
       resume: body.resume,
     });
     return res.status(201).json({ msg: "success" });
@@ -113,7 +146,6 @@ async function updateProfile(req, res) {
     skills,
     LinkedIN,
     Github,
-    resume,
     cgpa,
     internshipStatus,
     placementStatus,
@@ -127,7 +159,6 @@ async function updateProfile(req, res) {
     !skills ||
     !LinkedIN ||
     !Github ||
-    !resume ||
     !cgpa ||
     !internshipStatus ||
     !placementStatus ||
@@ -138,6 +169,13 @@ async function updateProfile(req, res) {
   }
 
   try {
+    await upload.single("resume")(req, res);
+    let resume = null;
+    if (req.file) {
+      resume = req.file.path;
+    } else {
+      throw new Error("No resume uploaded");
+    }
     await Student.findOneAndUpdate(
       { prnNo: req.query.prnNo },
       {
@@ -181,7 +219,6 @@ async function addQuestion(req, res) {
     // Validate required fields
     if (
       !body.companyname ||
-      !body.companylogo ||
       !body.Question_no ||
       !body.puzzlelink.question ||
       !body.puzzlelink.answer ||
@@ -192,12 +229,20 @@ async function addQuestion(req, res) {
     ) {
       return res.status(400).json({ msg: "All fields are required" });
     }
+    let companylogo = null; // Changed const to let
+    await upload.single("companylogo")(req, res); // Moved multer middleware here to properly handle the file upload
 
+    // Access the uploaded file path from req.file
+    if (req.file) {
+      companylogo = req.file.path;
+    } else {
+      throw new Error("No companylogo uploaded");
+    }
     // Create the new question
     const newQuestion = await Question.create({
       prnNo: req.query.prnNo,
       Question_no: body.Question_no,
-      companylogo: body.companylogo,
+      companylogo: companylogo,
       puzzlelink: {
         question: body.puzzlelink.question,
         answer: body.puzzlelink.answer,
@@ -222,7 +267,7 @@ async function addQuestion(req, res) {
       const nQuestion={
           Question_no: body.Question_no,
           companyname: body.companyname,
-          companylogo: body.companylogo,
+          companylogo: companylogo,
       };
       questionModel.questions.push(nQuestion);
       await questionModel.save();
@@ -233,7 +278,7 @@ async function addQuestion(req, res) {
       questions:{
         Question_no: body.Question_no,
         companyname: body.companyname,
-        companylogo: body.companylogo,
+        companylogo: companylogo,
       },
     });
 
