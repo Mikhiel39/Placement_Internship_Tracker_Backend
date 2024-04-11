@@ -26,6 +26,14 @@ const {
 } = require("../controller/admin");
 const { addBatch, deleteBatch } = require("../controller/instructor");
 const { getQuestionByprnnoopen } =require("../controller/student");
+
+// Import the controller function for  companies
+const { addCompany,
+  deleteCompany, 
+  updateCompany,
+  getAllCompanies,
+  getCompanyByName} = require("../controller/company");
+
 router.route("/").get(getAdminbyadminemailId);
 router
   .route("/instructor/")
@@ -59,4 +67,8 @@ router
   router.route("/placement/ByInstructor/").get(getPlacementByInstructor);
   router.route("/question/ByInstructor/").get(getQuestionByInstructor);
   router.route("/question/ByInstructor/open").get(getQuestionByInstructoropen);
+
+  // New route for companies by admins
+router.route("/company/").get(getAllCompanies).post(addCompany).delete(deleteCompany).patch(updateCompany);
+router.route("/company/name/").get(getCompanyByName);
 module.exports = router;
