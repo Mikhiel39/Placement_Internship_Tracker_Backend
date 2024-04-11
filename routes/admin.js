@@ -43,6 +43,13 @@ const {  getAlumniByName,
   getAlumniByCompany,getAlumni} = require("../controller/alumni");
 const { getQuestionByprnnoopen } =require("../controller/student");
 
+// Import the controller function for tnp coordinators
+const {getTnpByName,
+  addTnp,
+  deleteTnpByName,
+  updateTnpByName,
+  getTnp,} = require("../controller/tnpcoordinator");
+
 
 router.route("/").get(getAdminbyadminemailId);
 router
@@ -87,6 +94,10 @@ router.route("/alumni/").get(getAlumni).post(addAlumni);
 router.route("/alumni/name/").get(getAlumniByName).patch(updateAlumniByName).delete(deleteAlumniByName);
 router.route
 ("/alumni/company/").get(getAlumniByCompany);
+
+// New route for Tnp Cordinator by admins
+router.route("/tnpcoordinator/").get(getTnp).post(addTnp);
+router.route("/tnpcoordinator/name/").get(getTnpByName).patch(updateTnpByName).delete(deleteTnpByName);
 
 
 module.exports = router;
