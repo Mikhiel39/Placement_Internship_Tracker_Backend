@@ -34,6 +34,16 @@ const { addCompany,
   getAllCompanies,
   getCompanyByName} = require("../controller/company");
 
+
+//Importing controller from Alumni
+const {  getAlumniByName,
+  addAlumni,
+  deleteAlumniByName,
+  updateAlumniByName,
+  getAlumniByCompany,getAlumni} = require("../controller/alumni");
+const { getQuestionByprnnoopen } =require("../controller/student");
+
+
 router.route("/").get(getAdminbyadminemailId);
 router
   .route("/instructor/")
@@ -71,4 +81,12 @@ router
   // New route for companies by admins
 router.route("/company/").get(getAllCompanies).post(addCompany).delete(deleteCompany).patch(updateCompany);
 router.route("/company/name/").get(getCompanyByName);
+
+// New route for alumni by admins
+router.route("/alumni/").get(getAlumni).post(addAlumni);
+router.route("/alumni/name/").get(getAlumniByName).patch(updateAlumniByName).delete(deleteAlumniByName);
+router.route
+("/alumni/company/").get(getAlumniByCompany);
+
+
 module.exports = router;
