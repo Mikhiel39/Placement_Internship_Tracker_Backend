@@ -1,6 +1,10 @@
 const Student = require("../models/Student");
 const Instructor = require("../models/Instructor");
 const mongoose = require("mongoose");
+const TnpCordinator = require("../models/TnpCordinator");
+const Company = require("../models/Company");
+const Alumni = require("../models/Alumni");
+const Notification = require("../models/Notification");
 const multer = require("multer");
 
 const storage = multer.diskStorage({
@@ -130,6 +134,27 @@ async function updatebgimage(req, res) {
   }
 }
 
+async function getInstructorByEmailID(req, res) {
+  try {
+    const instructor = await Instructor.findOne({
+      instructoremailId: req.query.instructoremailId,
+    }).exec();
+    const notification = await Notification.find();
+    const company = await Company.find();
+    const alumni = await Alumni.find();
+    const tnp = await TnpCordinator.find();
+
+    if (!instructor) {
+      return res.status(404).json({ error: "No Such Instructor available" });
+    }
+
+    return res.json({ instructor, notification, company, alumni, tnp });
+  } catch (error) {
+    console.error("Error fetching instructor by email:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
 async function updateimage(req, res) {
   try {
     let img = null; // Changed const to let
@@ -155,6 +180,7 @@ async function updateimage(req, res) {
 }
 
 module.exports = {
+  getInstructorByEmailID,
   addBatch,
   updatebgimage,
   updateimage,

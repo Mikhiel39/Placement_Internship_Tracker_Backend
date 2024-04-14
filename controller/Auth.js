@@ -25,6 +25,7 @@ exports.sendOTP = async (req, res) => {
 
     // a.3 Generate OTP
     // Here we can define the specification of OTP like length
+// sourcery skip: avoid-using-var
     var otp = otpGenerator.generate(6, {
       upperCase: false,
       specialChars: false,

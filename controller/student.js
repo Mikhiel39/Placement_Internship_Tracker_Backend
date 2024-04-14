@@ -1,6 +1,10 @@
 const Student = require("../models/Student");
 const Question = require("../models/Question");
 const Question_model = require("../models/Question_model");
+const TnpCordinator = require("../models/TnpCordinator");
+const Company = require("../models/Company");
+const Alumni = require("../models/Alumni");
+const Notification = require("../models/Notification");
 const multer = require("multer");
 
 const storage = multer.diskStorage({
@@ -201,6 +205,36 @@ async function updateProfile(req, res) {
   }
 }
 
+async function getStudentByprnno(req, res) {
+  try {
+    const student = await Student.findOne({
+      prnNo: req.query.prnNo,
+    }).exec();
+    const notification = await Notification.find();
+    const company = await Company.find();
+    const alumni = await Alumni.find();
+    const tnp = await TnpCordinator.find();
+
+    if (!student)
+      return res.status(404).json({ error: "No Such Student available" });
+
+    // Return the result along with the student data
+    return res.json({ student, notification, company, alumni, tnp });
+  } catch (error) {
+    // Handle any potential errors
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+async function getStudentByInstructor(req, res) {
+  const student = await Student.find({
+    instructoremailId: req.params.instructoremailId,
+    prnNo: req.params.prnNo,
+  }).exec();
+  if (!student)
+    return res.status(404).json({ error: "No Such Student available" });
+  return res.json(student);
+}
+
 
 async function addQuestion(req, res) {
   const body = req.body;
@@ -342,6 +376,8 @@ module.exports = {
   getQuestionByprnnoopen,
   updateProfile,
   getQuestionByprncompanyoopen,
+  getStudentByInstructor,
+  getStudentByprnno,
 };
 
 
