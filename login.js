@@ -3,7 +3,6 @@ const Instructor = require("./models/Instructor");
 const Admin = require("./models/Admin");
 const CryptoJS = require("crypto-js");
 const express = require("express");
-const router = express.Router();
 
 const secretKey = process.env.SECRET_KEY;
 
@@ -13,7 +12,6 @@ async function handleStudentlogin(req, res) {
       req.body.prnNo,
       secretKey
     ).toString();
-    // const decryptedPrn = decryptedBytes.toString(CryptoJS.enc.Utf8);
     const student = await Student.findOne({ prnNo: req.body.prnNo, password: req.body.password });
     if (!student) {
       return res.status(404).json({ student: "NULL" });
