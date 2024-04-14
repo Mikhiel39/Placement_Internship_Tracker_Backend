@@ -16,7 +16,7 @@ async function handleStudentlogin(req, res) {
     // const decryptedPrn = decryptedBytes.toString(CryptoJS.enc.Utf8);
     const student = await Student.findOne({ prnNo: req.body.prnNo, password: req.body.password });
     if (!student) {
-      return res.status(404).json({ error: "Student not found" });
+      return res.status(404).json({ student: NULL });
     }
     return res.status(200).json({ student: cryptedBytes });
   } catch (error) {
@@ -33,7 +33,7 @@ async function handleInstructorlogin(req, res) {
     // const decryptedPrn = decryptedBytes.toString(CryptoJS.enc.Utf8);
     const instructor = await Instructor.findOne({ instructoremailId:req.body.instructoremailId, password:req.body.password  });
     if (!instructor) {
-      return res.status(404).json({ error: "Instructor not found" });
+      return res.status(404).json({ instructor: NULL });
     }
     return res.status(200).json({ instructor: cryptedBytes });
   } catch (error) {
@@ -53,7 +53,7 @@ async function handleAdminlogin(req, res) {
       password: req.body.password,
     });
     if (!admin) {
-      return res.status(404).json({ error: "Admin not found" });
+      return res.status(200).json({ admin: NULL });
     }
     return res.status(200).json({ admin: cryptedBytes });
   } catch (error) {
