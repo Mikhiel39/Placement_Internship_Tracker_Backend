@@ -1,6 +1,7 @@
 // company.js
 
 const mongoose = require("mongoose");
+require("dotenv").config();
 
 const notificationSchema = new mongoose.Schema({
   companyname: {

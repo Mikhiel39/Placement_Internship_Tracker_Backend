@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+require("dotenv").config();
 
 const alumniSchema = new mongoose.Schema({
   name: {
@@ -23,9 +24,11 @@ const alumniSchema = new mongoose.Schema({
   },
   image: {
     type: String,
+  },
+  alumniemailId:{
+    type: String,
     required: true,
   },
-
   linkedin: {
     type: String,
     required: true,

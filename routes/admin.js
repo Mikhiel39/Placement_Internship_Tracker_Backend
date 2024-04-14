@@ -36,19 +36,24 @@ const { addCompany,
 
 
 //Importing controller from Alumni
-const {  getAlumniByName,
+const {
+  getAlumniByEmail,
   addAlumni,
-  deleteAlumniByName,
-  updateAlumniByName,
-  getAlumniByCompany,getAlumni} = require("../controller/alumni");
+  deleteAlumniByEmail,
+  updateAlumniByEmail,
+  getAlumniByCompany,
+  getAlumni,
+} = require("../controller/alumni");
 const { getQuestionByprnnoopen } =require("../controller/student");
 
 // Import the controller function for tnp coordinators
-const {getTnpByName,
+const {
+  getTnpByEmail,
   addTnp,
-  deleteTnpByName,
-  updateTnpByName,
-  getTnp,} = require("../controller/tnpcoordinator");
+  deleteTnpByEmail,
+  updateTnpByEmail,
+  getTnp,
+} = require("../controller/tnpcoordinator");
 
   //Importing controller for Notification
 const{ getNotificationAll, 
@@ -99,13 +104,21 @@ router.route("/company/name/").get(getCompanyByName);
 
 // New route for alumni by admins
 router.route("/alumni/").get(getAlumni).post(addAlumni);
-router.route("/alumni/name/").get(getAlumniByName).patch(updateAlumniByName).delete(deleteAlumniByName);
+router
+  .route("/alumni/name/")
+  .get(getAlumniByEmail)
+  .patch(updateAlumniByEmail)
+  .delete(deleteAlumniByEmail);
 router.route
 ("/alumni/company/").get(getAlumniByCompany);
 
 // New route for Tnp Cordinator by admins
 router.route("/tnpcoordinator/").get(getTnp).post(addTnp);
-router.route("/tnpcoordinator/name/").get(getTnpByName).patch(updateTnpByName).delete(deleteTnpByName);
+router
+  .route("/tnpcoordinator/name/")
+  .get(getTnpByEmail)
+  .patch(updateTnpByEmail)
+  .delete(deleteTnpByEmail);
 
 // New route for Notification by admins
 router.route("/notification/").get(getNotificationAll).post(addNotification);

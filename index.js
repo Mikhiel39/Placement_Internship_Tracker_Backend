@@ -3,11 +3,12 @@ require("dotenv").config();
 const studentRouter = require("./routes/student");
 const instructorRouter = require("./routes/instructor");
 const adminRouter = require("./routes/admin");
+const commonRouter = require("./routes/common");
 // External Dependencies
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const bodyParser=require("body-parser");
+const bodyParser = require("body-parser");
 
 const { connectMongoDB } = require("./config/database");
 
@@ -26,7 +27,6 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -34,7 +34,7 @@ app.use((err, req, res, next) => {
 });
 
 // Routes
-app.get("/api", (req, res) => res.send("Hello World"));
+app.use("/api", commonRouter);
 app.use("/api/students", studentRouter);
 app.use("/api/instructors", instructorRouter);
 app.use("/api/admins", adminRouter);

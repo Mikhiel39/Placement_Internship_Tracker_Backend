@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+require("dotenv").config();
 
 const TnpCordinatorSchema = new mongoose.Schema({
   name: {
@@ -11,8 +12,7 @@ const TnpCordinatorSchema = new mongoose.Schema({
     required: true,
   },
   image: {
-    type: String,
-    required: true,
+    type: String
   },
 
   linkedin: {
@@ -25,7 +25,7 @@ const TnpCordinatorSchema = new mongoose.Schema({
     required: true,
   },
 
-  emailId: {
+  tnpemailId: {
     type: String,
     required: true,
   },

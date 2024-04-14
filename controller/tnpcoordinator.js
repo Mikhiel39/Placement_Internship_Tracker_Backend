@@ -1,120 +1,22 @@
-// const Alumni = require("../models/Alumni");
-
-// // Get all alumni
-// const getAllAlumni = async (req, res) => {
-//   try {
-//     const alumni = await Alumni.find();
-//     res.json(alumni);
-//   } catch (err) {
-//     console.error(err.message);
-//     res.status(500).send("Server Error");
-//   }
-// };
-
-// // Get alumni by name
-// const getAlumniByName = async (req, res) => {
-//   const { name } = req.params;
-//   try {
-//     const alumni = await Alumni.find({ name });
-//     res.json(alumni);
-//   } catch (err) {
-//     console.error(err.message);
-//     res.status(500).send("Server Error");
-//   }
-// };
-
-// // Controller function to get alumni by company name
-// const getAlumniByCompanyName = async (req, res) => {
-//     try {
-//       const alumni = await Alumni.find({ company: req.params.companyName });
-//       res.json(alumni);
-//     } catch (err) {
-//       console.error(err.message);
-//       res.status(500).send("Server Error");
-//     }
-//   };
-
-// // Add new alumni
-// const addAlumni = async (req, res) => {
-//   const { name, yearOfPassout, company, testimonial, department, image,linkedin, } = req.body;
-
-//   try {
-//     const newAlumni = new Alumni({
-//       name,
-//       yearOfPassout,
-//       company,
-//       testimonial,
-//       department,
-//       image,
-//       linkedin,
-//     });
-
-//     const alumni = await newAlumni.save();
-//     res.json(alumni);
-//   } catch (err) {
-//     console.error(err.message);
-//     res.status(500).send("Server Error");
-//   }
-// };
-
-// // Update alumni by name
-// const updateAlumni = async (req, res) => {
-//   const { name } = req.params;
-//   const { yearOfPassout, company, testimonial, department, image,linkedin } = req.body;
-
-//   try {
-//     let alumni = await Alumni.findOne({ name });
-
-//     if (!alumni) {
-//       return res.status(404).json({ msg: "Alumni not found" });
-//     }
-
-//     alumni = await Alumni.findOneAndUpdate(
-//       { name },
-//       { $set: { yearOfPassout, company, testimonial, department, image,linkedin } },
-//       { new: true }
-//     );
-
-//     res.json(alumni);
-//   } catch (err) {
-//     console.error(err.message);
-//     res.status(500).send("Server Error");
-//   }
-// };
-
-// // Delete alumni by name
-// const deleteAlumni = async (req, res) => {
-//   const { name } = req.params;
-
-//   try {
-//     let alumni = await Alumni.findOne({ name });
-
-//     if (!alumni) {
-//       return res.status(404).json({ msg: "Alumni not found" });
-//     }
-
-//     await Alumni.findOneAndRemove({ name });
-
-//     res.json({ msg: "Alumni removed" });
-//   } catch (err) {
-//     console.error(err.message);
-//     res.status(500).send("Server Error");
-//   }
-// };
-
-// module.exports = {
-//   getAllAlumni,
-//   getAlumniByName,
-//   addAlumni,
-//   updateAlumni,
-//   deleteAlumni,
-//   getAlumniByCompanyName,
-// };
-
-
-
 const TnpCordinator = require("../models/TnpCordinator");
-//const Tnp = require("../models/TnpCordinator");
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads");
+  },
+  filename: function (req, file, cb) {
+    let tnpemailId = null; // Changed const to let
+    if (req.body.tnpemailId != null)
+      tnpemailId = req.body.tnpemailId;
+    if (req.query.tnpemailId != null)
+      tnpemailId = req.query.tnpemailId;
+    const uniqueSuffix = tnpemailId || "default";
+    cb(null, file.fieldname + "-" + uniqueSuffix);
+  },
+});
+
+const upload = multer({ storage: storage });
 //Function to get all Tnp cordinator
 async function getTnp(req, res) {
   try {
@@ -127,11 +29,11 @@ async function getTnp(req, res) {
 }
 
 // Controller function to fetch alumni by name
-async function getTnpByName(req, res) {
+async function getTnpByEmail(req, res) {
   try {
-    const tnpName = req.query.tnpName;
+    const tnpemailId = req.query.tnpemailId;
     // Query the database to find alumni by their name
-    const tnp = await TnpCordinator.findOne({ name: tnpName });
+    const tnp = await TnpCordinator.findOne({ tnpemailId: tnpemailId });
     if (!tnp) {
       return res.status(404).json({ error: "Tnp Coordinator not found" });
     }
@@ -142,31 +44,17 @@ async function getTnpByName(req, res) {
   }
 }
 
-// Controller function to add a new alumni
-
-// async function addAlumni(req, res) {
-//   try {
-//     const alumniData = req.body;
-//     const newAlumni = await Alumni.create(alumniData);
-//     res.status(201).json(newAlumni);
-//   } catch (error) {
-//     console.error("Error adding alumni:", error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// }
-
 // Add new Tnp cordinator
 const addTnp = async (req, res) => {
-  const { name, department,image,linkedin, position,emailId} = req.body;
+  const { name, department, linkedin, position, tnpemailId } = req.body;
 
   try {
     const newTnp = new TnpCordinator({
       name,
       department,
-      image,
       linkedin,
       position,
-      emailId,
+      tnpemailId,
     });
 
     const tnp = await newTnp.save();
@@ -177,14 +65,38 @@ const addTnp = async (req, res) => {
   }
 };
 
+async function updateimage(req, res) {
+  try {
+    let img = null; // Changed const to let
+    await upload.single("image")(req, res); // Moved multer middleware here to properly handle the file upload
 
+    // Access the uploaded file path from req.file
+    if (req.file) {
+      img = req.file.path;
+    } else {
+      throw new Error("No image uploaded");
+    }
+    await TnpCordinator.findOneAndUpdate(
+      { tnpemailId: req.query.tnpemailId },
+      {
+        image: img,
+      }
+    );
+    return res.status(201).json({ msg: "success" });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({ msg: "Internal server error" });
+  }
+}
 
 
 // Controller function to delete an Tnp cordinator by name
-async function deleteTnpByName(req, res) {
+async function deleteTnpByEmail(req, res) {
   try {
-    const tnpName = req.query.tnpName;
-    const deletedTnp = await TnpCordinator.findOneAndDelete({ name: tnpName });
+    const tnpemailId = req.query.tnpemailId;
+    const deletedTnp = await TnpCordinator.findOneAndDelete({
+      tnpemailId: tnpemailId,
+    });
     if (!deletedTnp) {
       return res.status(404).json({ error: "Tnp Cordinator not found" });
     }
@@ -196,12 +108,12 @@ async function deleteTnpByName(req, res) {
 }
 
 // Controller function to update an TnpCordinator by name
-async function updateTnpByName(req, res) {
+async function updateTnpByEmail(req, res) {
   try {
-    const tnpName = req.query.tnpName;
+    const tnpemailId = req.query.tnpemailId;
     const TnpUpdate = req.body;
     const updatedTnp = await TnpCordinator.findOneAndUpdate(
-      { name: tnpName },
+      { tnpemailId: tnpemailId },
       TnpUpdate,
       { new: true }
     );
@@ -215,27 +127,12 @@ async function updateTnpByName(req, res) {
   }
 }
 
-// Controller function to fetch alumni by company name
-// async function getTnpByCompany(req, res) {
-//   try {
-//     const companyName = req.query.companyName;
-//     // Query the database to find alumni by their company name
-//     const alumni = await Alumni.find({ company: companyName });
-//     if (!alumni) {
-//       return res.status(404).json({ error: "Alumni not found" });
-//     }
-//     res.json(alumni);
-//   } catch (error) {
-//     console.error("Error fetching alumni by company name:", error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// }
 
 module.exports = {
-  getTnpByName,
+  getTnpByEmail,
   addTnp,
-  deleteTnpByName,
-  updateTnpByName,
+  deleteTnpByEmail,
+  updateTnpByEmail,
   getTnp,
   
 };
