@@ -1,7 +1,6 @@
 const TnpCordinator = require("../models/TnpCordinator");
 const Company = require("../models/Company");
 const Alumni = require("../models/Alumni");
-const Notification = require("../models/Notification");
 
 async function getAll(req, res) {
   try {
