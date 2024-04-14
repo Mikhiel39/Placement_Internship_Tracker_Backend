@@ -1,3 +1,5 @@
+const express = require("express");
+const router = express.Router();
 const { getAllCompanies } = require("../controller/company");
 
 // Import the controller function for tnp coordinators
@@ -10,3 +12,5 @@ router.route("/tnpcoordinator/").get(getTnp);
 // New route for alumni by admins
 router.route("/alumni/").get(getAlumni);
 router.route("/company/").get(getAllCompanies);
+
+module.exports = router;

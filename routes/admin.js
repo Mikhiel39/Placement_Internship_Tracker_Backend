@@ -25,7 +25,6 @@ const {
   getAdminbyadminemailId,
 } = require("../controller/admin");
 const { addBatch, deleteBatch } = require("../controller/instructor");
-const { getQuestionByprnnoopen } =require("../controller/student");
 
 // Import the controller function for  companies
 const { addCompany,
@@ -44,7 +43,7 @@ const {
   getAlumniByCompany,
   getAlumni,
 } = require("../controller/alumni");
-const { getQuestionByprnnoopen } =require("../controller/student");
+const { getQuestionByprnnoopen } = require("../controller/student");
 
 // Import the controller function for tnp coordinators
 const {
@@ -56,12 +55,13 @@ const {
 } = require("../controller/tnpcoordinator");
 
   //Importing controller for Notification
-const{ getNotificationAll, 
-  getNotificationByTitle, 
-  addNotification, 
-  deleteNotificationByCompanyName,  
+const {
+  getNotificationAll,
+  getNotificationByTitle,
+  addNotification,
+  deleteNotificationByCompanyName,
   updateNotificationByCompanyName,
-}=require("../controller/notification");
+} = require("../controller/notificiation");
 
 
 router.route("/").get(getAdminbyadminemailId);

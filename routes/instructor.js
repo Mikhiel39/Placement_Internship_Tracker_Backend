@@ -39,11 +39,11 @@ router.route("/instructor/student/internship/").get(getInternshipByprnno),
   router.route("/instructor/student/question/open").get(getQuestionByprnnoopen),
 
     // New route for Notification by inst as inst only see or fet the notification he is not able to delete,update,add notification
-    router.route("/notification/").get(getNotificationAll)
+    router.route("/notification/").get(getNotificationAll);
     // New route for Tnp Cordinator by admins
-    router.route("/tnpcoordinator/").get(getTnp)
+    router.route("/tnpcoordinator/").get(getTnp);
     // New route for alumni by admins
-    router.route("/alumni/").get(getAlumni)
-    router.route("/company/").get(getAllCompanies)
-    
-    (module.exports = router);
+    router.route("/alumni/").get(getAlumni);
+    router.route("/company/").get(getAllCompanies);
+
+    module.exports = router;
