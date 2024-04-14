@@ -110,7 +110,7 @@ router.route("/company/logo/").patch(updatelogo);
 // New route for alumni by admins
 router.route("/alumni/").get(getAlumni).post(addAlumni);
 router
-  .route("/alumni/name/")
+  .route("/alumni/email/")
   .get(getAlumniByEmail)
   .patch(updateAlumniByEmail)
   .delete(deleteAlumniByEmail);
@@ -121,7 +121,7 @@ router.route("/alumni/image/").patch(updatealumniimage);
 // New route for Tnp Cordinator by admins
 router.route("/tnpcoordinator/").get(getTnp).post(addTnp);
 router
-  .route("/tnpcoordinator/name/")
+  .route("/tnpcoordinator/email/")
   .get(getTnpByEmail)
   .patch(updateTnpByEmail)
   .delete(deleteTnpByEmail);

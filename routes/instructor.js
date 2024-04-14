@@ -25,18 +25,18 @@ const {getTnp} = require("../controller/tnpcoordinator");
 const{getNotificationAll}=require("../controller/notificiation");
 const { getAlumni } = require("../controller/alumni");
 
-router.route("/instructor/").get(getInstructorByEmailID);
-router.route("/instructor/image/").patch(updateimage);
-router.route("/instructor/bgimage/").patch(updatebgimage);
+router.route("/").get(getInstructorByEmailID);
+router.route("/image/").patch(updateimage);
+router.route("/bgimage/").patch(updatebgimage);
 router
-  .route("/instructor/student/")
+  .route("/student/")
   .get(getStudentByprnno)
   .post(addBatch)
   .delete(deleteBatch);
-router.route("/instructor/student/internship/").get(getInternshipByprnno),
-  router.route("/instructor/student/placement/").get(getPlacementByprnno),
-  router.route("/instructor/student/question/").get(getQuestionByprnno),
-  router.route("/instructor/student/question/open").get(getQuestionByprnnoopen),
+router.route("/student/internship/").get(getInternshipByprnno),
+  router.route("/student/placement/").get(getPlacementByprnno),
+  router.route("/student/question/").get(getQuestionByprnno),
+  router.route("/student/question/open").get(getQuestionByprnnoopen),
 
     // New route for Notification by inst as inst only see or fet the notification he is not able to delete,update,add notification
     router.route("/notification/").get(getNotificationAll);

@@ -31,26 +31,28 @@ const { getAlumni } = require("../controller/alumni");
 const { getAllCompanies } = require("../controller/company");
 
 router
-  .route("/student/")
+  .route("/")
   .get(getStudentByprnno)
   .patch(updateProfile)
   .post(addQuestion);
 router
-  .route("/student/internship/")
+  .route("/internship/")
   .get(getInternshipByprnno)
   .post(addInternship)
   .patch(updateCompletionLetterInternship);
-router.route("/student/placement/").get(getPlacementByprnno).post(addPlacement);
+router.route("/placement/").get(getPlacementByprnno).post(addPlacement);
 router
-  .route("/student/questions/")
+  .route("/questions/")
   .get(getQuestionByprnno)
   .delete(deleteQuestionByprnno);
-router.route("/student/questions/open/").get(getQuestionByprnnoopen);
-router.route("/questions/").get(getQuestions);
-router.route("/questions/company/").get(getQuestionBycompanyname);
-router.route("/questions/company/open/").get(getQuestionByprncompanyoopen);
-router.route("/student/image/").patch(updateimage);
-router.route("/student/bgimage/").patch(updatebgimage);
+router.route("/questions/open/").get(getQuestionByprnnoopen);
+router.route("student/questions/").get(getQuestions);
+router.route("student/questions/company/").get(getQuestionBycompanyname);
+router
+  .route("student/questions/company/open/")
+  .get(getQuestionByprncompanyoopen);
+router.route("/image/").patch(updateimage);
+router.route("/bgimage/").patch(updatebgimage);
 
 // New route for Notification by inst as inst only see or fet the notification he is not able to delete,update,add notification
     router.route("/notification/").get(getNotificationAll);
