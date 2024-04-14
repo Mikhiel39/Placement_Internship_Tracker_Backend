@@ -1,101 +1,35 @@
-// // company.js
-
-// const Company = require("../models/Company");
-
-// async function getAllCompanies(req, res) {
-//   try {
-//     const companies = await Company.find();
-//     res.json(companies);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ msg: "Internal Server Error" });
-//   }
-// }
-
-// async function addCompany(req, res) {
-//   try {
-//     const { name, numberOfStudentsPlaced, avgPackage, logo, description } = req.body;
-//     const newCompany = new Company({
-//       name,
-//       numberOfStudentsPlaced,
-//       avgPackage,
-//       logo,
-//       description,
-//     });
-//     await newCompany.save();
-//     res.status(201).json({ msg: "Company added successfully" });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ msg: "Internal Server Error" });
-//   }
-// }
-
-// async function deleteCompany(req, res) {
-//   try {
-//     const { id } = req.params;
-//     const deletedCompany = await Company.findByIdAndDelete(id);
-//     if (!deletedCompany) {
-//       return res.status(404).json({ msg: "Company not found" });
-//     }
-//     res.json({ msg: "Company deleted successfully" });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ msg: "Internal Server Error" });
-//   }
-// }
-
-// async function updateCompany(req, res) {
-//   try {
-//     const { id } = req.params;
-//     const { name, numberOfStudentsPlaced, avgPackage, logo, description } = req.body;
-//     const updatedCompany = await Company.findByIdAndUpdate(
-//       id,
-//       { name, numberOfStudentsPlaced, avgPackage, logo, description },
-//       { new: true }
-//     );
-//     if (!updatedCompany) {
-//       return res.status(404).json({ msg: "Company not found" });
-//     }
-//     res.json({ msg: "Company updated successfully", company: updatedCompany });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ msg: "Internal Server Error" });
-//   }
-// }
-
-// module.exports = {
-//   getAllCompanies,
-//   addCompany,
-//   deleteCompany,
-//   updateCompany,
-// };
-
-
-
-//2 udate
-// controllers/company.js
-
 const Company = require("../models/Company");
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads");
+  },
+  filename: function (req, file, cb) {
+    let companyname = null; // Changed const to let
+    if (req.body.companyname != null)
+      companyname = req.body.companyname;
+    if (req.query.companyname != null)
+      companyname = req.query.companyname;
+    const uniqueSuffix = companyname || "default";
+    cb(null, file.fieldname + "-" + uniqueSuffix);
+  },
+});
+
+const upload = multer({ storage: storage });
 
 // Controller to add a new company (accessible only by admin)
 async function addCompany(req, res) {
   try {
-    // Check if user is admin
-    // if (!req.user.isAdmin) {
-    //   return res.status(403).json({ error: "You are not authorized to perform this action" });
-    // }
-
     const {companyname, numberOfStudentsPlaced,
-        avgPackage,
-        logo,      
+        avgPackage,      
         description,link} = req.body;
 
     const newCompany = new Company({
       // other fields
      companyname,
      numberOfStudentsPlaced,
-     avgPackage,
-     logo,      
+     avgPackage,     
      description,
      link,
     });
@@ -109,6 +43,30 @@ async function addCompany(req, res) {
   }
 }
 
+async function updatelogo(req, res) {
+  try {
+    let logo = null; // Changed const to let
+    await upload.single("logo")(req, res); // Moved multer middleware here to properly handle the file upload
+
+    // Access the uploaded file path from req.file
+    if (req.file) {
+      logo = req.file.path;
+    } else {
+      throw new Error("No logo uploaded");
+    }
+    await Company.findOneAndUpdate(
+      { companyname: req.query.companyname },
+      {
+        logo: logo,
+      }
+    );
+    return res.status(201).json({ msg: "success" });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({ msg: "Internal server error" });
+  }
+}
+
 // Controller to delete a company by name (accessible only by admin)
 async function deleteCompany(req, res) {
   try {
@@ -116,7 +74,7 @@ async function deleteCompany(req, res) {
     //   return res.status(403).json({ error: "You are not authorized to perform this action" });
     // }
 
-    const { companyName } = req.params;
+    const { companyName } = req.query;
 
     const deletedCompany = await Company.findOneAndDelete({ companyname:companyName });
 
@@ -134,11 +92,7 @@ async function deleteCompany(req, res) {
 // Controller to update a company by name (accessible only by admin)
 async function updateCompany(req, res) {
   try {
-    // if (!req.user.isAdmin) {
-    //   return res.status(403).json({ error: "You are not authorized to perform this action" });
-    // }
-
-    const { companyName } = req.params;
+    const { companyName } = req.query;
     const updatedFields = req.body;
 
     const updatedCompany = await Company.findOneAndUpdate({ companyname:companyName }, updatedFields, { new: true });
@@ -193,5 +147,5 @@ module.exports = {
   updateCompany,
   getAllCompanies,
   getCompanyByName,
-
+  updatelogo,
 };

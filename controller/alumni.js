@@ -68,7 +68,7 @@ const addAlumni = async (req, res) => {
   }
 };
 
-async function updateimage(req, res) {
+async function updatealumniimage(req, res) {
   try {
     let img = null; // Changed const to let
     await upload.single("image")(req, res); // Moved multer middleware here to properly handle the file upload
@@ -152,7 +152,7 @@ module.exports = {
   deleteAlumniByEmail,
   updateAlumniByEmail,
   getAlumniByCompany,
-  updateimage,
+  updatealumniimage,
   getAlumni,
 };
 
