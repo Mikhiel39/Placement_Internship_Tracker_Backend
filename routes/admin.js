@@ -73,7 +73,7 @@ router
   .route("/instructor/")
   .get(getInstructor)
   .post(addInstructor)
-router.route("/admin/").get(getAdmin).post(addAdmin).delete(deleteAdmin);;
+router.route("/admin/").get(getAdmin).post(addAdmin).delete(deleteAdmin);
 router
   .route("/student/")
   .get(getStudent,)
