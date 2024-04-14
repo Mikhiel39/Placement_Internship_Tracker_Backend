@@ -58,7 +58,6 @@ const addTnp = async (req, res) => {
     });
 
     const tnp = await newTnp.save();
-    res.json(tnp);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -100,7 +99,7 @@ async function deleteTnpByEmail(req, res) {
     if (!deletedTnp) {
       return res.status(404).json({ error: "Tnp Cordinator not found" });
     }
-    res.json({ message: "Tnp cordinator deleted successfully", deletedTnp });
+    res.json({ message: "Tnp cordinator deleted successfully" });
   } catch (error) {
     console.error("Error deleting Tnp Cordinator:", error);
     res.status(500).json({ error: "Internal server error" });

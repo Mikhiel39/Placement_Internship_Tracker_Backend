@@ -61,7 +61,6 @@ const addAlumni = async (req, res) => {
     });
 
     const alumni = await newAlumni.save();
-    res.json(alumni);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -103,7 +102,7 @@ async function deleteAlumniByEmail(req, res) {
     if (!deletedAlumni) {
       return res.status(404).json({ error: "Alumni not found" });
     }
-    res.json({ message: "Alumni deleted successfully", deletedAlumni });
+    res.json({ message: "Alumni deleted successfully" });
   } catch (error) {
     console.error("Error deleting alumni:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -123,7 +122,6 @@ async function updateAlumniByEmail(req, res) {
     if (!updatedAlumni) {
       return res.status(404).json({ error: "Alumni not found" });
     }
-    res.json(updatedAlumni);
   } catch (error) {
     console.error("Error updating alumni:", error);
     res.status(500).json({ error: "Internal server error" });

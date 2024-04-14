@@ -67,6 +67,12 @@ const {
   updateNotificationByCompanyName,
 } = require("../controller/notificiation");
 
+const {
+  getAnnouncementAll,
+  addAnnouncement,
+  deleteAnnouncement,
+} = require("../controller/announcement");
+
 
 router.route("/").get(getAdminbyadminemailId);
 router
@@ -134,5 +140,11 @@ router
 router.route("/notification/").get(getNotificationAll).post(addNotification);
 router.route("/notification/title/").get(getNotificationByTitle);
 router.route("/notification/companyname/").patch(updateNotificationByCompanyName).delete(deleteNotificationByCompanyName);
+
+router
+  .route("/announcement/")
+  .get(getAnnouncementAll)
+  .post(addAnnouncement)
+  .delete(deleteAnnouncement);
 
 module.exports = router;

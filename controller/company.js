@@ -36,7 +36,7 @@ async function addCompany(req, res) {
 
     await newCompany.save();
 
-    res.status(201).json({ message: "Company added successfully", company: newCompany });
+    res.status(201).json({ message: "Company added successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
@@ -82,7 +82,7 @@ async function deleteCompany(req, res) {
       return res.status(404).json({ error: "Company not found" });
     }
 
-    res.status(200).json({ message: "Company deleted successfully", company: deletedCompany });
+    res.status(200).json({ message: "Company deleted successfully"});
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
@@ -101,7 +101,7 @@ async function updateCompany(req, res) {
       return res.status(404).json({ error: "Company not found" });
     }
 
-    res.status(200).json({ message: "Company updated successfully", company: updatedCompany });
+    res.status(200).json({ message: "Company updated successfully"});
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });

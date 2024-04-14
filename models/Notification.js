@@ -26,7 +26,7 @@ const notificationSchema = new mongoose.Schema({
 
   postedAt: {
     type: Date,
-    default: Date.now, // Set the default value to the current timestamp
+    default: Date.now, 
   },
   
 });

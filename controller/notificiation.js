@@ -19,7 +19,6 @@ async function getNotificationByTitle(req, res) {
     if (!titleofNotifi) {
       return res.status(404).json({ error: "Notification not found" });
     }
-    res.json(titleofNotifi);
   } catch (error) {
     console.error("Error fetching Notification by name:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -41,7 +40,6 @@ const addNotification = async (req, res) => {
     });
 
     const notification = await newNotification.save();
-    res.json(notification);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -59,7 +57,7 @@ async function deleteNotificationByCompanyName(req, res) {
     if (!deletedNotification) {
       return res.status(404).json({ error: "Notification not found" });
     }
-    res.json({ message: "Notification deleted successfully", deletedNotification });
+    res.json({ message: "Notification deleted successfully"});
   } catch (error) {
     console.error("Error deleting notification:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -79,7 +77,6 @@ async function updateNotificationByCompanyName(req, res) {
     if (!updatedNotification) {
       return res.status(404).json({ error: "Notification not found" });
     }
-    res.json(updatedNotification);
   } catch (error) {
     console.error("Error updating Notification:", error);
     res.status(500).json({ error: "Internal server error" });
