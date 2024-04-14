@@ -1,0 +1,33 @@
+// company.js
+
+const mongoose = require("mongoose");
+
+const notificationSchema = new mongoose.Schema({
+  companyname: {
+    type: String,
+    required: true,
+  },
+  
+  link: {
+    type: String,
+    required: true,
+  },
+
+  title: {
+    type: String,
+    required: true,
+  },
+
+  description: {
+    type: String,
+    required: true,
+  },
+
+  postedAt: {
+    type: Date,
+    default: Date.now, // Set the default value to the current timestamp
+  },
+  
+});
+
+module.exports = mongoose.model("Notification", notificationSchema);

@@ -22,6 +22,12 @@ const {
   getQuestionByprnno,
 } = require("../controller/admin");
 
+//Importing controller for Notification
+const{
+  getNotificationAll, 
+  getNotificationByTitle, 
+}= require("../controller/notification");
+
 router
   .route("/student/")
   .get(getStudentByprnno)
@@ -43,5 +49,9 @@ router.route("/questions/company/").get(getQuestionBycompanyname);
 router.route("/questions/company/open/").get(getQuestionByprncompanyoopen);
 router.route("/student/image/").patch(updateimage);
 router.route("/student/bgimage/").patch(updatebgimage);
+
+// New route for Notification by students as student only see or fet the notification he is not able to delete,update,add notification
+router.route("/notification/").get(getNotificationAll);
+router.route("/notification/title/").get(getNotificationByTitle);
 
 module.exports = router;
