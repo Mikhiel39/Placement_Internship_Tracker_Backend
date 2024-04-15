@@ -1,7 +1,7 @@
 const TnpCoordinator = require("../models/TnpCordinator");
 const Company = require("../models/Company");
 const Alumni = require("../models/Alumni");
-const Announcement=require("../models/Announcement");
+const Announcement = require("../models/Announcement");
 
 async function getAll(req, res) {
   try {
@@ -16,7 +16,7 @@ async function getAll(req, res) {
       totalStudents += companies[i].numberOfStudentsPlaced;
     }
     const stat = {
-      avgPackage: avgPackage / totalStudents,
+      avgPackage: avgPackage / totalCompanies,
       totalCompanies: totalCompanies,
       totalStudents: totalStudents,
     };
@@ -28,7 +28,6 @@ async function getAll(req, res) {
     res.status(500).json({ error: "Internal server error" });
   }
 }
-
 
 module.exports = {
   getAll,
