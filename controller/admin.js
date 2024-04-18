@@ -328,7 +328,7 @@ async function addStudent(req, res) {
   try {
     if (
       !body.prnNo ||
-      !body.dateOfBirth ||
+      // !body.dateOfBirth ||
       // !body.instructoremailId ||
       // !body.about ||
       // !body.skills ||
@@ -337,16 +337,16 @@ async function addStudent(req, res) {
       // !body.image ||
       // !body.resume ||
       !body.regId ||
-      !body.firstname ||
-      !body.lastname ||
-      !body.gender ||
-      !body.internshipStatus ||
-      !body.placementStatus ||
+      // !body.firstname ||
+      !body.name ||
+      // !body.gender ||
+      // !body.internshipStatus ||
+      // !body.placementStatus ||
       // !body.cgpa ||
-      !body.year ||
-      !body.department ||
-      !body.contactNumber ||
-      !body.studentemailId ||
+      // !body.year ||
+      // !body.department ||
+      // !body.contactNumber ||
+      // !body.studentemailId ||
       !body.password
     ) {
       return res.status(400).json({ msg: "All fields are required" });
@@ -357,52 +357,52 @@ async function addStudent(req, res) {
     if (!student) {
       student = await Student.create({
         prnNo: body.prnNo,
-        dateOfBirth: body.dateOfBirth,
-        about: body.about,
-        skills: null,
-        LinkedIN: null,
-        Github: null,
-        image: null,
-        resume: null,
-        bgimage:null,
+        // dateOfBirth: body.dateOfBirth,
+        // about: body.about,
+        // skills: null,
+        // LinkedIN: null,
+        // Github: null,
+        // image: null,
+        // resume: null,
+        // bgimage:null,
         regId: body.regId,
-        firstname: body.firstname,
-        lastname: body.lastname,
-        gender: body.gender,
-        contactNumber: body.contactNumber,
-        internshipStatus: body.internshipStatus,
-        placementStatus: body.placementStatus,
-        cgpa: null,
-        year: body.year,
-        instructoremailId: null,
-        department: body.department,
-        studentemailId: body.studentemailId,
+        // firstname: body.firstname,
+        name: body.name,
+        // gender: body.gender,
+        // contactNumber: body.contactNumber,
+        // internshipStatus: body.internshipStatus,
+        // placementStatus: body.placementStatus,
+        // cgpa: null,
+        // year: body.year,
+        // instructoremailId: null,
+        // department: body.department,
+        // studentemailId: body.studentemailId,
         password: body.password,
       });
     } else {
       await Student.findOneAndUpdate(
         { prnNo: body.prnNo },
         {
-          dateOfBirth: body.dateOfBirth,
-          about: body.about,
-          skills: null,
-          LinkedIN: null,
-          Github: null,
-          image: null,
-          resume: null,
-          bgimage: null,
+          // dateOfBirth: body.dateOfBirth,
+          // about: body.about,
+          // skills: null,
+          // LinkedIN: null,
+          // Github: null,
+          // image: null,
+          // resume: null,
+          // bgimage:null,
           regId: body.regId,
-          firstname: body.firstname,
-          lastname: body.lastname,
-          gender: body.gender,
-          contactNumber: body.contactNumber,
-          internshipStatus: body.internshipStatus,
-          placementStatus: body.placementStatus,
-          cgpa: null,
-          year: body.year,
-          instructoremailId: null,
-          department: body.department,
-          studentemailId: body.studentemailId,
+          // firstname: body.firstname,
+          name: body.name,
+          // gender: body.gender,
+          // contactNumber: body.contactNumber,
+          // internshipStatus: body.internshipStatus,
+          // placementStatus: body.placementStatus,
+          // cgpa: null,
+          // year: body.year,
+          // instructoremailId: null,
+          // department: body.department,
+          // studentemailId: body.studentemailId,
           password: body.password,
         }
       );
@@ -422,22 +422,14 @@ async function addAdmin(req, res) {
   });
   if (!admin) {
     if (
-      !body.firstname ||
-      !body.lastname ||
-      !body.gender ||
-      !body.contactNumber ||
-      !body.department ||
+      !body.name ||
       !body.adminemailId ||
       !body.password
     ) {
       return res.status(400).json({ msg: "msg:All field required" });
     }
     const result = await Admin.create({
-      firstname: body.firstname,
-      lastname: body.lastname,
-      gender: body.gender,
-      contactNumber: body.contactNumber,
-      department: body.department,
+      name: body.name,
       adminemailId: body.adminemailId,
       password: body.password,
     });
@@ -445,11 +437,7 @@ async function addAdmin(req, res) {
     await Admin.findOneAndUpdate(
       { adminemailId: body.adminemailId },
       {
-        firstname: body.firstname,
-        lastname: body.lastname,
-        gender: body.gender,
-        contactNumber: body.contactNumber,
-        department: body.department,
+        name: body.name,
         password: body.password,
       }
     );

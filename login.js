@@ -12,7 +12,11 @@ async function handleStudentlogin(req, res) {
       req.body.prnNo,
       secretKey
     ).toString();
-    const student = await Student.findOne({ prnNo: req.body.prnNo, password: req.body.password });
+    const student = await Student.findOne({
+      prnNo: req.body.prnNo,
+      password: req.body.password,
+      regId: req.body.regId,
+    });
     if (!student) {
       return res.status(404).json({ student: "NULL" });
     }
@@ -29,7 +33,10 @@ async function handleInstructorlogin(req, res) {
       secretKey
     ).toString();
     // const decryptedPrn = decryptedBytes.toString(CryptoJS.enc.Utf8);
-    const instructor = await Instructor.findOne({ instructoremailId:req.body.instructoremailId, password:req.body.password  });
+    const instructor = await Instructor.findOne({
+      instructoremailId: req.body.instructoremailId,
+      password: req.body.password,
+    });
     if (!instructor) {
       return res.status(404).json({ instructor: "NULL" });
     }

@@ -11,22 +11,18 @@ const placementSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    required: true,
     trim: true,
   },
   offerLetter: {
     type: String,
     trim: true,
-    required: true,
   },
   jobDescription: {
     type: String,
-    required: true,
   },
 
   location: {
     type: String,
-    required: true,
   },
 
   salary: {
@@ -41,7 +37,6 @@ const placementSchema = new mongoose.Schema({
 
   domain: {
     type: String,
-    required: true,
   },
 });
 

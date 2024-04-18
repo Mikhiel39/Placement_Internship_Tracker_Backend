@@ -11,24 +11,16 @@ const studentSchema = new mongoose.Schema({
   instructoremailId: {
     type: String,
   },
-  firstname: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-
-  lastname: {
+  name: {
     type: String,
     required: true,
     trim: true,
   },
   dateOfBirth: {
     type: String,
-    required: true,
   },
   gender: {
     type: String,
-    required: true,
     enum: ["Male", "Female"],
   },
   about: {
@@ -39,11 +31,9 @@ const studentSchema = new mongoose.Schema({
   contactNumber: {
     type: Number,
     trim: true,
-    required: true,
   },
   studentemailId: {
     type: String,
-    required: true,
     trim: true,
   },
   regId: {
@@ -66,9 +56,13 @@ const studentSchema = new mongoose.Schema({
 
   image: {
     type: String,
+    default:
+      "https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg"
   },
   bgimage: {
     type: String,
+    default:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsq9tqudxCWoJMWzbqRQA1xSwZftG97Z5tNCtUtRll0w&s"
   },
   resume: {
     type: String,
@@ -76,24 +70,21 @@ const studentSchema = new mongoose.Schema({
   internshipStatus: {
     type: String,
     enum: ["Yes", "No"],
-    required: true,
   },
 
   placementStatus: {
     type: String,
     enum: ["Yes", "No"],
-    required: true,
   },
   cgpa: {
     type: Number,
   },
   year: {
     type: Number,
-    required: true,
   },
   department: {
     type: String,
-    required: true,
+    default: "IT",
   },
 });
 

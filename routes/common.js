@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const { getAll } = require("../controller/common");
-const {handleStudentlogin,
+const {
+  handleStudentlogin,
   handleInstructorlogin,
-  handleAdminlogin}=require("../login");
+  handleAdminlogin,
+} = require("../login");
 router.route("/").get(getAll);
-router.route("/Student").get(handleStudentlogin);
-router.route("/Instructor").get(handleInstructorlogin);
-router.route("/adminLogin").get(handleAdminlogin);
+router.route("/Student").post(handleStudentlogin);
+router.route("/Instructor").post(handleInstructorlogin);
+router.route("/adminLogin").post(handleAdminlogin);
 module.exports = router;

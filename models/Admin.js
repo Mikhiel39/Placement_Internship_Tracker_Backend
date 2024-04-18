@@ -3,40 +3,35 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-
-
 const adminSchema = new mongoose.Schema({
-  firstname: {
-    type: String, // Capitalized "String"
-    required: true,
-  },
-
-  lastname: {
-    type: String, // Capitalized "String"
+  name: {
+    type: String,
     required: true,
   },
 
   gender: {
     type: String,
-    required: true,
     enum: ["Male", "Female"],
   },
 
   contactNumber: {
-    type: Number, // Capitalized "Number"
+    type: String, // Changed from Number to String
     trim: true,
   },
+
   adminemailId: {
-    type: String, 
+    type: String,
     required: true,
   },
+
   password: {
     type: String,
     required: true,
   },
+
   department: {
     type: String,
-    required: true,
+    default: "IT"
   },
 });
 

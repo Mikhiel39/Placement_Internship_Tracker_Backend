@@ -96,8 +96,8 @@ router
   .route("/placement/")
   .post(addPlacement)
   .get(getPlacementByprnno);
-router.route("/question/ByPrnNo").get(getQuestionByprnno);
-router.route("/question/ByPrnNo/open").get(getQuestionByprnnoopen);
+// router.route("/question/ByPrnNo").get(getQuestionByprnno);
+// router.route("/question/ByPrnNo/open").get(getQuestionByprnnoopen);
 router
   .route("/student/ByInstructor/")
   .get(getStudentByInstructor)
@@ -105,8 +105,8 @@ router
   .delete(deleteBatch);
   router.route("/internship/ByInstructor/").get(getInternshipByInstructor);
   router.route("/placement/ByInstructor/").get(getPlacementByInstructor);
-  router.route("/question/ByInstructor/").get(getQuestionByInstructor);
-  router.route("/question/ByInstructor/open").get(getQuestionByInstructoropen);
+  // router.route("/question/ByInstructor/").get(getQuestionByInstructor);
+  // router.route("/question/ByInstructor/open").get(getQuestionByInstructoropen);
 
   // New route for companies by admins
 router.route("/company/").get(getAllCompanies).post(addCompany).delete(deleteCompany).patch(updateCompany);
@@ -120,21 +120,21 @@ router
   .get(getAlumniByEmail)
   .patch(updateAlumniByEmail)
   .delete(deleteAlumniByEmail);
-router.route
-("/alumni/company/").get(getAlumniByCompany);
+// router.route
+// ("/alumni/company/").get(getAlumniByCompany);
 router.route("/alumni/image/").patch(updatealumniimage);
 
 // New route for Tnp Cordinator by admins
-router.route("/tnpcoordinator/").get(getTnp).post(addTnp);
-router
-  .route("/tnpcoordinator/email/")
-  .get(getTnpByEmail)
-  .patch(updateTnpByEmail)
-  .delete(deleteTnpByEmail);
+// router.route("/tnpcoordinator/").get(getTnp).post(addTnp);
+// router
+//   .route("/tnpcoordinator/email/")
+//   .get(getTnpByEmail)
+//   .patch(updateTnpByEmail)
+//   .delete(deleteTnpByEmail);
 
-router
-  .route("/tnpcoordinator/image/")
-  .patch(updatetnpimage)
+// router
+//   .route("/tnpcoordinator/image/")
+//   .patch(updatetnpimage)
 
 // New route for Notification by admins
 router.route("/notification/").get(getNotificationAll).post(addNotification);

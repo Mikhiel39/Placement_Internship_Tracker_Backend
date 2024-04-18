@@ -9,11 +9,11 @@ const internshipSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  internshipName: {
-    type: String,
-    required: true,
-    trim: true,
-  },
+  // internshipName: {
+  //   type: String,
+  //   required: true,
+  //   trim: true,
+  // },
   offerLetter: {
     type: String,
     trim: true,
@@ -34,10 +34,10 @@ const internshipSchema = new mongoose.Schema({
     required: true,
   },
 
-  location: {
-    type: String,
-    required: true,
-  },
+  // location: {
+  //   type: String,
+  //   required: true,
+  // },
 
   stipend: {
     type: Number,
@@ -49,25 +49,29 @@ const internshipSchema = new mongoose.Schema({
     required: true,
   },
 
-  internTitle: {
-    type: String,
-    required: true,
-  },
+  // internTitle: {
+  //   type: String,
+  //   required: true,
+  // },
   domain: {
     type: String,
-    required: true,
   },
 
   externalInstructors: [
     {
       name: {
         type: String,
-        required: true,
+        // required: true,
         trim: true,
       },
       externalInstructorsemailId: {
         type: String,
-        required: true,
+        // required: true,
+        trim: true,
+      },
+      externalInstructorscontactNo: {
+        type: String,
+        // required: true,
         trim: true,
       },
     },
