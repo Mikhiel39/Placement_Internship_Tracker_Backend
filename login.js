@@ -14,7 +14,7 @@ async function handleStudentlogin(req, res) {
       secretKey
     ).toString();
     let bytes = CryptoJS.enc.Base64.stringify(
-      CryptoJS.enc.Utf8.parse(cryptedBytes)
+      CryptoJS.enc.Latin1.parse(cryptedBytes)
     );
     const student = await Student.findOne({
       prnNo: prnNo,
