@@ -9,11 +9,11 @@ const secretKey = process.env.SECRET_KEY;
 async function handleStudentlogin(req, res) {
   const prnNo=req.body.prnNo;
   try {
-    const cryptedBytes = CryptoJS.AES.encrypt(
+    let cryptedBytes = CryptoJS.AES.encrypt(
       JSON.stringify({prnNo}),
       secretKey
     ).toString();
-    const bytes = CryptoJS.enc.Base64.stringify(
+    let bytes = CryptoJS.enc.Base64.stringify(
       CryptoJS.enc.Utf8.parse(cryptedBytes)
     );
     const student = await Student.findOne({
