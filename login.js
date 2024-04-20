@@ -7,13 +7,14 @@ const express = require("express");
 const secretKey = process.env.SECRET_KEY;
 
 async function handleStudentlogin(req, res) {
+  const prnNo=req.body.prnNo;
   try {
     const cryptedBytes = CryptoJS.AES.encrypt(
-      req.body.prnNo,
+      JSON.stringify({prnNo}),
       secretKey
     ).toString();
     const student = await Student.findOne({
-      prnNo: req.body.prnNo,
+      prnNo: prnNo,
       password: req.body.password,
       regId: req.body.regId,
     });
