@@ -14,7 +14,6 @@ const storage = multer.diskStorage({
   filename: function (req, file, cb) {
     let prnNo = null;
     if (req.body.prnNo != null) prnNo = req.body.prnNo;
-    if (req.query.prnNo != null) prnNo = req.query.prnNo;
     const uniqueSuffix = prnNo || "default";
     cb(null, file.fieldname + "-" + uniqueSuffix);
   },
@@ -145,7 +144,9 @@ async function getQuestionByprnnocompanyname(req, res) {
 async function updateProfile(req, res) {
   const body = req.body;
   const {
-    // instructoremailId,
+    CodeForces,
+    CodeChef,
+    Leetcode,
     about,
     skills,
     LinkedIN,
@@ -158,7 +159,9 @@ async function updateProfile(req, res) {
   } = body;
 
   if (
-    // !instructoremailId ||
+    !CodeForces ||
+    !CodeChef ||
+    !Leetcode ||
     !about ||
     !skills ||
     !LinkedIN ||
@@ -173,6 +176,7 @@ async function updateProfile(req, res) {
   }
 
   try {
+    // Assuming 'upload' is an instance of multer
     await upload.single("resume")(req, res);
     let resume = null;
     if (req.file) {
@@ -183,22 +187,24 @@ async function updateProfile(req, res) {
     await Student.findOneAndUpdate(
       { prnNo: req.query.prnNo },
       {
-        // instructoremailId: instructoremailId,
-        about: about,
-        skills: skills,
-        LinkedIN: LinkedIN,
-        Github: Github,
-        resume: resume,
-        cgpa: cgpa,
-        internshipStatus: internshipStatus,
-        placementStatus: placementStatus,
-        year: year,
-        department: department,
+        CodeForces,
+        CodeChef,
+        Leetcode,
+        about,
+        skills,
+        LinkedIN,
+        Github,
+        resume,
+        cgpa,
+        internshipStatus,
+        placementStatus,
+        year,
+        department,
       },
       { upsert: true }
     );
 
-    return res.status(201).json({ msg: "success" });
+    return res.status(201).json({ msg: "Success" });
   } catch (error) {
     console.error("Error updating profile:", error);
     return res.status(500).json({ msg: "Internal Server Error" });
@@ -208,18 +214,13 @@ async function updateProfile(req, res) {
 async function getStudentByprnno(req, res) {
   try {
     const student = await Student.findOne({
-      prnNo: req.query.prnNo,
+      prn: req.query.prnNo,
     }).exec();
-    const notification = await Notification.find();
-    const company = await Company.find();
-    const alumni = await Alumni.find();
-    const tnp = await TnpCordinator.find();
-
     if (!student)
       return res.status(404).json({ error: "No Such Student available" });
 
     // Return the result along with the student data
-    return res.json({ student, notification, company, alumni, tnp });
+    return res.json({ student });
   } catch (error) {
     // Handle any potential errors
     return res.status(500).json({ error: "Internal Server Error" });

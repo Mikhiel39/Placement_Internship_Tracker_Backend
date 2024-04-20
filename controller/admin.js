@@ -79,12 +79,12 @@ async function getStudentByInstructor(req, res) {
 
 async function getInternshipByprnno(req, res) {
   try {
-    const student = await Student.findOne({ prnNo: req.query.prnNo }).exec();
+    const student = await Student.findOne({ prnNo: req.params.prnNo }).exec();
     if (!student || student.internshipStatus !== "Yes") {
       return res.status(404).json({ error: "No internship available" });
     }
     const internships = await Internship.find({
-      prnNo: req.query.prnNo,
+      name: student.name,
     }).exec();
     return res.json(internships);
   } catch (error) {
@@ -214,18 +214,18 @@ async function getQuestionByprnno(req, res) {
 async function addInternship(req, res) {
   try {
     const body = req.body;
-    const prnNo = req.query.prnNo; // Corrected to access prnNo from query parameters
+    const prnNo = req.body.prnNo; // Corrected to access prnNo from query parameters
 
     const internship = await Internship.findOne({
       prnNo: prnNo, // Corrected to use the prnNo variable
-      internshipName: body.internshipName,
+      noInternship: req.body.noInternship,
     });
 
     if (!internship) {
       // Add validation for required fields here
       const result = await Internship.create({
         prnNo: prnNo, // Corrected to use the prnNo variable
-        internshipName: body.internshipName,
+        noInternship: req.body.noInternship,
         internshipDescription: body.internshipDescription,
         duration: body.duration,
         location: body.location,
@@ -245,14 +245,13 @@ async function addInternship(req, res) {
       return res.status(200).json({ msg: "Internship added successfully" });
     } else {
       await Internship.findOneAndUpdate(
-        { prnNo: prnNo, internshipName: body.internshipName }, // Corrected to use the prnNo variable
+        { prnNo: prnNo, noInternship: req.body.noInternship }, // Corrected to use the prnNo variable
         {
           internshipDescription: body.internshipDescription,
           duration: body.duration,
           location: body.location,
           stipend: body.stipend,
           offerLetter: body.offerLetter,
-          companyname: body.companyname,
           internTitle: body.internTitle,
           domain: body.domain,
           externalInstructors: body.externalInstructors,
@@ -306,8 +305,9 @@ async function addPlacement(req, res) {
       );
     } else {
       await Placement.findOneAndUpdate(
-        { role: body.role, companyname: body.companyname, prnNo: req.query.prnNo },
+        {  companyname: body.companyname, prnNo: req.query.prnNo },
         {
+          role: body.role,
           jobDescription: body.jobDescription,
           location: body.location,
           salary: body.salary,

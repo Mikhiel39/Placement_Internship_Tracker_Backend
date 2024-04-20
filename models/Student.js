@@ -49,20 +49,28 @@ const studentSchema = new mongoose.Schema({
   Github: {
     type: String,
   },
+  Leetcode: {
+    type: String,
+  },
+  CodeChef: {
+    type: String,
+  },
+  CodeForces: {
+    type: String,
+  },
   password: {
     type: String,
     required: true,
   },
-
   image: {
     type: String,
     default:
-      "https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg"
+      "https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg",
   },
   bgimage: {
     type: String,
     default:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsq9tqudxCWoJMWzbqRQA1xSwZftG97Z5tNCtUtRll0w&s"
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsq9tqudxCWoJMWzbqRQA1xSwZftG97Z5tNCtUtRll0w&s",
   },
   resume: {
     type: String,

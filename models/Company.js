@@ -24,6 +24,10 @@ const companySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  date:{
+    type:Date,
+    required:true,
+  },
   link: {
     type: String,
     required: true,

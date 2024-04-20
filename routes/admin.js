@@ -125,16 +125,16 @@ router
 router.route("/alumni/image/").patch(updatealumniimage);
 
 // New route for Tnp Cordinator by admins
-// router.route("/tnpcoordinator/").get(getTnp).post(addTnp);
-// router
-//   .route("/tnpcoordinator/email/")
-//   .get(getTnpByEmail)
-//   .patch(updateTnpByEmail)
-//   .delete(deleteTnpByEmail);
+router.route("/tnpcoordinator/").get(getTnp).post(addTnp);
+router
+  .route("/tnpcoordinator/email/")
+  .get(getTnpByEmail)
+  .patch(updateTnpByEmail)
+  .delete(deleteTnpByEmail);
 
-// router
-//   .route("/tnpcoordinator/image/")
-//   .patch(updatetnpimage)
+router
+  .route("/tnpcoordinator/image/")
+  .patch(updatetnpimage)
 
 // New route for Notification by admins
 router.route("/notification/").get(getNotificationAll).post(addNotification);

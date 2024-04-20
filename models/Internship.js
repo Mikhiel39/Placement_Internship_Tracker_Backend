@@ -5,19 +5,21 @@ require("dotenv").config();
 
 //2.Creating Schema
 const internshipSchema = new mongoose.Schema({
-  prnNo: {
+  noInternship: {
     type: String,
     required: true,
   },
-  // internshipName: {
-  //   type: String,
-  //   required: true,
-  //   trim: true,
-  // },
+  prnNo: {
+    type: String,
+  },
+  internshipName: {
+    type: String,
+    // required: true,
+    trim: true,
+  },
   offerLetter: {
     type: String,
     trim: true,
-    required: true,
   },
   completionLetter: {
     type: String,
@@ -26,7 +28,7 @@ const internshipSchema = new mongoose.Schema({
 
   internshipDescription: {
     type: String,
-    required: true,
+    // required: true,
   },
 
   duration: {
@@ -34,10 +36,10 @@ const internshipSchema = new mongoose.Schema({
     required: true,
   },
 
-  // location: {
-  //   type: String,
-  //   required: true,
-  // },
+  location: {
+    type: String,
+    // required: true,
+  },
 
   stipend: {
     type: Number,
@@ -49,10 +51,10 @@ const internshipSchema = new mongoose.Schema({
     required: true,
   },
 
-  // internTitle: {
-  //   type: String,
-  //   required: true,
-  // },
+  internTitle: {
+    type: String,
+    // required: true,
+  },
   domain: {
     type: String,
   },
