@@ -214,7 +214,7 @@ async function updateProfile(req, res) {
 async function getStudentByprnno(req, res) {
   try {
     const student = await Student.findOne({
-      prn: req.query.prnNo,
+      prnNo: req.query.prnNo,
     }).exec();
     if (!student)
       return res.status(404).json({ error: "No Such Student available" });
