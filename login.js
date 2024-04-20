@@ -13,6 +13,9 @@ async function handleStudentlogin(req, res) {
       JSON.stringify({prnNo}),
       secretKey
     ).toString();
+    const bytes = CryptoJS.enc.Base64.stringify(
+      CryptoJS.enc.Utf8.parse(cryptedBytes)
+    );
     const student = await Student.findOne({
       prnNo: prnNo,
       password: req.body.password,
@@ -21,7 +24,7 @@ async function handleStudentlogin(req, res) {
     if (!student) {
       return res.status(404).json({ student: "NULL" });
     }
-    return res.status(200).json({ student: cryptedBytes });
+    return res.status(200).json({ student: bytes });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
