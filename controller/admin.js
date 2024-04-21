@@ -65,6 +65,8 @@ async function getStudentByprnno(req, res) {
     return res.status(404).json({ error: "No Such Student available" });
   return res.json(student);
 }
+
+
 async function getStudentByInstructor(req, res) {
   const student = await Student.find({
     instructoremailId: req.params.instructoremailId,

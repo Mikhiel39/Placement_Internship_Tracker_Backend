@@ -2,6 +2,7 @@ const TnpCoordinator = require("../models/TnpCordinator");
 const Company = require("../models/Company");
 const Alumni = require("../models/Alumni");
 const Announcement = require("../models/Announcement");
+const Student = require("../models/Student");
 
 async function getAll(req, res) {
   try {
@@ -29,6 +30,21 @@ async function getAll(req, res) {
   }
 }
 
+async function updateInstructorEmailId(req, res) {
+  const student = await Student.findOne({
+    prnNo: req.query.prnNo,
+  }).exec();
+  if (!student)
+    return res.status(404).json({ error: "No Such Student available" });
+  await Student.findOneAndUpdate(
+    {
+      prnNo: req.query.prnNo,
+    },
+    { instructoremailId: req.body.instructoremailId }
+  ).exec();
+}
+
 module.exports = {
   getAll,
+  updateInstructorEmailId,
 };
