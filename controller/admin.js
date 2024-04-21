@@ -4,7 +4,7 @@ const Internship = require("../models/Internship");
 const Placement = require("../models/Placement");
 const Question = require("../models/Question");
 const Instructor = require("../models/Instructor");
-const Question_model=require("../models/Question_model")
+const Question_model = require("../models/Question_model");
 
 async function getInstructor(req, res) {
   const instructor = await Instructor.find().exec();
@@ -14,14 +14,12 @@ async function getInstructor(req, res) {
 }
 async function getStudent(req, res) {
   const student = await Student.find().exec();
-  if (!student)
-    return res.status(404).json({ error: "No Student available" });
+  if (!student) return res.status(404).json({ error: "No Student available" });
   return res.json(student);
 }
 async function getAdmin(req, res) {
   const admin = await Admin.find().exec();
-  if (!admin)
-    return res.status(404).json({ error: "No Admin available" });
+  if (!admin) return res.status(404).json({ error: "No Admin available" });
   return res.json(admin);
 }
 
@@ -44,7 +42,7 @@ async function getAdminbyadminemailId(req, res) {
 
 async function getInstructorByEmailID(req, res) {
   try {
-    const instructor = await Instructor.findOne({
+    const instructor = await Instructor.find({
       instructoremailId: req.query.instructoremailId,
     }).exec();
 
@@ -91,7 +89,6 @@ async function getInternshipByprnno(req, res) {
     return res.status(500).json({ error: error.message });
   }
 }
-
 
 async function getInternshipByInstructor(req, res) {
   try {
@@ -270,8 +267,8 @@ async function addPlacement(req, res) {
   try {
     const body = req.body;
     const placement = await Placement.findOne({
-      role:body.role,
-      companyname:body.companyname,
+      role: body.role,
+      companyname: body.companyname,
       prnNo: req.query.prnNo,
     });
 
@@ -305,7 +302,7 @@ async function addPlacement(req, res) {
       );
     } else {
       await Placement.findOneAndUpdate(
-        {  companyname: body.companyname, prnNo: req.query.prnNo },
+        { companyname: body.companyname, prnNo: req.query.prnNo },
         {
           role: body.role,
           jobDescription: body.jobDescription,
@@ -421,11 +418,7 @@ async function addAdmin(req, res) {
     adminemailId: body.adminemailId,
   });
   if (!admin) {
-    if (
-      !body.name ||
-      !body.adminemailId ||
-      !body.password
-    ) {
+    if (!body.name || !body.adminemailId || !body.password) {
       return res.status(400).json({ msg: "msg:All field required" });
     }
     const result = await Admin.create({
@@ -473,7 +466,7 @@ async function addInstructor(req, res) {
         instructoremailId: body.instructoremailId,
         password: body.password,
         bgimage: null,
-        image:null,
+        image: null,
         department: body.department,
       });
     } else {
@@ -502,8 +495,9 @@ async function updateCompletionLetterInternship(req, res) {
   const body = req.body;
   try {
     const completion = Internship.findOne({
-      internshipName:req.query.internshipName, 
-      prnNo: req.query.prnNo });
+      internshipName: req.query.internshipName,
+      prnNo: req.query.prnNo,
+    });
     if (completion) {
       await Internship.findOneAndUpdate(
         { internshipName: req.query.internshipName, prnNo: req.query.prnNo },
@@ -553,7 +547,7 @@ async function updateCompletionLetterInternship(req, res) {
 // }
 async function deleteInstructor(req, res) {
   try {
-    const instructor =  await Instructor.findOne({
+    const instructor = await Instructor.findOne({
       instructoremailId: req.query.instructoremailId,
     });
     if (instructor) {
@@ -618,7 +612,6 @@ async function deleteStudent(req, res) {
     return res.status(500).json({ error: error.message });
   }
 }
-
 
 module.exports = {
   getInstructor,

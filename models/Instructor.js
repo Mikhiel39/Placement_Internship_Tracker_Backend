@@ -44,13 +44,6 @@ const instructorSchema = new mongoose.Schema({
       prnNo: {
         type: String,
       },
-      regId: {
-        type: String,
-      },
-      department: {
-        type: String,
-        required: true,
-      },
     },
   ],
   department: {
