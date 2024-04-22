@@ -56,9 +56,15 @@ async function updateSkills(req, res) {
   }
 }
 async function updatebgimage(req, res) {
+  const prnNo = await Token.findOne({
+    encrypted: req.query.prnNo,
+  });
+  if (!prnNo) {
+    return res.status(404).json({ error: "Not yet Login" });
+  }
   // const body = req.body;
   try {
-    await upload.single("bgimage")(req, res);
+    // await upload.single("bgimage")(req, res);
     let img = null;
     console.log(req.file);
     if (req.file) {
@@ -67,7 +73,7 @@ async function updatebgimage(req, res) {
       throw new Error("No image uploaded");
     }
     await Student.findOneAndUpdate(
-      { prnNo: req.query.prnNo },
+      { prnNo: prnNo.user },
       {
         bgimage: img,
       }
@@ -106,8 +112,12 @@ async function updateGithub(req, res) {
   }
 }
 async function updateimage(req, res) {
-  // const body = req.body;
-  console.log(req.body);
+  const prnNo = await Token.findOne({
+    encrypted: req.query.prnNo,
+  });
+  if (!prnNo) {
+    return res.status(404).json({ error: "Not yet Login" });
+  }
   try {
     // await upload.single("image")(req, res);
     let img = null;
@@ -118,7 +128,7 @@ async function updateimage(req, res) {
       throw new Error("No image uploaded");
     }
     await Student.findOneAndUpdate(
-      { prnNo: req.query.prnNo },
+      { prnNo: prnNo.user },
       {
         image: img,
       }
@@ -129,7 +139,12 @@ async function updateimage(req, res) {
   }
 }
 async function updateresume(req, res) {
-  // await upload.single("resume")(req, res);
+  const prnNo = await Token.findOne({
+    encrypted: req.query.prnNo,
+  });
+  if (!prnNo) {
+    return res.status(404).json({ error: "Not yet Login" });
+  }
   let resume = null;
   if (req.file) {
     resume = req.file.path;
@@ -138,9 +153,9 @@ async function updateresume(req, res) {
   }
   try {
     await Student.findOneAndUpdate(
-      { prnNo: req.query.prnNo },
+      { prnNo: prnNo.user },
       {
-        resume: body.resume,
+        resume: resume,
       }
     );
     return res.status(201).json({ msg: "success" });
@@ -176,6 +191,12 @@ async function getQuestionByprnnocompanyname(req, res) {
   return res.json(question);
 }
 async function updateProfile(req, res) {
+  const prnNo = await Token.findOne({
+    encrypted: req.query.prnNo,
+  });
+  if (!prnNo) {
+    return res.status(404).json({ error: "Not yet Login" });
+  }
   const body = req.body;
   const {
     CodeForces,
@@ -211,15 +232,15 @@ async function updateProfile(req, res) {
 
   try {
     // Assuming 'upload' is an instance of multer
-    await upload.single("resume")(req, res);
-    let resume = null;
-    if (req.file) {
-      resume = req.file.path;
-    } else {
-      throw new Error("No resume uploaded");
-    }
+    // await upload.single("resume")(req, res);
+    // let resume = null;
+    // if (req.file) {
+    //   resume = req.file.path;
+    // } else {
+    //   throw new Error("No resume uploaded");
+    // }
     await Student.findOneAndUpdate(
-      { prnNo: req.query.prnNo },
+      { prnNo: prnNo.user },
       {
         CodeForces,
         CodeChef,
@@ -228,7 +249,6 @@ async function updateProfile(req, res) {
         skills,
         LinkedIN,
         Github,
-        resume,
         cgpa,
         internshipStatus,
         placementStatus,
@@ -247,8 +267,14 @@ async function updateProfile(req, res) {
 
 async function getStudentByprnno(req, res) {
   try {
+    const prnNo= await Token.findOne({
+      encrypted:req.query.prnNo
+    })
+    if(!prnNo){
+      return res.status(404).json({ error: "Not yet Login" });
+    }
     const student = await Student.findOne({
-      prnNo: req.query.prnNo,
+      prnNo: prnNo.user,
     }).exec();
     if (!student)
       return res.status(404).json({ error: "No Such Student available" });
@@ -271,12 +297,19 @@ async function getStudentByInstructor(req, res) {
 }
 
 async function addQuestion(req, res) {
+  const prnNo = await Token.findOne({
+    encrypted: req.query.prnNo,
+  });
+  if (!prnNo) {
+    return res.status(404).json({ error: "Not yet Login" });
+  }
+
   const body = req.body;
 
   try {
     // Check if the question already exists
     const existingQuestion = await Question.findOne({
-      prnNo: req.query.prnNo,
+      prnNo: prnNo.user,
       Question_no: body.Question_no,
     });
 
@@ -298,7 +331,7 @@ async function addQuestion(req, res) {
       return res.status(400).json({ msg: "All fields are required" });
     }
     let companylogo = null; // Changed const to let
-    await upload.single("companylogo")(req, res); // Moved multer middleware here to properly handle the file upload
+    // await upload.single("companylogo")(req, res); // Moved multer middleware here to properly handle the file upload
 
     // Access the uploaded file path from req.file
     if (req.file) {
@@ -308,7 +341,7 @@ async function addQuestion(req, res) {
     }
     // Create the new question
     const newQuestion = await Question.create({
-      prnNo: req.query.prnNo,
+      prnNo: prnNo.user,
       Question_no: body.Question_no,
       companylogo: companylogo,
       puzzlelink: {
@@ -328,7 +361,7 @@ async function addQuestion(req, res) {
 
     // Find the question model and update it
     const questionModel = await Question_model.findOne({
-      prnNo: req.query.prnNo,
+      prnNo: prnNo.user,
     });
 
     if (questionModel) {
@@ -342,7 +375,7 @@ async function addQuestion(req, res) {
       return res.status(400).json({ msg: "Question model is found" });
     }
     const nQuestion = await Question_model.create({
-      prnNo: req.query.prnNo,
+      prnNo: prnNo.user,
       questions: {
         Question_no: body.Question_no,
         companyname: body.companyname,
@@ -360,8 +393,14 @@ async function addQuestion(req, res) {
 }
 
 async function getQuestionByprncompanyoopen(req, res) {
+  const prnNo = await Token.findOne({
+    encrypted: req.query.prnNo,
+  });
+  if (!prnNo) {
+    return res.status(404).json({ error: "Not yet Login" });
+  }
   const question = await Question.findOne({
-    prnNo: req.query.prnNo,
+    prnNo: prnNo.user,
     companyname: req.query.companyname,
   }).exec();
   if (!question)
@@ -370,8 +409,14 @@ async function getQuestionByprncompanyoopen(req, res) {
 }
 
 async function getQuestionByprnnoopen(req, res) {
+  const prnNo = await Token.findOne({
+    encrypted: req.query.prnNo,
+  });
+  if (!prnNo) {
+    return res.status(404).json({ error: "Not yet Login" });
+  }
   const question = await Question.findOne({
-    prnNo: req.query.prnNo,
+    prnNo: prnNo.user,
     Question_no: req.query.Question_no,
   }).exec();
   if (!question)
@@ -380,12 +425,18 @@ async function getQuestionByprnnoopen(req, res) {
 }
 
 async function deleteQuestionByprnno(req, res) {
+  const prnNo = await Token.findOne({
+    encrypted: req.query.prnNo,
+  });
+  if (!prnNo) {
+    return res.status(404).json({ error: "Not yet Login" });
+  }
   const result = await Question_model.updateOne(
-    { prnNo: req.query.prnNo },
+    { prnNo: prnNo.user },
     { $pull: { questions: { Question_no: req.query.Question_no } } }
   );
   const questions = await Question.findOneAndDelete({
-    prnNo: req.query.prnNo,
+    prnNo: prnNo.user,
     Question_no: req.query.Question_no,
   });
   if (!questions || !result)

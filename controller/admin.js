@@ -5,6 +5,22 @@ const Placement = require("../models/Placement");
 const Question = require("../models/Question");
 const Instructor = require("../models/Instructor");
 const Question_model = require("../models/Question_model");
+const Token =require("../models/Token")
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads");
+  },
+  filename: function (req, file, cb) {
+    let prnNo = null;
+    if (req.query.prnNo != null) prnNo = req.query.prnNo;
+    const uniqueSuffix = prnNo || "default";
+    cb(null, file.fieldname + "-" + uniqueSuffix);
+  },
+});
+
+const upload = multer({ storage: storage });
 
 async function getInstructor(req, res) {
   const instructor = await Instructor.find().exec();
@@ -79,7 +95,13 @@ async function getStudentByInstructor(req, res) {
 
 async function getInternshipByprnno(req, res) {
   try {
-    const student = await Student.findOne({ prnNo: req.params.prnNo }).exec();
+    const prnNo = await Token.findOne({
+      encrypted: req.query.prnNo,
+    });
+    if (!prnNo) {
+      return res.status(404).json({ error: "Not yet Login" });
+    }
+    const student = await Student.findOne({ prnNo: prnNo.user }).exec();
     if (!student || student.internshipStatus !== "Yes") {
       return res.status(404).json({ error: "No internship available" });
     }
@@ -156,14 +178,20 @@ async function getPlacementByInstructor(req, res) {
 }
 async function getPlacementByprnno(req, res) {
   try {
-    const student = await Student.findOne({ prnNo: req.query.prnNo }).exec();
+    const prnNo = await Token.findOne({
+      encrypted: req.query.prnNo,
+    });
+    if (!prnNo) {
+      return res.status(404).json({ error: "Not yet Login" });
+    }
+    const student = await Student.findOne({ prnNo: prnNo.user }).exec();
     if (!student) {
       return res.status(404).json({ error: "Student not found" });
     }
 
     if (student.placementStatus === "Yes") {
       const placement = await Placement.findOne({
-        prnNo: req.query.prnNo,
+        prnNo: prnNo.user,
       }).exec();
       if (!placement) {
         return res.status(404).json({ error: "No placement available" });
@@ -203,8 +231,14 @@ async function getQuestionByInstructoropen(req, res) {
   return res.json(question);
 }
 async function getQuestionByprnno(req, res) {
+  const prnNo = await Token.findOne({
+    encrypted: req.query.prnNo,
+  });
+  if (!prnNo) {
+    return res.status(404).json({ error: "Not yet Login" });
+  }
   const question = await Question_model.find({
-    prnNo: req.query.prnNo,
+    prnNo: prnNo.user,
   }).exec();
   if (!question)
     return res.status(404).json({ error: "No question available" });
@@ -212,14 +246,26 @@ async function getQuestionByprnno(req, res) {
 }
 async function addInternship(req, res) {
   try {
+    const prn = await Token.findOne({
+      encrypted: req.query.prnNo,
+    });
+    if (!prn) {
+      return res.status(404).json({ error: "Not yet Login" });
+    }
     const body = req.body;
-    const prnNo = req.body.prnNo; // Corrected to access prnNo from query parameters
+    const prnNo = prn.user; // Corrected to access prnNo from query parameters
 
     const internship = await Internship.findOne({
       prnNo: prnNo, // Corrected to use the prnNo variable
       noInternship: req.body.noInternship,
     });
-
+    let offer = null;
+    console.log(req.file);
+    if (req.file) {
+      offer = req.file.path;
+    } else {
+      throw new Error("No image uploaded");
+    }
     if (!internship) {
       // Add validation for required fields here
       const result = await Internship.create({
@@ -228,8 +274,8 @@ async function addInternship(req, res) {
         internshipDescription: body.internshipDescription,
         duration: body.duration,
         location: body.location,
+        offerLetter: offer,
         stipend: body.stipend,
-        offerLetter: body.offerLetter,
         companyname: body.companyname,
         internTitle: body.internTitle,
         domain: body.domain,
@@ -250,7 +296,7 @@ async function addInternship(req, res) {
           duration: body.duration,
           location: body.location,
           stipend: body.stipend,
-          offerLetter: body.offerLetter,
+          offerLetter:offer,
           internTitle: body.internTitle,
           domain: body.domain,
           externalInstructors: body.externalInstructors,
@@ -267,19 +313,29 @@ async function addInternship(req, res) {
 
 async function addPlacement(req, res) {
   try {
+    const prnNo = await Token.findOne({
+      encrypted: req.query.prnNo,
+    });
+    if (!prnNo) {
+      return res.status(404).json({ error: "Not yet Login" });
+    }
     const body = req.body;
     const placement = await Placement.findOne({
-      role: body.role,
       companyname: body.companyname,
-      prnNo: req.query.prnNo,
+      prnNo: prnNo.user,
     });
-
+    let offer = null;
+    console.log(req.file);
+    if (req.file) {
+      offer = req.file.path;
+    } else {
+      throw new Error("No image uploaded");
+    }
     if (!placement) {
       if (
         !body.role ||
         !body.jobDescription ||
         !body.location ||
-        !body.offerLetter ||
         !body.salary ||
         !body.companyname ||
         !body.domain
@@ -288,26 +344,27 @@ async function addPlacement(req, res) {
       }
 
       const result = await Placement.create({
-        prnNo: req.query.prnNo,
+        prnNo: prnNo.user,
         role: body.role,
         jobDescription: body.jobDescription, // Fix typo
         location: body.location,
-        offerLetter: body.offerLetter,
+        offerLetter: offer,
         companyname: body.companyname,
         salary: body.salary,
         domain: body.domain,
       });
 
       await Student.findOneAndUpdate(
-        { prnNo: req.query.prnNo },
+        { prnNo: prnNo.user },
         { placementStatus: "Yes" }
       );
     } else {
       await Placement.findOneAndUpdate(
-        { companyname: body.companyname, prnNo: req.query.prnNo },
+        { companyname: body.companyname, prnNo: prnNo.user },
         {
           role: body.role,
           jobDescription: body.jobDescription,
+          offerLetter: offer,
           location: body.location,
           salary: body.salary,
           domain: body.domain,
@@ -494,25 +551,46 @@ async function addInstructor(req, res) {
 }
 
 async function updateCompletionLetterInternship(req, res) {
-  const body = req.body;
   try {
-    const completion = Internship.findOne({
-      internshipName: req.query.internshipName,
-      prnNo: req.query.prnNo,
-    });
-    if (completion) {
-      await Internship.findOneAndUpdate(
-        { internshipName: req.query.internshipName, prnNo: req.query.prnNo },
-        {
-          completionLetter: body.completionLetter,
-        }
-      );
+    const prnNo = await Token.findOne({ encrypted: req.query.prnNo });
+    if (!prnNo) {
+      return res.status(404).json({ error: "Not yet Login" });
     }
-    return res.status(201).json({ msg: "success" });
+
+    const completionRecord = await Internship.findOne({
+      noInternship: req.query.noInternship,
+      prnNo: prnNo.user,
+    });
+
+    if (!completionRecord) {
+      return res.status(404).json({ error: "Internship record not found" });
+    }
+
+    let completion = null;
+
+    if (req.file) {
+      completion = req.file.path;
+    } else {
+      throw new Error("No image uploaded");
+    }
+
+    await Internship.findOneAndUpdate(
+      {
+        prnNo: prnNo.user,
+        noInternship: req.query.noInternship,
+      },
+      {
+        completionLetter: completion,
+      }
+    );
+
+    return res.status(201).json({ msg: "Success" });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
+
 // async function updateOfferLetterInternship(req, res) {
 //   const body = req.body;
 //   try {
@@ -616,6 +694,7 @@ async function deleteStudent(req, res) {
 }
 
 module.exports = {
+  upload,
   getInstructor,
   getStudent,
   getAdmin,

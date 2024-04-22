@@ -2,12 +2,12 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 const TokenSchema = new mongoose.Schema({
-  encryptedprnNo: {
+  encrypted: {
     type: String,
     required: true,
   },
 
-  prnNo: {
+  user: {
     type: String,
     required: true,
   },

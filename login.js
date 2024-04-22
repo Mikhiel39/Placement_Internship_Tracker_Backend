@@ -2,22 +2,18 @@ const Student = require("./models/Student");
 const Instructor = require("./models/Instructor");
 const Admin = require("./models/Admin");
 const CryptoJS = require("crypto-js");
-const Token=require("./models/Token");
+const Token = require("./models/Token");
 const express = require("express");
 
 const secretKey = process.env.SECRET_KEY;
 
-
 async function handleStudentLogin(req, res) {
-  const { prnNo } = req.body; // Destructure prnNo from req.body
+  const prnNo = req.body.prnNo; // Destructure prnNo from req.body
   try {
-    const student = await Student.findOne({ prnNo }); // Find student by prnNo
+    const student = await Student.findOne({ prnNo:prnNo, password:req.body.password }); // Find student by prnNo
     if (!student) {
       return res.status(404).json({ error: "Student not found" });
     }
-
-    // Encrypt student data
-    const secretKey = "your_secret_key"; // Define your secret key
     const encryptedData = CryptoJS.AES.encrypt(
       JSON.stringify({ prnNo }),
       secretKey
@@ -25,55 +21,64 @@ async function handleStudentLogin(req, res) {
     const encryptedBase64Data = Buffer.from(encryptedData).toString("base64");
 
     const token = new Token({
-      // Create a new Token instance
-      encryptedprnNo: encryptedData,
-      prnNo: prnNo,
+      encrypted: encryptedBase64Data,
+      user: prnNo,
     });
     await token.save(); // Save the token to the database
 
-    return res.status(200).json({ student: encryptedBase64Data });
+    return res.status(200).json({ encryptedBase64Data });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
 }
 
-
 async function handleInstructorlogin(req, res) {
+  const instructoremailId = req.body.instructoremailId;
   try {
     const cryptedBytes = CryptoJS.AES.encrypt(
-      req.body.instructoremailId,
+      instructoremailId,
       secretKey
     ).toString();
     // const decryptedPrn = decryptedBytes.toString(CryptoJS.enc.Utf8);
     const instructor = await Instructor.findOne({
-      instructoremailId: req.body.instructoremailId,
+      instructoremailId: instructoremailId,
       password: req.body.password,
     });
+     const token = new Token({
+       encrypted: cryptedBytes,
+       user: instructoremailId,
+     });
+     await token.save();
     if (!instructor) {
       return res.status(404).json({ instructor: "NULL" });
     }
-    return res.status(200).json({ instructor: cryptedBytes });
+    return res.status(200).json({ cryptedBytes });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
 }
 
 async function handleAdminlogin(req, res) {
+  const adminemailId = req.body.adminemailId;
   try {
     const cryptedBytes = CryptoJS.AES.encrypt(
-      req.body.adminemailId,
+      adminemailId,
       secretKey
     ).toString();
-    // const decryptedPrn = decryptedBytes.toString(CryptoJS.enc.Utf8);
     const admin = await Admin.findOne({
-      adminemailId: req.body.adminemailId,
+      adminemailId: adminemailId,
       password: req.body.password,
     });
+    const token = new Token({
+      encrypted: cryptedBytes,
+      user: adminemailId,
+    });
+    await token.save();
     if (!admin) {
       return res.status(200).json({ admin: "NULL" });
     }
-    return res.status(200).json({ admin: cryptedBytes });
+    return res.status(200).json({ cryptedBytes });
   } catch (error) {
     res.status(500).json({ error: error });
   }
