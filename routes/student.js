@@ -12,6 +12,7 @@ const {
   getStudentByprnno,
   deleteQuestionByprnno,
   getQuestionByprncompanyoopen,
+  upload,
 } = require("../controller/student");
 const {
   updateCompletionLetterInternship,
@@ -22,17 +23,16 @@ const {
   getQuestionByprnno,
 } = require("../controller/admin");
 
-
-router
-  .route("/")
-  .get(getStudentByprnno)
-  .patch(updateProfile)
-  .post(addQuestion);
+router.route("/").get(getStudentByprnno).patch(updateProfile).post(addQuestion);
 router
   .route("/internship/")
   .get(getInternshipByprnno)
   .post(addInternship)
-  .patch(updateCompletionLetterInternship);
+router.patch(
+  "/internship",
+  upload.single("resume"),
+  updateCompletionLetterInternship
+);
 router.route("/placement/").get(getPlacementByprnno).post(addPlacement);
 router
   .route("/questions/")
@@ -44,7 +44,7 @@ router.route("student/questions/company/").get(getQuestionBycompanyname);
 router
   .route("student/questions/company/open/")
   .get(getQuestionByprncompanyoopen);
-router.route("/image/").patch(updateimage);
-router.route("/bgimage/").patch(updatebgimage);
+router.patch("/image", upload.single("image"), updateimage);
+router.patch("/bgimage", upload.single("bgimage"), updatebgimage);
 
 module.exports = router;

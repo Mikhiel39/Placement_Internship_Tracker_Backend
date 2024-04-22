@@ -136,19 +136,15 @@ async function updatebgimage(req, res) {
 
 async function getInstructorByEmailID(req, res) {
   try {
-    const instructor = await Instructor.findOne({
+    const instructor = await Instructor.find({
       instructoremailId: req.query.instructoremailId,
     }).exec();
-    const notification = await Notification.find();
-    const company = await Company.find();
-    const alumni = await Alumni.find();
-    const tnp = await TnpCordinator.find();
 
     if (!instructor) {
       return res.status(404).json({ error: "No Such Instructor available" });
     }
 
-    return res.json({ instructor, notification, company, alumni, tnp });
+    return res.json({ instructor});
   } catch (error) {
     console.error("Error fetching instructor by email:", error);
     return res.status(500).json({ error: "Internal Server Error" });

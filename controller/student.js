@@ -13,14 +13,13 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     let prnNo = null;
-    if (req.body.prnNo != null) prnNo = req.body.prnNo;
+    if (req.query.prnNo != null) prnNo = req.query.prnNo;
     const uniqueSuffix = prnNo || "default";
     cb(null, file.fieldname + "-" + uniqueSuffix);
   },
 });
 
 const upload = multer({ storage: storage });
-
 
 async function getQuestions(req, res) {
   const questions = await Question_model.find().exec();
@@ -32,7 +31,10 @@ async function getQuestions(req, res) {
 async function updateAbout(req, res) {
   const body = req.body;
   try {
-    await Student.findOneAndUpdate({prnNo:req.params.prnNo}, { about: body.about });
+    await Student.findOneAndUpdate(
+      { prnNo: req.params.prnNo },
+      { about: body.about }
+    );
     return res.status(201).json({ msg: "success" });
   } catch (error) {
     return res.status(500).json({ msg: "Internal server error" });
@@ -41,9 +43,12 @@ async function updateAbout(req, res) {
 async function updateSkills(req, res) {
   const body = req.body;
   try {
-    await Student.findOneAndUpdate({prnNo:req.params.prnNo}, {
-      skills: body.skills,
-    });
+    await Student.findOneAndUpdate(
+      { prnNo: req.params.prnNo },
+      {
+        skills: body.skills,
+      }
+    );
     return res.status(201).json({ msg: "success" });
   } catch (error) {
     return res.status(500).json({ msg: "Internal server error" });
@@ -54,6 +59,7 @@ async function updatebgimage(req, res) {
   try {
     await upload.single("bgimage")(req, res);
     let img = null;
+    console.log(req.file);
     if (req.file) {
       img = req.file.path;
     } else {
@@ -73,9 +79,12 @@ async function updatebgimage(req, res) {
 async function updateLinkedIN(req, res) {
   const body = req.body;
   try {
-    await Student.findOneAndUpdate({prnNo:req.params.prnNo}, {
-      LinkedIN: body.LinkedIN,
-    });
+    await Student.findOneAndUpdate(
+      { prnNo: req.params.prnNo },
+      {
+        LinkedIN: body.LinkedIN,
+      }
+    );
     return res.status(201).json({ msg: "success" });
   } catch (error) {
     return res.status(500).json({ msg: "Internal server error" });
@@ -84,9 +93,12 @@ async function updateLinkedIN(req, res) {
 async function updateGithub(req, res) {
   const body = req.body;
   try {
-    await Student.findOneAndUpdate({prnNo:req.params.prnNo}, {
-      Github: body.Github,
-    });
+    await Student.findOneAndUpdate(
+      { prnNo: req.params.prnNo },
+      {
+        Github: body.Github,
+      }
+    );
     return res.status(201).json({ msg: "success" });
   } catch (error) {
     return res.status(500).json({ msg: "Internal server error" });
@@ -94,9 +106,11 @@ async function updateGithub(req, res) {
 }
 async function updateimage(req, res) {
   // const body = req.body;
+  console.log(req.body);
   try {
-    await upload.single("image")(req, res);
+    // await upload.single("image")(req, res);
     let img = null;
+    console.log(req.file);
     if (req.file) {
       img = req.file.path;
     } else {
@@ -114,10 +128,20 @@ async function updateimage(req, res) {
   }
 }
 async function updateresume(req, res) {
+  // await upload.single("resume")(req, res);
+  let resume = null;
+  if (req.file) {
+    resume = req.file.path;
+  } else {
+    throw new Error("No resume uploaded");
+  }
   try {
-    await Student.findOneAndUpdate({prnNo:req.query.prnNo}, {
-      resume: body.resume,
-    });
+    await Student.findOneAndUpdate(
+      { prnNo: req.query.prnNo },
+      {
+        resume: body.resume,
+      }
+    );
     return res.status(201).json({ msg: "success" });
   } catch (error) {
     return res.status(500).json({ msg: "Internal server error" });
@@ -126,7 +150,7 @@ async function updateresume(req, res) {
 
 async function getQuestionBycompanyname(req, res) {
   const question = await Question.find({
-      companyname: req.query.companyname,
+    companyname: req.query.companyname,
   }).exec();
   if (!question)
     return res.status(404).json({ error: "No question available" });
@@ -236,7 +260,6 @@ async function getStudentByInstructor(req, res) {
   return res.json(student);
 }
 
-
 async function addQuestion(req, res) {
   const body = req.body;
 
@@ -299,18 +322,18 @@ async function addQuestion(req, res) {
     });
 
     if (questionModel) {
-      const nQuestion={
-          Question_no: body.Question_no,
-          companyname: body.companyname,
-          companylogo: companylogo,
+      const nQuestion = {
+        Question_no: body.Question_no,
+        companyname: body.companyname,
+        companylogo: companylogo,
       };
       questionModel.questions.push(nQuestion);
       await questionModel.save();
       return res.status(400).json({ msg: "Question model is found" });
     }
     const nQuestion = await Question_model.create({
-      prnNo:req.query.prnNo,
-      questions:{
+      prnNo: req.query.prnNo,
+      questions: {
         Question_no: body.Question_no,
         companyname: body.companyname,
         companylogo: companylogo,
@@ -336,7 +359,6 @@ async function getQuestionByprncompanyoopen(req, res) {
   return res.json(question);
 }
 
-
 async function getQuestionByprnnoopen(req, res) {
   const question = await Question.findOne({
     prnNo: req.query.prnNo,
@@ -352,16 +374,17 @@ async function deleteQuestionByprnno(req, res) {
     { prnNo: req.query.prnNo },
     { $pull: { questions: { Question_no: req.query.Question_no } } }
   );
- const questions = await Question.findOneAndDelete({
-   prnNo: req.query.prnNo,
-   Question_no: req.query.Question_no,
- });
-  if (!questions||!result)
+  const questions = await Question.findOneAndDelete({
+    prnNo: req.query.prnNo,
+    Question_no: req.query.Question_no,
+  });
+  if (!questions || !result)
     return res.status(404).json({ error: "No question available" });
- return res.status(201).json({ msg: "Question deleted successfully" });
+  return res.status(201).json({ msg: "Question deleted successfully" });
 }
 
 module.exports = {
+  upload,
   getQuestions,
   updateAbout,
   updateSkills,
@@ -380,8 +403,3 @@ module.exports = {
   getStudentByInstructor,
   getStudentByprnno,
 };
-
-
-
-
-
