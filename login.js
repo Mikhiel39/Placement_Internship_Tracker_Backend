@@ -26,7 +26,7 @@ async function handleStudentlogin(req, res) {
     if (!student) {
       return res.status(404).json({ student: "NULL" });
     }
-    return res.status(200).json({ student: bytes });
+    return res.status(200).json({ student: cryptedBytes });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
