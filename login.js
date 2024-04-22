@@ -2,24 +2,34 @@ const Student = require("./models/Student");
 const Instructor = require("./models/Instructor");
 const Admin = require("./models/Admin");
 const CryptoJS = require("crypto-js");
+const Token=require("./models/Token");
 const express = require("express");
 
 const secretKey = process.env.SECRET_KEY;
 
+
 async function handleStudentLogin(req, res) {
-  const prnNo=req.body.prnNo; // Destructure prnNo, password, and regId from req.body
+  const { prnNo } = req.body; // Destructure prnNo from req.body
   try {
-    const student = await Student.findOne({ prnNo }); // Find student by prnNo, password, and regId
+    const student = await Student.findOne({ prnNo }); // Find student by prnNo
     if (!student) {
       return res.status(404).json({ error: "Student not found" });
     }
 
     // Encrypt student data
+    const secretKey = "your_secret_key"; // Define your secret key
     const encryptedData = CryptoJS.AES.encrypt(
       JSON.stringify({ prnNo }),
       secretKey
     ).toString();
     const encryptedBase64Data = Buffer.from(encryptedData).toString("base64");
+
+    const token = new Token({
+      // Create a new Token instance
+      encryptedprnNo: encryptedData,
+      prnNo: prnNo,
+    });
+    await token.save(); // Save the token to the database
 
     return res.status(200).json({ student: encryptedBase64Data });
   } catch (error) {
@@ -27,6 +37,7 @@ async function handleStudentLogin(req, res) {
     res.status(500).json({ error: "Internal server error" });
   }
 }
+
 
 async function handleInstructorlogin(req, res) {
   try {

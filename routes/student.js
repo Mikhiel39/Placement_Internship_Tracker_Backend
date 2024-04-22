@@ -12,6 +12,7 @@ const {
   getStudentByprnno,
   deleteQuestionByprnno,
   getQuestionByprncompanyoopen,
+  getToken,
   upload,
 } = require("../controller/student");
 const {
@@ -24,6 +25,7 @@ const {
 } = require("../controller/admin");
 
 router.route("/").get(getStudentByprnno).patch(updateProfile).post(addQuestion);
+router.route("/token").get(getToken)
 router
   .route("/internship/")
   .get(getInternshipByprnno)

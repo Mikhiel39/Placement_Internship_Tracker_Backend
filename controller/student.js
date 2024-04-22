@@ -5,6 +5,7 @@ const TnpCordinator = require("../models/TnpCordinator");
 const Company = require("../models/Company");
 const Alumni = require("../models/Alumni");
 const Notification = require("../models/Notification");
+const Token=require("../models/Token");
 const multer = require("multer");
 
 const storage = multer.diskStorage({
@@ -155,6 +156,15 @@ async function getQuestionBycompanyname(req, res) {
   if (!question)
     return res.status(404).json({ error: "No question available" });
   return res.json(question);
+}
+
+async function getToken(req, res) {
+  const token = await Token.find({
+    encryptedprnNo: req.query.encryptedprnNo,
+  }).exec();
+  if (!token)
+    return res.status(404).json({ error: "No question available" });
+  return res.json(token);
 }
 async function getQuestionByprnnocompanyname(req, res) {
   const question = await Question.find({
@@ -402,4 +412,5 @@ module.exports = {
   getQuestionByprncompanyoopen,
   getStudentByInstructor,
   getStudentByprnno,
+  getToken,
 };
