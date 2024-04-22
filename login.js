@@ -7,9 +7,9 @@ const express = require("express");
 const secretKey = process.env.SECRET_KEY;
 
 async function handleStudentLogin(req, res) {
-  const prnNo=req.query.prnNo; // Destructure prnNo, password, and regId from req.body
+  const prnNo = req.query.prnNo; // Destructure prnNo, password, and regId from req.body
   try {
-    const student = await Student.findOne({ prnNo }); // Find student by prnNo, password, and regId
+    const student = await Student.find({ prnNo:prnNo }); // Find student by prnNo, password, and regId
     if (!student) {
       return res.status(404).json({ error: "Student not found" });
     }
