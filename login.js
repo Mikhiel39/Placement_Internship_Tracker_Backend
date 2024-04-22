@@ -6,28 +6,24 @@ const express = require("express");
 
 const secretKey = process.env.SECRET_KEY;
 
-async function handleStudentlogin(req, res) {
-  const prnNo = req.body.prnNo;
-  console.log(req.body);
-  console.log(req.params);
+async function handleStudentLogin(req, res) {
+  const { prnNo, password, regId } = req.query; // Destructure prnNo, password, and regId from req.body
   try {
-    let cryptedBytes = CryptoJS.AES.encrypt(
+    const student = await Student.findOne({ prnNo }); // Find student by prnNo, password, and regId
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    // Encrypt student data
+    const encryptedData = CryptoJS.AES.encrypt(
       JSON.stringify({ prnNo }),
       secretKey
     ).toString();
-    let bytes = CryptoJS.enc.Base64.stringify(
-      CryptoJS.enc.Latin1.parse(cryptedBytes)
-    );
-    const student = await Student.findOne({
-      prnNo: prnNo,
-      password: req.body.password,
-      regId: req.body.regId,
-    });
-    if (!student) {
-      return res.status(404).json({ student: "NULL" });
-    }
-    return res.status(200).json({ student: cryptedBytes });
+    const encryptedBase64Data = Buffer.from(encryptedData).toString("base64");
+
+    return res.status(200).json({ student: encryptedBase64Data });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
 }
@@ -73,7 +69,7 @@ async function handleAdminlogin(req, res) {
 }
 
 module.exports = {
-  handleStudentlogin,
+  handleStudentLogin,
   handleInstructorlogin,
   handleAdminlogin,
 };
