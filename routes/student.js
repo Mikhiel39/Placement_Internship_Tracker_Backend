@@ -25,7 +25,7 @@ const {
 } = require("../controller/admin");
 
 router.route("/").get(getStudentByprnno).patch(updateProfile).post(addQuestion);
-router.route("/token").get(getToken)
+router.route("/token/").get(getToken)
 router
   .route("/internship/")
   .get(getInternshipByprnno)
