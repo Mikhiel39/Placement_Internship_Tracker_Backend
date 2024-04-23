@@ -24,7 +24,7 @@ async function handleStudentLogin(req, res) {
       user: prnNo,
     });
     await token.save(); // Save the token to the database
-    const encrypt = encryptedData.substring(1, encryptedData.length - 1);
+    const encrypt = encryptedData.substring(0, encryptedData.length - 1);
 
     return res.status(200).send(encrypt);
   } catch (error) {
