@@ -1,4 +1,6 @@
 const express = require("express");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
 const router = express.Router();
 const {
   addBatch,
@@ -18,7 +20,8 @@ const {
 const { getQuestionByprnnoopen } = require("../controller/student");
 
 router.route("/").get(getInstructorByEmailID);
-router.route("/image/").patch(updateimage);
+router.patch("/image", upload.single("image"), updateimage);
+router.patch("/bgimage", upload.single("bgimage"), updatebgimage);
 router.route("/bgimage/").patch(updatebgimage);
 router
   .route("/student/")

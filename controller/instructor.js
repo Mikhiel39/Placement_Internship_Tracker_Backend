@@ -13,8 +13,6 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     let instructoremailId = null; // Changed const to let
-    if (req.body.instructoremailId != null) 
-      instructoremailId = req.body.instructoremailId;
     if (req.query.instructoremailId != null)
       instructoremailId = req.query.instructoremailId; 
     const uniqueSuffix = instructoremailId || "default";
@@ -113,7 +111,7 @@ async function deleteBatch(req, res) {
 async function updatebgimage(req, res) {
   try {
     let img = null; // Changed const to let
-    await upload.single("bgimage")(req, res); // Moved multer middleware here to properly handle the file upload
+    // await upload.single("bgimage")(req, res); // Moved multer middleware here to properly handle the file upload
 
     // Access the uploaded file path from req.file
     if (req.file) {
@@ -154,7 +152,7 @@ async function getInstructorByEmailID(req, res) {
 async function updateimage(req, res) {
   try {
     let img = null; // Changed const to let
-    await upload.single("image")(req, res); // Moved multer middleware here to properly handle the file upload
+    // await upload.single("image")(req, res); // Moved multer middleware here to properly handle the file upload
 
     // Access the uploaded file path from req.file
     if (req.file) {
