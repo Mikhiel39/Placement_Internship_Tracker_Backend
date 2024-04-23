@@ -8,8 +8,8 @@ const express = require("express");
 const secretKey = process.env.SECRET_KEY;
 
 async function handleStudentLogin(req, res) {
-  const prnNo = req.body.prnNo; // Destructure prnNo from req.body
-  const secretKey = "your_secret_key"; // Define your secret key
+  const prnNo = req.body.prnNo; 
+  // const secretKey = secretKey ;
 
   try {
     const student = await Student.findOne({ prnNo }); // Find student by prnNo
@@ -21,8 +21,20 @@ async function handleStudentLogin(req, res) {
       JSON.stringify({ prnNo }),
       secretKey
     ).toString();
+    const decodedString = Buffer.from(encryptedData, "base64").toString(
+      "utf-8"
+    );
 
-    const encryptedDataWithQuotes = '"' + encryptedData + '"'; // Include double quotes around encryptedData
+    // Remove the '+' character
+    const stringWithoutPlus = decodedString.replace(/\+/g, "");
+
+    // Encode the modified string back to base64
+    const modifiedBase64String = Buffer.from(
+      stringWithoutPlus,
+      "utf-8"
+    ).toString("base64");
+
+    const encryptedDataWithQuotes = '"' + modifiedBase64String + '"'; // Include double quotes around encryptedData
 
     const token = new Token({
       encrypted: encryptedDataWithQuotes,
@@ -30,7 +42,7 @@ async function handleStudentLogin(req, res) {
     });
     await token.save(); // Save the token to the database
 
-    return res.status(200).send(encryptedData);
+    return res.status(200).send(modifiedBase64String);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal server error" });
@@ -49,15 +61,27 @@ async function handleInstructorlogin(req, res) {
     const instructor = await Instructor.findOne({
       instructoremailId: instructoremailId,
     });
+    const decodedString = Buffer.from(cryptedBytes, "base64").toString("utf-8");
+
+    // Remove the '+' character
+    const stringWithoutPlus = decodedString.replace(/\+/g, "");
+
+    // Encode the modified string back to base64
+    const modifiedBase64String = Buffer.from(
+      stringWithoutPlus,
+      "utf-8"
+    ).toString("base64");
+
+    const encryptedDataWithQuotes = '"' + modifiedBase64String + '"';
      const token = new Token({
-       encrypted: cryptedBytes,
-       user: instructoremailId,
+       encrypted:encryptedDataWithQuotes,
+       user:instructoremailId,
      });
      await token.save();
     if (!instructor) {
       return res.status(404).json({ instructor: "NULL" });
     }
-    return res.status(200).send(cryptedBytes);
+    return res.status(200).send(modifiedBase64String);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
@@ -73,15 +97,27 @@ async function handleAdminlogin(req, res) {
     const admin = await Admin.findOne({
       adminemailId: adminemailId,
     });
+    const decodedString = Buffer.from(cryptedBytes, "base64").toString("utf-8");
+
+    // Remove the '+' character
+    const stringWithoutPlus = decodedString.replace(/\+/g, "");
+
+    // Encode the modified string back to base64
+    const modifiedBase64String = Buffer.from(
+      stringWithoutPlus,
+      "utf-8"
+    ).toString("base64");
+
+    const encryptedDataWithQuotes = '"' + modifiedBase64String + '"';
     const token = new Token({
-      encrypted: cryptedBytes,
+      encrypted: encryptedDataWithQuotes,
       user: adminemailId,
     });
     await token.save();
     if (!admin) {
       return res.status(200).json({ admin: "NULL" });
     }
-    return res.status(200).send(cryptedBytes);
+    return res.status(200).send(modifiedBase64String);
   } catch (error) {
     res.status(500).json({ error: error });
   }
