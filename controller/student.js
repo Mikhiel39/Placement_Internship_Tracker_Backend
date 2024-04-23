@@ -273,11 +273,12 @@ async function getStudentByprnno(req, res) {
     if(!prnNo){
       return res.status(404).json({ error: "Not yet Login" });
     }
+
     const student = await Student.findOne({
       prnNo: prnNo.user,
     }).exec();
     if (!student)
-      return res.status(404).json({ error: "No Such Student available" });
+      return res.status(404).json({ error:prnNo });
 
     // Return the result along with the student data
     return res.json({ student });
