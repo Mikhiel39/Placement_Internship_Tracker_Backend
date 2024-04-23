@@ -41,8 +41,14 @@ async function getAdmin(req, res) {
 
 async function getAdminbyadminemailId(req, res) {
   try {
+    const adminemailId = await Token.findOne({
+      encrypted: req.query.adminemailId,
+    });
+    if (!adminemailId) {
+      return res.status(404).json({ error: "Not yet logged in" });
+    }
     const admin = await Admin.findOne({
-      adminemailId: req.query.adminemailId,
+      adminemailId: adminemailId.user,
     }).exec();
 
     if (!admin) {
