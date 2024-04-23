@@ -42,7 +42,6 @@ async function handleInstructorlogin(req, res) {
     // const decryptedPrn = decryptedBytes.toString(CryptoJS.enc.Utf8);
     const instructor = await Instructor.findOne({
       instructoremailId: instructoremailId,
-      password: req.body.password,
     });
      const token = new Token({
        encrypted: cryptedBytes,
@@ -52,7 +51,7 @@ async function handleInstructorlogin(req, res) {
     if (!instructor) {
       return res.status(404).json({ instructor: "NULL" });
     }
-    return res.status(200).json({ cryptedBytes });
+    return res.status(200).send(cryptedBytes);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
@@ -67,7 +66,6 @@ async function handleAdminlogin(req, res) {
     ).toString();
     const admin = await Admin.findOne({
       adminemailId: adminemailId,
-      password: req.body.password,
     });
     const token = new Token({
       encrypted: cryptedBytes,
@@ -77,7 +75,7 @@ async function handleAdminlogin(req, res) {
     if (!admin) {
       return res.status(200).json({ admin: "NULL" });
     }
-    return res.status(200).json({ cryptedBytes });
+    return res.status(200).send(cryptedBytes);
   } catch (error) {
     res.status(500).json({ error: error });
   }
