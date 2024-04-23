@@ -10,7 +10,7 @@ const secretKey = process.env.SECRET_KEY;
 async function handleStudentLogin(req, res) {
   const prnNo = req.body.prnNo; // Destructure prnNo from req.body
   try {
-    const student = await Student.findOne({ prnNo:prnNo, password:req.body.password }); // Find student by prnNo
+    const student = await Student.findOne({ prnNo:prnNo }); // Find student by prnNo
     if (!student) {
       return res.status(404).json({ error: "Student not found" });
     }
