@@ -267,26 +267,29 @@ async function updateProfile(req, res) {
 
 async function getStudentByprnno(req, res) {
   try {
-    const prnNo= await Token.find({
-      encrypted:req.query.prnNo
-    })
-    if(!prnNo){
-      return res.status(404).json({ error: "Not yet Login" });
+    console.log(req.query.prnNo);
+    const prnNo = await Token.findOne({
+      encrypted: req.query.prnNo
+    });
+    console.log(prnNo);
+    if (!prnNo) {
+      return res.status(404).json({ error: "Not yet logged in" });
     }
-
     const student = await Student.findOne({
-      prnNo: prnNo.user,
+      prnNo: prnNo.user
     }).exec();
-    if (!student)
-      return res.status(404).json({ error:prnNo });
-
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
     // Return the result along with the student data
     return res.json({ student });
   } catch (error) {
     // Handle any potential errors
+    console.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
 async function getStudentByInstructor(req, res) {
   const student = await Student.find({
     instructoremailId: req.params.instructoremailId,

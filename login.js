@@ -18,15 +18,16 @@ async function handleStudentLogin(req, res) {
       JSON.stringify({ prnNo }),
       secretKey
     ).toString();
-    const encryptedBase64Data = Buffer.from(encryptedData).toString("base64");
+    const encrypted = encryptedBase64Data.replace(/^"|"$/g, "");
 
     const token = new Token({
       encrypted: encryptedBase64Data,
       user: prnNo,
     });
     await token.save(); // Save the token to the database
+    const encryted = encryptedBase64Data.substring(1, encryptedBase64Data.length-1);
 
-    return res.status(200).send(encryptedBase64Data);
+    return res.status(200).send(encryted);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
