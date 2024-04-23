@@ -7,10 +7,6 @@ const express = require("express");
 
 const secretKey = process.env.SECRET_KEY;
 
-const CryptoJS = require("crypto-js"); // Import CryptoJS library
-const Student = require("path/to/your/StudentModel"); // Import Student model
-const Token = require("path/to/your/TokenModel"); // Import Token model
-
 async function handleStudentLogin(req, res) {
   const prnNo = req.body.prnNo; // Destructure prnNo from req.body
   const secretKey = "your_secret_key"; // Define your secret key
