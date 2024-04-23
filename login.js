@@ -25,7 +25,7 @@ async function handleStudentLogin(req, res) {
     });
     await token.save(); // Save the token to the database
 
-    return res.status(200).send(encrypt);
+    return res.status(200).send(encryptedData);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
