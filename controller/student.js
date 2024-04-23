@@ -267,7 +267,7 @@ async function updateProfile(req, res) {
 
 async function getStudentByprnno(req, res) {
   try {
-    const prnNo= await Token.findOne({
+    const prnNo= await Token.find({
       encrypted:req.query.prnNo
     })
     if(!prnNo){
