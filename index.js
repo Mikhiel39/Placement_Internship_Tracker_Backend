@@ -22,7 +22,9 @@ connectMongoDB(process.env.USER);
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin:"*",
+}));
 // app.use("*", cloudinaryConfig);
 app.use(cookieParser());
 app.use(express.json());

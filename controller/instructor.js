@@ -130,8 +130,14 @@ async function deleteBatch(req, res) {
 
 async function getInstructorByEmailID(req, res) {
   try {
+    const instructoremail = await Token.findOne({
+      encrypted: req.query.instructoremailId,
+    });
+    if (!instructoremail) {
+      return res.status(404).json({ error: "Not yet logged in" });
+    }
     const instructor = await Instructor.find({
-      instructoremailId: req.query.instructoremailId,
+      instructoremailId: instructoremail.user,
     }).exec();
 
     if (!instructor) {

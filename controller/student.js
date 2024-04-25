@@ -7,8 +7,8 @@ const Alumni = require("../models/Alumni");
 const Notification = require("../models/Notification");
 const Token = require("../models/Token");
 const{ resolve }=require("path");
-// const{ uploader}=require("../utils/cloudinary");
-// const { dataUri } =require("../middlewares/multer");
+const{ uploader}=require("../utils/cloudinary");
+const { dataUri } =require("../middlewares/multer");
 
 async function getQuestions(req, res) {
   const questions = await Question_model.find().exec();
@@ -78,59 +78,59 @@ const uploadImage = (req, res) => {
   }
 };
 // Function to update background image
-// async function updatebgimage(req, res) {
-//   try {
-//     // Check if prnNo is present in the request query
-//     if (!req.query.prnNo) {
-//       return res.status(400).json({ error: "PRN number is missing" });
-//     }
+async function updatebgimage(req, res) {
+  try {
+    // Check if prnNo is present in the request query
+    if (!req.query.prnNo) {
+      return res.status(400).json({ error: "PRN number is missing" });
+    }
 
-//     // Attempt to find Token with the provided prnNo
-//     const prnNo = await Token.findOne({ encrypted: req.query.prnNo });
+    // Attempt to find Token with the provided prnNo
+    const prnNo = await Token.findOne({ encrypted: req.query.prnNo });
 
-//     // If Token is not found, return 404 error
-//     if (!prnNo) {
-//       return res.status(404).json({ error: "Token not found" });
-//     }
+    // If Token is not found, return 404 error
+    if (!prnNo) {
+      return res.status(404).json({ error: "Token not found" });
+    }
 
-//     // Continue with the rest of the function if Token is found
-//     if (req.file) {
-//       // Convert the uploaded file to a data URI
-//       const file = dataUri(req).content;
-//       // Upload the file to Cloudinary
-//       return uploader
-//         .upload(file)
-//         .then((result) => {
-//           // If successful, send a success response with the uploaded image URL
-//           const image = result.url;
-//           Student.findOneAndUpdate({ prnNo: prnNo.user }, { bgimage: image });
-//           return res.status(200).json({
-//             message: "Your image has been uploaded successfully to Cloudinary",
-//             data: {
-//               image,
-//             },
-//           });
-//         })
-//         .catch((err) => {
-//           // If an error occurs, send an error response
-//           return res.status(400).json({
-//             message: "Something went wrong while processing your request",
-//             data: {
-//               error: err.message,
-//             },
-//           });
-//         });
-//     } else {
-//       // If no file was uploaded, send a bad request response
-//       return res.status(400).json({
-//         message: "No file uploaded",
-//       });
-//     }
-//   } catch (error) {
-//     console.error("Error in updatebgimage:", error);
-//     return res.status(500).json({ error: "Internal server error" });
-//   }
-// }
+    // Continue with the rest of the function if Token is found
+    if (req.file) {
+      // Convert the uploaded file to a data URI
+      const file = dataUri(req).content;
+      // Upload the file to Cloudinary
+      return uploader
+        .upload(file)
+        .then((result) => {
+          // If successful, send a success response with the uploaded image URL
+          const image = result.url;
+          Student.findOneAndUpdate({ prnNo: prnNo.user }, { bgimage: image });
+          return res.status(200).json({
+            message: "Your image has been uploaded successfully to Cloudinary",
+            data: {
+              image,
+            },
+          });
+        })
+        .catch((err) => {
+          // If an error occurs, send an error response
+          return res.status(400).json({
+            message: "Something went wrong while processing your request",
+            data: {
+              error: err.message,
+            },
+          });
+        });
+    } else {
+      // If no file was uploaded, send a bad request response
+      return res.status(400).json({
+        message: "No file uploaded",
+      });
+    }
+  } catch (error) {
+    console.error("Error in updatebgimage:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+}
 
 
 
@@ -506,7 +506,7 @@ module.exports = {
   updateLinkedIN,
   updateGithub,
   // updateimage,
-  // updatebgimage,
+  updatebgimage,
   // updateresume,
   getQuestionBycompanyname,
   getQuestionByprnnocompanyname,
