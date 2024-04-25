@@ -5,6 +5,7 @@ const TnpCordinator = require("../models/TnpCordinator");
 const Company = require("../models/Company");
 const Alumni = require("../models/Alumni");
 const Notification = require("../models/Notification");
+const Token =require("../models/Token");
 const multer = require("multer");
 
 const cloudinary = require("cloudinary").v2;
@@ -147,7 +148,7 @@ async function getInstructorByEmailID(req, res) {
     return res.json({ instructor});
   } catch (error) {
     console.error("Error fetching instructor by email:", error);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: error });
   }
 }
 
