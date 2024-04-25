@@ -5,22 +5,19 @@ const TnpCordinator = require("../models/TnpCordinator");
 const Company = require("../models/Company");
 const Alumni = require("../models/Alumni");
 const Notification = require("../models/Notification");
-const Token=require("../models/Token");
+const Token = require("../models/Token");
 const multer = require("multer");
+const { Readable } = require("stream");
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads");
-  },
-  filename: function (req, file, cb) {
-    let prnNo = null;
-    if (req.query.prnNo != null) prnNo = req.query.prnNo;
-    const uniqueSuffix = prnNo || "default";
-    cb(null, file.fieldname + "-" + uniqueSuffix);
-  },
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage: multer.memoryStorage() });
 
 async function getQuestions(req, res) {
   const questions = await Question_model.find().exec();
@@ -55,34 +52,68 @@ async function updateSkills(req, res) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
+// Function to update background image
 async function updatebgimage(req, res) {
-  const prnNo = await Token.findOne({
-    encrypted: req.query.prnNo,
-  });
-  if (!prnNo) {
-    return res.status(404).json({ error: "Not yet Login" });
-  }
-  // const body = req.body;
   try {
-    // await upload.single("bgimage")(req, res);
+    // Check if prnNo is present in the request query
+    if (!req.query.prnNo) {
+      return res.status(400).json({ error: "PRN number is missing" });
+    }
+
+    // Attempt to find Token with the provided prnNo
+    const prnNo = await Token.findOne({ encrypted: req.query.prnNo });
+
+    // If Token is not found, return 404 error
+    if (!prnNo) {
+      return res.status(404).json({ error: "Token not found" });
+    }
+
+    // Continue with the rest of the function if Token is found
     let img = null;
-    console.log(req.file);
     if (req.file) {
-      img = req.file.path;
+      const uniqueFilename = req.file.fieldname + "-" + req.query.prnNo;
+      // Create a readable stream or buffer
+      let uploadSource;
+      if (req.file.stream) {
+        // For multer v1.x
+        uploadSource = req.file.stream;
+      } else if (req.file.buffer) {
+        // For multer v2.x or later
+        uploadSource = new Readable();
+        uploadSource.push(req.file.buffer);
+        uploadSource.push(null); // Signal end of stream
+      } else {
+        throw new Error("Invalid upload source");
+      }
+      // Create a writable stream for Cloudinary upload
+      const fileStream = cloudinary.uploader.upload_stream(
+        { public_id: uniqueFilename, resource_type: "auto" },
+        function (error, result) {
+          if (error) {
+            console.error("Error uploading to Cloudinary:", error);
+            return res.status(500).json({ error: "Failed to upload image" });
+          }
+          img = result.secure_url;
+          // Update Student document with the image URL
+          Student.findOneAndUpdate(
+            { prnNo: prnNo.user },
+            { bgimage: img },
+          );
+        }
+      );
+      // Pipe the file stream to the writable stream
+      uploadSource.pipe(fileStream);
     } else {
       throw new Error("No image uploaded");
     }
-    await Student.findOneAndUpdate(
-      { prnNo: prnNo.user },
-      {
-        bgimage: img,
-      }
-    );
-    return res.status(201).json({ msg: "success" });
   } catch (error) {
-    return res.status(500).json({ msg: "Internal server error" });
+    console.error("Error in updatebgimage:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
+
+
+
 async function updateLinkedIN(req, res) {
   const body = req.body;
   try {
@@ -177,8 +208,7 @@ async function getToken(req, res) {
   const token = await Token.find({
     encryptedprnNo: req.query.encryptedprnNo,
   }).exec();
-  if (!token)
-    return res.status(404).json({ error: "No question available" });
+  if (!token) return res.status(404).json({ error: "No question available" });
   return res.json(token);
 }
 async function getQuestionByprnnocompanyname(req, res) {
@@ -269,14 +299,14 @@ async function getStudentByprnno(req, res) {
   try {
     console.log(req.query.prnNo);
     const prnNo = await Token.findOne({
-      encrypted: req.query.prnNo
+      encrypted: req.query.prnNo,
     });
     console.log(prnNo);
     if (!prnNo) {
       return res.status(404).json({ error: "Not yet logged in" });
     }
     const student = await Student.findOne({
-      prnNo: prnNo.user
+      prnNo: prnNo.user,
     }).exec();
     if (!student) {
       return res.status(404).json({ error: "Student not found" });

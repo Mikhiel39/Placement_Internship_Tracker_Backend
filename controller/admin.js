@@ -106,20 +106,17 @@ async function getInternshipByprnno(req, res) {
       encrypted: req.query.prnNo,
     });
     if (!prnNo) {
-      return res.status(404).json({ error: "Not yet Login" });
+      return res.status(404).json({ error: "Not yet logged in" });
     }
-    const student = await Student.findOne({ prnNo: prnNo.user }).exec();
-    if (!student || student.internshipStatus !== "Yes") {
-      return res.status(404).json({ error: "No internship available" });
-    }
-    const internships = await Internship.find({
-      name: student.name,
+    const internship = await Internship.findOne({
+      prnNo: prnNo.user,
     }).exec();
-    return res.json(internships);
+    return res.json(internship);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 }
+
 
 async function getInternshipByInstructor(req, res) {
   try {
