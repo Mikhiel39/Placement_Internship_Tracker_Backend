@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { Uploadbgimage } = require("../middlewares/multer");
 
 const {
   getQuestions,
@@ -51,6 +52,6 @@ router
   .route("student/questions/company/open")
   .get(getQuestionByprncompanyoopen);
 // router.patch("/image", upload.single("image"), updateimage);
-// router.patch("/bgimage", upload.single("bgimage"), updatebgimage);
+// router.patch("/bgimage", Uploadbgimage, updatebgimage);
 // router.patch("/resume", upload.single("resume"), updateresume);
 module.exports = router;

@@ -9,6 +9,7 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
+// const { cloudinaryConfig } = require("../utils/cloudinary");
 
 const { connectMongoDB } = require("./config/database");
 
@@ -22,6 +23,7 @@ const app = express();
 
 // Middleware
 app.use(cors());
+// app.use("*", cloudinaryConfig);
 app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));

@@ -6,18 +6,9 @@ const Company = require("../models/Company");
 const Alumni = require("../models/Alumni");
 const Notification = require("../models/Notification");
 const Token = require("../models/Token");
-const multer = require("multer");
-const { Readable } = require("stream");
-
-const cloudinary = require("cloudinary").v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-const upload = multer({ storage: multer.memoryStorage() });
+const{ resolve }=require("path");
+// const{ uploader}=require("../utils/cloudinary");
+// const { dataUri } =require("../middlewares/multer");
 
 async function getQuestions(req, res) {
   const questions = await Question_model.find().exec();
@@ -52,6 +43,40 @@ async function updateSkills(req, res) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
+const uploadImage = (req, res) => {
+  // Check if a file was uploaded
+  if (req.file) {
+    // Convert the uploaded file to a data URI
+    const file = dataUri(req).content;
+    // Upload the file to Cloudinary
+    return uploader
+      .upload(file)
+      .then((result) => {
+        // If successful, send a success response with the uploaded image URL
+        const image = result.url;
+        return res.status(200).json({
+          message: "Your image has been uploaded successfully to Cloudinary",
+          data: {
+            image,
+          },
+        });
+      })
+      .catch((err) => {
+        // If an error occurs, send an error response
+        return res.status(400).json({
+          message: "Something went wrong while processing your request",
+          data: {
+            error: err.message,
+          },
+        });
+      });
+  } else {
+    // If no file was uploaded, send a bad request response
+    return res.status(400).json({
+      message: "No file uploaded",
+    });
+  }
+};
 // Function to update background image
 // async function updatebgimage(req, res) {
 //   try {
@@ -69,42 +94,37 @@ async function updateSkills(req, res) {
 //     }
 
 //     // Continue with the rest of the function if Token is found
-//     let img = null;
 //     if (req.file) {
-//       const uniqueFilename = req.file.fieldname + "-" + req.query.prnNo;
-//       // Create a readable stream or buffer
-//       let uploadSource;
-//       if (req.file.stream) {
-//         // For multer v1.x
-//         uploadSource = req.file.stream;
-//       } else if (req.file.buffer) {
-//         // For multer v2.x or later
-//         uploadSource = new Readable();
-//         uploadSource.push(req.file.buffer);
-//         uploadSource.push(null); // Signal end of stream
-//       } else {
-//         throw new Error("Invalid upload source");
-//       }
-//       // Create a writable stream for Cloudinary upload
-//       const fileStream = cloudinary.uploader.upload_stream(
-//         { public_id: uniqueFilename, resource_type: "auto" },
-//         function (error, result) {
-//           if (error) {
-//             console.error("Error uploading to Cloudinary:", error);
-//             return res.status(500).json({ error: "Failed to upload image" });
-//           }
-//           img = result.secure_url;
-//           // Update Student document with the image URL
-//           Student.findOneAndUpdate(
-//             { prnNo: prnNo.user },
-//             { bgimage: img },
-//           );
-//         }
-//       );
-//       // Pipe the file stream to the writable stream
-//       uploadSource.pipe(fileStream);
+//       // Convert the uploaded file to a data URI
+//       const file = dataUri(req).content;
+//       // Upload the file to Cloudinary
+//       return uploader
+//         .upload(file)
+//         .then((result) => {
+//           // If successful, send a success response with the uploaded image URL
+//           const image = result.url;
+//           Student.findOneAndUpdate({ prnNo: prnNo.user }, { bgimage: image });
+//           return res.status(200).json({
+//             message: "Your image has been uploaded successfully to Cloudinary",
+//             data: {
+//               image,
+//             },
+//           });
+//         })
+//         .catch((err) => {
+//           // If an error occurs, send an error response
+//           return res.status(400).json({
+//             message: "Something went wrong while processing your request",
+//             data: {
+//               error: err.message,
+//             },
+//           });
+//         });
 //     } else {
-//       throw new Error("No image uploaded");
+//       // If no file was uploaded, send a bad request response
+//       return res.status(400).json({
+//         message: "No file uploaded",
+//       });
 //     }
 //   } catch (error) {
 //     console.error("Error in updatebgimage:", error);

@@ -103,9 +103,9 @@ async function handleInstructorlogin(req, res) {
     if (!instructor) {
       return res.status(404).json({ instructor: "NULL" });
     }
-    return res.status(200).send(modifiedBase64String);
+    return res.status(200).send(randomToken);
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: error });
   }
 }
 
@@ -125,7 +125,7 @@ async function handleAdminlogin(req, res) {
     if (!admin) {
       return res.status(200).json({ admin: "NULL" });
     }
-    return res.status(200).send(modifiedBase64String);
+    return res.status(200).send(randomToken);
   } catch (error) {
     res.status(500).json({ error: error });
   }
