@@ -14,7 +14,7 @@ const {
   getQuestionByprncompanyoopen,
   getToken,
   updateresume,
-  upload,
+  // upload,
 } = require("../controller/student");
 const {
   updateCompletionLetterInternship,

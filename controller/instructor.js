@@ -104,29 +104,29 @@ async function deleteBatch(req, res) {
   }
 }
 
-async function updatebgimage(req, res) {
-  try {
-    let img = null; // Changed const to let
-    // await upload.single("bgimage")(req, res); // Moved multer middleware here to properly handle the file upload
+// async function updatebgimage(req, res) {
+//   try {
+//     let img = null; // Changed const to let
+//     // await upload.single("bgimage")(req, res); // Moved multer middleware here to properly handle the file upload
 
-    // Access the uploaded file path from req.file
-    if (req.file) {
-      img = req.file.path;
-    } else {
-      throw new Error("No bgimage uploaded");
-    }
-    await Instructor.findOneAndUpdate(
-      { instructoremailId: req.query.instructoremailId },
-      {
-        bgimage: img,
-      }
-    );
-    return res.status(201).json({ msg: "success" });
-  } catch (error) {
-    console.error(error.message);
-    return res.status(500).json({ msg: "Internal server error" });
-  }
-}
+//     // Access the uploaded file path from req.file
+//     if (req.file) {
+//       img = req.file.path;
+//     } else {
+//       throw new Error("No bgimage uploaded");
+//     }
+//     await Instructor.findOneAndUpdate(
+//       { instructoremailId: req.query.instructoremailId },
+//       {
+//         bgimage: img,
+//       }
+//     );
+//     return res.status(201).json({ msg: "success" });
+//   } catch (error) {
+//     console.error(error.message);
+//     return res.status(500).json({ msg: "Internal server error" });
+//   }
+// }
 
 async function getInstructorByEmailID(req, res) {
   try {
@@ -172,7 +172,7 @@ async function updateimage(req, res) {
 module.exports = {
   getInstructorByEmailID,
   addBatch,
-  updatebgimage,
+  // updatebgimage,
   updateimage,
   deleteBatch,
 };

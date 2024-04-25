@@ -36,29 +36,29 @@ async function addCompany(req, res) {
   }
 }
 
-async function updatelogo(req, res) {
-  try {
-    let logo = null; // Changed const to let
-    await upload.single("logo")(req, res); // Moved multer middleware here to properly handle the file upload
+// async function updatelogo(req, res) {
+//   try {
+//     let logo = null; // Changed const to let
+//     await upload.single("logo")(req, res); // Moved multer middleware here to properly handle the file upload
 
-    // Access the uploaded file path from req.file
-    if (req.file) {
-      logo = req.file.path;
-    } else {
-      throw new Error("No logo uploaded");
-    }
-    await Company.findOneAndUpdate(
-      { companyname: req.query.companyname },
-      {
-        logo: logo,
-      }
-    );
-    return res.status(201).json({ msg: "success" });
-  } catch (error) {
-    console.error(error.message);
-    return res.status(500).json({ msg: "Internal server error" });
-  }
-}
+//     // Access the uploaded file path from req.file
+//     if (req.file) {
+//       logo = req.file.path;
+//     } else {
+//       throw new Error("No logo uploaded");
+//     }
+//     await Company.findOneAndUpdate(
+//       { companyname: req.query.companyname },
+//       {
+//         logo: logo,
+//       }
+//     );
+//     return res.status(201).json({ msg: "success" });
+//   } catch (error) {
+//     console.error(error.message);
+//     return res.status(500).json({ msg: "Internal server error" });
+//   }
+// }
 
 // Controller to delete a company by name (accessible only by admin)
 async function deleteCompany(req, res) {
@@ -140,5 +140,5 @@ module.exports = {
   updateCompany,
   getAllCompanies,
   getCompanyByName,
-  updatelogo,
+  // updatelogo,
 };

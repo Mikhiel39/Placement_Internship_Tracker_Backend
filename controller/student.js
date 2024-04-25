@@ -53,64 +53,64 @@ async function updateSkills(req, res) {
   }
 }
 // Function to update background image
-async function updatebgimage(req, res) {
-  try {
-    // Check if prnNo is present in the request query
-    if (!req.query.prnNo) {
-      return res.status(400).json({ error: "PRN number is missing" });
-    }
+// async function updatebgimage(req, res) {
+//   try {
+//     // Check if prnNo is present in the request query
+//     if (!req.query.prnNo) {
+//       return res.status(400).json({ error: "PRN number is missing" });
+//     }
 
-    // Attempt to find Token with the provided prnNo
-    const prnNo = await Token.findOne({ encrypted: req.query.prnNo });
+//     // Attempt to find Token with the provided prnNo
+//     const prnNo = await Token.findOne({ encrypted: req.query.prnNo });
 
-    // If Token is not found, return 404 error
-    if (!prnNo) {
-      return res.status(404).json({ error: "Token not found" });
-    }
+//     // If Token is not found, return 404 error
+//     if (!prnNo) {
+//       return res.status(404).json({ error: "Token not found" });
+//     }
 
-    // Continue with the rest of the function if Token is found
-    let img = null;
-    if (req.file) {
-      const uniqueFilename = req.file.fieldname + "-" + req.query.prnNo;
-      // Create a readable stream or buffer
-      let uploadSource;
-      if (req.file.stream) {
-        // For multer v1.x
-        uploadSource = req.file.stream;
-      } else if (req.file.buffer) {
-        // For multer v2.x or later
-        uploadSource = new Readable();
-        uploadSource.push(req.file.buffer);
-        uploadSource.push(null); // Signal end of stream
-      } else {
-        throw new Error("Invalid upload source");
-      }
-      // Create a writable stream for Cloudinary upload
-      const fileStream = cloudinary.uploader.upload_stream(
-        { public_id: uniqueFilename, resource_type: "auto" },
-        function (error, result) {
-          if (error) {
-            console.error("Error uploading to Cloudinary:", error);
-            return res.status(500).json({ error: "Failed to upload image" });
-          }
-          img = result.secure_url;
-          // Update Student document with the image URL
-          Student.findOneAndUpdate(
-            { prnNo: prnNo.user },
-            { bgimage: img },
-          );
-        }
-      );
-      // Pipe the file stream to the writable stream
-      uploadSource.pipe(fileStream);
-    } else {
-      throw new Error("No image uploaded");
-    }
-  } catch (error) {
-    console.error("Error in updatebgimage:", error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
-}
+//     // Continue with the rest of the function if Token is found
+//     let img = null;
+//     if (req.file) {
+//       const uniqueFilename = req.file.fieldname + "-" + req.query.prnNo;
+//       // Create a readable stream or buffer
+//       let uploadSource;
+//       if (req.file.stream) {
+//         // For multer v1.x
+//         uploadSource = req.file.stream;
+//       } else if (req.file.buffer) {
+//         // For multer v2.x or later
+//         uploadSource = new Readable();
+//         uploadSource.push(req.file.buffer);
+//         uploadSource.push(null); // Signal end of stream
+//       } else {
+//         throw new Error("Invalid upload source");
+//       }
+//       // Create a writable stream for Cloudinary upload
+//       const fileStream = cloudinary.uploader.upload_stream(
+//         { public_id: uniqueFilename, resource_type: "auto" },
+//         function (error, result) {
+//           if (error) {
+//             console.error("Error uploading to Cloudinary:", error);
+//             return res.status(500).json({ error: "Failed to upload image" });
+//           }
+//           img = result.secure_url;
+//           // Update Student document with the image URL
+//           Student.findOneAndUpdate(
+//             { prnNo: prnNo.user },
+//             { bgimage: img },
+//           );
+//         }
+//       );
+//       // Pipe the file stream to the writable stream
+//       uploadSource.pipe(fileStream);
+//     } else {
+//       throw new Error("No image uploaded");
+//     }
+//   } catch (error) {
+//     console.error("Error in updatebgimage:", error);
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+// }
 
 
 
@@ -142,58 +142,58 @@ async function updateGithub(req, res) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
-async function updateimage(req, res) {
-  const prnNo = await Token.findOne({
-    encrypted: req.query.prnNo,
-  });
-  if (!prnNo) {
-    return res.status(404).json({ error: "Not yet Login" });
-  }
-  try {
-    // await upload.single("image")(req, res);
-    let img = null;
-    console.log(req.file);
-    if (req.file) {
-      img = req.file.path;
-    } else {
-      throw new Error("No image uploaded");
-    }
-    await Student.findOneAndUpdate(
-      { prnNo: prnNo.user },
-      {
-        image: img,
-      }
-    );
-    return res.status(201).json({ msg: "success" });
-  } catch (error) {
-    return res.status(500).json({ msg: "Internal server error" });
-  }
-}
-async function updateresume(req, res) {
-  const prnNo = await Token.findOne({
-    encrypted: req.query.prnNo,
-  });
-  if (!prnNo) {
-    return res.status(404).json({ error: "Not yet Login" });
-  }
-  let resume = null;
-  if (req.file) {
-    resume = req.file.path;
-  } else {
-    throw new Error("No resume uploaded");
-  }
-  try {
-    await Student.findOneAndUpdate(
-      { prnNo: prnNo.user },
-      {
-        resume: resume,
-      }
-    );
-    return res.status(201).json({ msg: "success" });
-  } catch (error) {
-    return res.status(500).json({ msg: "Internal server error" });
-  }
-}
+// async function updateimage(req, res) {
+//   const prnNo = await Token.findOne({
+//     encrypted: req.query.prnNo,
+//   });
+//   if (!prnNo) {
+//     return res.status(404).json({ error: "Not yet Login" });
+//   }
+//   try {
+//     // await upload.single("image")(req, res);
+//     let img = null;
+//     console.log(req.file);
+//     if (req.file) {
+//       img = req.file.path;
+//     } else {
+//       throw new Error("No image uploaded");
+//     }
+//     await Student.findOneAndUpdate(
+//       { prnNo: prnNo.user },
+//       {
+//         image: img,
+//       }
+//     );
+//     return res.status(201).json({ msg: "success" });
+//   } catch (error) {
+//     return res.status(500).json({ msg: "Internal server error" });
+//   }
+// }
+// async function updateresume(req, res) {
+//   const prnNo = await Token.findOne({
+//     encrypted: req.query.prnNo,
+//   });
+//   if (!prnNo) {
+//     return res.status(404).json({ error: "Not yet Login" });
+//   }
+//   let resume = null;
+//   if (req.file) {
+//     resume = req.file.path;
+//   } else {
+//     throw new Error("No resume uploaded");
+//   }
+//   try {
+//     await Student.findOneAndUpdate(
+//       { prnNo: prnNo.user },
+//       {
+//         resume: resume,
+//       }
+//     );
+//     return res.status(201).json({ msg: "success" });
+//   } catch (error) {
+//     return res.status(500).json({ msg: "Internal server error" });
+//   }
+// }
 
 async function getQuestionBycompanyname(req, res) {
   const question = await Question.find({
@@ -364,15 +364,15 @@ async function addQuestion(req, res) {
     ) {
       return res.status(400).json({ msg: "All fields are required" });
     }
-    let companylogo = null; // Changed const to let
-    // await upload.single("companylogo")(req, res); // Moved multer middleware here to properly handle the file upload
+    const companylogo = "https://img.collegepravesh.com/2017/02/PICT-Logo.jpg"; // Changed const to let
+    // // await upload.single("companylogo")(req, res); // Moved multer middleware here to properly handle the file upload
 
-    // Access the uploaded file path from req.file
-    if (req.file) {
-      companylogo = req.file.path;
-    } else {
-      throw new Error("No companylogo uploaded");
-    }
+    // // Access the uploaded file path from req.file
+    // if (req.file) {
+    //   companylogo = req.file.path;
+    // } else {
+    //   throw new Error("No companylogo uploaded");
+    // }
     // Create the new question
     const newQuestion = await Question.create({
       prnNo: prnNo.user,
@@ -479,15 +479,15 @@ async function deleteQuestionByprnno(req, res) {
 }
 
 module.exports = {
-  upload,
+  // upload,
   getQuestions,
   updateAbout,
   updateSkills,
   updateLinkedIN,
   updateGithub,
-  updateimage,
-  updatebgimage,
-  updateresume,
+  // updateimage,
+  // updatebgimage,
+  // updateresume,
   getQuestionBycompanyname,
   getQuestionByprnnocompanyname,
   addQuestion,

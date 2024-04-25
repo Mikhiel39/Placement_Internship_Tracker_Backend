@@ -57,29 +57,29 @@ const addTnp = async (req, res) => {
   }
 };
 
-async function updatetnpimage(req, res) {
-  try {
-    let img = null; // Changed const to let
-    await upload.single("image")(req, res); // Moved multer middleware here to properly handle the file upload
+// async function updatetnpimage(req, res) {
+//   try {
+//     let img = null; // Changed const to let
+//     await upload.single("image")(req, res); // Moved multer middleware here to properly handle the file upload
 
-    // Access the uploaded file path from req.file
-    if (req.file) {
-      img = req.file.path;
-    } else {
-      throw new Error("No image uploaded");
-    }
-    await TnpCordinator.findOneAndUpdate(
-      { tnpemailId: req.query.tnpemailId },
-      {
-        image: img,
-      }
-    );
-    return res.status(201).json({ msg: "success" });
-  } catch (error) {
-    console.error(error.message);
-    return res.status(500).json({ msg: "Internal server error" });
-  }
-}
+//     // Access the uploaded file path from req.file
+//     if (req.file) {
+//       img = req.file.path;
+//     } else {
+//       throw new Error("No image uploaded");
+//     }
+//     await TnpCordinator.findOneAndUpdate(
+//       { tnpemailId: req.query.tnpemailId },
+//       {
+//         image: img,
+//       }
+//     );
+//     return res.status(201).json({ msg: "success" });
+//   } catch (error) {
+//     console.error(error.message);
+//     return res.status(500).json({ msg: "Internal server error" });
+//   }
+// }
 
 
 // Controller function to delete an Tnp cordinator by name
@@ -126,6 +126,6 @@ module.exports = {
   deleteTnpByEmail,
   updateTnpByEmail,
   getTnp,
-  updatetnpimage,
+  // updatetnpimage,
 };
 

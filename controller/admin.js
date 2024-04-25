@@ -259,13 +259,13 @@ async function addInternship(req, res) {
       prnNo: prnNo, // Corrected to use the prnNo variable
       noInternship: req.body.noInternship,
     });
-    let offer = null;
-    console.log(req.file);
-    if (req.file) {
-      offer = req.file.path;
-    } else {
-      throw new Error("No image uploaded");
-    }
+    const offer = "https://img.collegepravesh.com/2017/02/PICT-Logo.jpg";
+    // console.log(req.file);
+    // if (req.file) {
+    //   offer = req.file.path;
+    // } else {
+    //   throw new Error("No image uploaded");
+    // }
     if (!internship) {
       // Add validation for required fields here
       const result = await Internship.create({
@@ -324,13 +324,13 @@ async function addPlacement(req, res) {
       companyname: body.companyname,
       prnNo: prnNo.user,
     });
-    let offer = null;
-    console.log(req.file);
-    if (req.file) {
-      offer = req.file.path;
-    } else {
-      throw new Error("No image uploaded");
-    }
+    const offer = "https://img.collegepravesh.com/2017/02/PICT-Logo.jpg";
+    // console.log(req.file);
+    // if (req.file) {
+    //   offer = req.file.path;
+    // } else {
+    //   throw new Error("No image uploaded");
+    // }
     if (!placement) {
       if (
         !body.role ||
@@ -550,46 +550,46 @@ async function addInstructor(req, res) {
   }
 }
 
-async function updateCompletionLetterInternship(req, res) {
-  try {
-    const prnNo = await Token.findOne({ encrypted: req.query.prnNo });
-    if (!prnNo) {
-      return res.status(404).json({ error: "Not yet Login" });
-    }
+// async function updateCompletionLetterInternship(req, res) {
+//   try {
+//     const prnNo = await Token.findOne({ encrypted: req.query.prnNo });
+//     if (!prnNo) {
+//       return res.status(404).json({ error: "Not yet Login" });
+//     }
 
-    const completionRecord = await Internship.findOne({
-      noInternship: req.query.noInternship,
-      prnNo: prnNo.user,
-    });
+//     const completionRecord = await Internship.findOne({
+//       noInternship: req.query.noInternship,
+//       prnNo: prnNo.user,
+//     });
 
-    if (!completionRecord) {
-      return res.status(404).json({ error: "Internship record not found" });
-    }
+//     if (!completionRecord) {
+//       return res.status(404).json({ error: "Internship record not found" });
+//     }
 
-    let completion = null;
+//     let completion = null;
 
-    if (req.file) {
-      completion = req.file.path;
-    } else {
-      throw new Error("No image uploaded");
-    }
+//     if (req.file) {
+//       completion = req.file.path;
+//     } else {
+//       throw new Error("No image uploaded");
+//     }
 
-    await Internship.findOneAndUpdate(
-      {
-        prnNo: prnNo.user,
-        noInternship: req.query.noInternship,
-      },
-      {
-        completionLetter: completion,
-      }
-    );
+//     await Internship.findOneAndUpdate(
+//       {
+//         prnNo: prnNo.user,
+//         noInternship: req.query.noInternship,
+//       },
+//       {
+//         completionLetter: completion,
+//       }
+//     );
 
-    return res.status(201).json({ msg: "Success" });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ msg: "Internal server error" });
-  }
-}
+//     return res.status(201).json({ msg: "Success" });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ msg: "Internal server error" });
+//   }
+// }
 
 // async function updateOfferLetterInternship(req, res) {
 //   const body = req.body;
@@ -694,7 +694,7 @@ async function deleteStudent(req, res) {
 }
 
 module.exports = {
-  upload,
+  // upload,
   getInstructor,
   getStudent,
   getAdmin,
@@ -714,7 +714,7 @@ module.exports = {
   getQuestionByprnno,
   getQuestionByInstructor,
   getQuestionByInstructoropen,
-  updateCompletionLetterInternship,
+  // updateCompletionLetterInternship,
   deleteAdmin,
   deleteInstructor,
   deleteStudent,
