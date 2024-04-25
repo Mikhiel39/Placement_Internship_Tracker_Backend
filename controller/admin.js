@@ -8,19 +8,15 @@ const Question_model = require("../models/Question_model");
 const Token =require("../models/Token")
 const multer = require("multer");
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads");
-  },
-  filename: function (req, file, cb) {
-    let prnNo = null;
-    if (req.query.prnNo != null) prnNo = req.query.prnNo;
-    const uniqueSuffix = prnNo || "default";
-    cb(null, file.fieldname + "-" + uniqueSuffix);
-  },
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage: multer.memoryStorage() });
 
 async function getInstructor(req, res) {
   const instructor = await Instructor.find().exec();

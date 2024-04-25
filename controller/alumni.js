@@ -2,22 +2,15 @@
 const Alumni = require("../models/Alumni");
 const multer = require("multer");
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads");
-  },
-  filename: function (req, file, cb) {
-    let alumniemailId = null; // Changed const to let
-    if (req.body.alumniemailId != null)
-      alumniemailId = req.body.alumniemailId;
-    if (req.query.alumniemailId != null)
-      alumniemailId = req.query.alumniemailId;
-    const uniqueSuffix = alumniemailId || "default";
-    cb(null, file.fieldname + "-" + uniqueSuffix);
-  },
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage: multer.memoryStorage() });
 //Function to get all alumni
 async function getAlumni(req, res) {
   try {

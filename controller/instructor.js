@@ -7,20 +7,16 @@ const Alumni = require("../models/Alumni");
 const Notification = require("../models/Notification");
 const multer = require("multer");
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads");
-  },
-  filename: function (req, file, cb) {
-    let instructoremailId = null; // Changed const to let
-    if (req.query.instructoremailId != null)
-      instructoremailId = req.query.instructoremailId; 
-    const uniqueSuffix = instructoremailId || "default";
-    cb(null, file.fieldname + "-" + uniqueSuffix);
-  },
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage: multer.memoryStorage() });
+
 
 async function addBatch(req, res) {
   try {

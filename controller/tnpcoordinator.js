@@ -1,22 +1,15 @@
 const TnpCordinator = require("../models/TnpCordinator");
 const multer = require("multer");
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads");
-  },
-  filename: function (req, file, cb) {
-    let tnpemailId = null; // Changed const to let
-    if (req.body.tnpemailId != null)
-      tnpemailId = req.body.tnpemailId;
-    if (req.query.tnpemailId != null)
-      tnpemailId = req.query.tnpemailId;
-    const uniqueSuffix = tnpemailId || "default";
-    cb(null, file.fieldname + "-" + uniqueSuffix);
-  },
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage: multer.memoryStorage() });
 //Function to get all Tnp cordinator
 async function getTnp(req, res) {
   try {

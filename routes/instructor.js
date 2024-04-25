@@ -20,9 +20,8 @@ const {
 const { getQuestionByprnnoopen } = require("../controller/student");
 
 router.route("/").get(getInstructorByEmailID);
-router.patch("/image", upload.single("image"), updateimage);
-router.patch("/bgimage", upload.single("bgimage"), updatebgimage);
-router.route("/bgimage/").patch(updatebgimage);
+// router.patch("/image", upload.single("image"), updateimage);
+// router.patch("/bgimage", upload.single("bgimage"), updatebgimage);
 router
   .route("/student/")
   .get(getStudentByprnno)

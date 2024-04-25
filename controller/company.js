@@ -1,22 +1,15 @@
 const Company = require("../models/Company");
 const multer = require("multer");
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads");
-  },
-  filename: function (req, file, cb) {
-    let companyname = null; // Changed const to let
-    if (req.body.companyname != null)
-      companyname = req.body.companyname;
-    if (req.query.companyname != null)
-      companyname = req.query.companyname;
-    const uniqueSuffix = companyname || "default";
-    cb(null, file.fieldname + "-" + uniqueSuffix);
-  },
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Controller to add a new company (accessible only by admin)
 async function addCompany(req, res) {
