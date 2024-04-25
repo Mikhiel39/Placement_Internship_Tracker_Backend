@@ -12,7 +12,6 @@ const announcementSchema = new mongoose.Schema({
   },
   link: {
     type: String,
-    required: true,
   },
   postedAt: {
     type: Date,
