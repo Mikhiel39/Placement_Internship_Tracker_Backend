@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { Uploadbgimage } = require("../middlewares/multer");
+const {geturl, getUrl}=require("../utils/cloudinary")
+const {multerUpload, Uploadpdf}=require("../middlewares/multer")
 
 const {
   getQuestions,
@@ -15,7 +16,6 @@ const {
   getQuestionByprncompanyoopen,
   getToken,
   updateresume,
-  // upload,
 } = require("../controller/student");
 const {
   updateCompletionLetterInternship,
@@ -51,7 +51,7 @@ router.route("student/questions/company").get(getQuestionBycompanyname);
 router
   .route("student/questions/company/open")
   .get(getQuestionByprncompanyoopen);
-// router.patch("/image", upload.single("image"), updateimage);
-// router.patch("/bgimage", Uploadbgimage, updatebgimage);
-// router.patch("/resume", upload.single("resume"), updateresume);
+router.patch("/image",  multerUpload.single("image"), geturl, updateimage);
+router.patch("/bgimage", multerUpload.single("bgimage"), geturl, updatebgimage);
+router.patch("/resume", Uploadpdf.single("resume"), getUrl, updateresume);
 module.exports = router;

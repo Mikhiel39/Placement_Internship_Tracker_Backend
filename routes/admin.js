@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const { getCsv } = require("../utils/cloudinary");
+const { Uploadcsv } = require("../middlewares/multer");
 const {
   getInstructor,
   getStudent,
@@ -27,8 +29,10 @@ const {
 const { addBatch, deleteBatch } = require("../controller/instructor");
 
 // Import the controller function for  companies
-const { addCompany,
-  deleteCompany, 
+const {
+  upload,
+  addCompany,
+  deleteCompany,
   updateCompany,
   getAllCompanies,
   getCompanyByName,
@@ -109,7 +113,8 @@ router
   // router.route("/question/ByInstructor/open").get(getQuestionByInstructoropen);
 
   // New route for companies by admins
-router.route("/company/").get(getAllCompanies).post(addCompany).delete(deleteCompany).patch(updateCompany);
+router.route("/company/").get(getAllCompanies).delete(deleteCompany).patch(updateCompany);
+router.post("/company",upload.single("company"), addCompany);
 router.route("/company/name/").get(getCompanyByName);
 // router.route("/company/logo/").patch(updatelogo);
 

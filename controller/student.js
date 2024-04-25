@@ -43,95 +43,60 @@ async function updateSkills(req, res) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
-const uploadImage = (req, res) => {
-  // Check if a file was uploaded
-  if (req.file) {
-    // Convert the uploaded file to a data URI
-    const file = dataUri(req).content;
-    // Upload the file to Cloudinary
-    return uploader
-      .upload(file)
-      .then((result) => {
-        // If successful, send a success response with the uploaded image URL
-        const image = result.url;
-        return res.status(200).json({
-          message: "Your image has been uploaded successfully to Cloudinary",
-          data: {
-            image,
-          },
-        });
-      })
-      .catch((err) => {
-        // If an error occurs, send an error response
-        return res.status(400).json({
-          message: "Something went wrong while processing your request",
-          data: {
-            error: err.message,
-          },
-        });
-      });
-  } else {
-    // If no file was uploaded, send a bad request response
-    return res.status(400).json({
-      message: "No file uploaded",
-    });
+async function updateimage(req, res){
+  if (!req.query.prnNo) {
+    return res.status(400).json({ error: "PRN number is missing" });
   }
+
+  // Attempt to find Token with the provided prnNo
+  const token = await Token.findOne({ encrypted: req.query.prnNo });
+
+  // If Token is not found, return 404 error
+  if (!token) {
+    return res.status(404).json({ error: "Token not found" });
+  }
+
+  const imgUrl = req.imgURI; // Assuming you have imgUrl available in the request
+
+  // Check if imgUrl is present in the request
+  if (!imgUrl) {
+    return res.status(400).json({ error: "Image URL is missing" });
+  }
+  await Student.findOneAndUpdate({ prnNo: token.user }, { image: imgUrl });
+
+  // Return success message
+  return res
+    .status(200)
+    .json({ message: "Image updated successfully" });
 };
 // Function to update background image
 async function updatebgimage(req, res) {
-  try {
-    // Check if prnNo is present in the request query
-    if (!req.query.prnNo) {
-      return res.status(400).json({ error: "PRN number is missing" });
-    }
-
-    // Attempt to find Token with the provided prnNo
-    const prnNo = await Token.findOne({ encrypted: req.query.prnNo });
-
-    // If Token is not found, return 404 error
-    if (!prnNo) {
-      return res.status(404).json({ error: "Token not found" });
-    }
-
-    // Continue with the rest of the function if Token is found
-    if (req.file) {
-      // Convert the uploaded file to a data URI
-      const file = dataUri(req).content;
-      // Upload the file to Cloudinary
-      return uploader
-        .upload(file)
-        .then((result) => {
-          // If successful, send a success response with the uploaded image URL
-          const image = result.url;
-          Student.findOneAndUpdate({ prnNo: prnNo.user }, { bgimage: image });
-          return res.status(200).json({
-            message: "Your image has been uploaded successfully to Cloudinary",
-            data: {
-              image,
-            },
-          });
-        })
-        .catch((err) => {
-          // If an error occurs, send an error response
-          return res.status(400).json({
-            message: "Something went wrong while processing your request",
-            data: {
-              error: err.message,
-            },
-          });
-        });
-    } else {
-      // If no file was uploaded, send a bad request response
-      return res.status(400).json({
-        message: "No file uploaded",
-      });
-    }
-  } catch (error) {
-    console.error("Error in updatebgimage:", error);
-    return res.status(500).json({ error: "Internal server error" });
+  // Check if prnNo is present in the request query
+  if (!req.query.prnNo) {
+    return res.status(400).json({ error: "PRN number is missing" });
   }
-}
 
+  // Attempt to find Token with the provided prnNo
+  const token = await Token.findOne({ encrypted: req.query.prnNo });
+
+  // If Token is not found, return 404 error
+  if (!token) {
+    return res.status(404).json({ error: "Token not found" });
+  }
+
+  const imgUrl = req.imgURI; // Assuming you have imgUrl available in the request
+
+  // Check if imgUrl is present in the request
+  if (!imgUrl) {
+    return res.status(400).json({ error: "Image URL is missing" });
+  }
+  await Student.findOneAndUpdate({ prnNo: token.user }, { bgimage: imgUrl });
+
+  // Return success message
+  return res
+    .status(200)
+    .json({ message: "Background image updated successfully" });
+}
 
 
 async function updateLinkedIN(req, res) {
@@ -189,31 +154,31 @@ async function updateGithub(req, res) {
 //     return res.status(500).json({ msg: "Internal server error" });
 //   }
 // }
-// async function updateresume(req, res) {
-//   const prnNo = await Token.findOne({
-//     encrypted: req.query.prnNo,
-//   });
-//   if (!prnNo) {
-//     return res.status(404).json({ error: "Not yet Login" });
-//   }
-//   let resume = null;
-//   if (req.file) {
-//     resume = req.file.path;
-//   } else {
-//     throw new Error("No resume uploaded");
-//   }
-//   try {
-//     await Student.findOneAndUpdate(
-//       { prnNo: prnNo.user },
-//       {
-//         resume: resume,
-//       }
-//     );
-//     return res.status(201).json({ msg: "success" });
-//   } catch (error) {
-//     return res.status(500).json({ msg: "Internal server error" });
-//   }
-// }
+async function updateresume(req, res) {
+  const prnNo = await Token.findOne({
+    encrypted: req.query.prnNo,
+  });
+  if (!prnNo) {
+    return res.status(404).json({ error: "Not yet Login" });
+  }
+  const imgUrl = req.imgURI; // Assuming you have imgUrl available in the request
+
+  // Check if imgUrl is present in the request
+  if (!imgUrl) {
+    return res.status(400).json({ error: "Resume URL is missing" });
+  }
+  try {
+    await Student.findOneAndUpdate(
+      { prnNo: prnNo.user },
+      {
+        resume: imgUrl,
+      }
+    );
+    return res.status(201).json({ msg: "success" });
+  } catch (error) {
+    return res.status(500).json({ msg: "Internal server error" });
+  }
+}
 
 async function getQuestionBycompanyname(req, res) {
   const question = await Question.find({
@@ -505,9 +470,9 @@ module.exports = {
   updateSkills,
   updateLinkedIN,
   updateGithub,
-  // updateimage,
+  updateimage,
   updatebgimage,
-  // updateresume,
+  updateresume,
   getQuestionBycompanyname,
   getQuestionByprnnocompanyname,
   addQuestion,

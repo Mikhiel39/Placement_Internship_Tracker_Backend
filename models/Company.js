@@ -4,7 +4,6 @@ require("dotenv").config();
 const companySchema = new mongoose.Schema({
   companyname: {
     type: String,
-    required: true,
   },
   numberOfStudentsPlaced: {
     type: Number,
@@ -20,15 +19,12 @@ const companySchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: true,
   },
   date:{
     type:String,
-    required:true,
   },
   link: {
     type: String,
-    required: true,
   },
   
 });

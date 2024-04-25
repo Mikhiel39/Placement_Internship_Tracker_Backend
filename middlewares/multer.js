@@ -1,9 +1,39 @@
-// const {multer }=require("multer");
+const multer = require("multer");
 // const { Datauri}= require("datauri");
 // const { path} =require("path");
-// const storage = multer.diskStorage();
-// const Uploadbgimage = multer({ storage }).single("bgimage");
-// const dUri = new Datauri();
-// const dataUri = (req) =>
-//   dUri.format(path.extname(req.file.originalname).toString(), req.file.buffer);
-// module.exports={ Uploadbgimage, dataUri };
+const multerUpload = multer({
+  limits: {
+    fileSize: 2000000,
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(png)$/)) {
+      return cb(new Error("please upload png"));
+    }
+    cb(undefined, true);
+  },
+});
+
+const Uploadpdf = multer({
+  limits: {
+    fileSize: 2000000,
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(pdf)$/)) {
+      return cb(new Error("please upload pdf"));
+    }
+    cb(undefined, true);
+  },
+});
+
+const Uploadcsv = multer({
+  limits: {
+    fileSize: 2000000,
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(csv)$/)) {
+      return cb(new Error("please upload csv"));
+    }
+    cb(undefined, true);
+  },
+});
+module.exports = { multerUpload, Uploadpdf, Uploadcsv };

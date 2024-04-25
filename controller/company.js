@@ -1,40 +1,76 @@
 const Company = require("../models/Company");
+const Token =require("../models/Token");
 const multer = require("multer");
+const csv = require("csv-parser");
+const fs = require("fs");
 
-const cloudinary = require("cloudinary").v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads"); // Save uploaded files in the 'uploads' directory
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname); // Append timestamp to file name to avoid conflicts
+  },
 });
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ storage: storage });
 
-// Controller to add a new company (accessible only by admin)
 async function addCompany(req, res) {
   try {
-    const {companyname, numberOfStudentsPlaced,
-        avgPackage,      
-        description,link} = req.body;
-
-    const newCompany = new Company({
-      // other fields
-     companyname,
-     numberOfStudentsPlaced,
-     avgPackage,     
-     description,
-     link,
+    const prnNo = await Token.findOne({
+      encrypted: req.query.adminemailId,
     });
 
-    await newCompany.save();
+    if (!prnNo) {
+      return res.status(404).json({ error: "Not yet logged in" }); // Corrected typo in the error message
+    }
 
-    res.status(201).json({ message: "Company added successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    // const imgUrl = req.getCsv; // Assuming req.getCsv contains the path to the CSV file
+
+    const results = [];
+
+    fs.createReadStream(req.file.path)
+      .pipe(csv())
+      .on("data", (data) => {
+        // Assuming your CSV file has columns 'companyname', 'numberOfStudentsPlaced', 'avgPackage', etc.
+        // Adjust the keys according to your CSV structure
+        const companyData = {
+          companyname: data.companyname,
+          numberOfStudentsPlaced: data.numberOfStudentsPlaced,
+          avgPackage: data.avgPackage,
+          logo: data.logo,
+          description: data.description,
+          date: data.date,
+          link: data.link,
+          // Add more fields as necessary
+        };
+        results.push(companyData);
+      })
+      .on("end", () => {
+        // Now 'results' array contains objects with data from CSV file
+        // You can save this data into your Company model
+        Company.insertMany(results)
+          .then((docs) => {
+           fs.unlink(req.file.path, (err) => {
+             if (err) {
+               console.error("Error deleting file:", err);
+             } else {
+               console.log("File deleted successfully");
+             }
+           });
+           return res
+             .status(200)
+             .json({ message: "CSV uploaded successfully"});
+          })
+          .catch((err) => {
+            return res.status(500).json({ error: err.message });
+          });
+      });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 }
+
 
 // async function updatelogo(req, res) {
 //   try {
@@ -135,6 +171,7 @@ async function getCompanyByName(req, res) {
   
 
 module.exports = {
+  upload,
   addCompany,
   deleteCompany,
   updateCompany,
