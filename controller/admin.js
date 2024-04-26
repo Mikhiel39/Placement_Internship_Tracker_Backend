@@ -12,7 +12,10 @@ const fs = require("fs");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./uploads"); // Save uploaded files in the 'uploads' directory
+    cb(
+      null,
+      "https://drive.google.com/drive/folders/1MWEXWJveK16lnokufh-J8NWdK7yaNvic?usp=sharing"
+    ); // Save uploaded files in the 'uploads' directory
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "-" + file.originalname); // Append timestamp to file name to avoid conflicts
