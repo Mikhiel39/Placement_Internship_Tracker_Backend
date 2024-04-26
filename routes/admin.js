@@ -3,6 +3,7 @@ const router = express.Router();
 const { geturl } = require("../utils/cloudinary");
 const { multerUpload} = require("../middlewares/multer");
 const {
+  up,
   getInstructor,
   getStudent,
   getAdmin,
@@ -80,14 +81,14 @@ router.route("/logout").delete(logout);
 router
   .route("/instructor/")
   .get(getInstructor)
-router.post("/instructor", upload.single("instructor"), addInstructor);
+router.post("/instructor", up.single("instructor"), addInstructor);
 router.route("/admin/").get(getAdmin).delete(deleteAdmin);
-router.post("/admin", upload.single("admin"), addAdmin);
+router.post("/admin", up.single("admin"), addAdmin);
 router
   .route("/student/")
   .get(getStudent)
   .delete(deleteAllStudent);
-router.post("/student", upload.single("student"), addStudent);
+router.post("/student", up.single("student"), addStudent);
 router.route("/instructor/ByEmail/")
   .get(getInstructorByEmailID)
   .delete(deleteInstructor);
@@ -110,11 +111,14 @@ router
 
   // New route for companies by admins
 router.route("/company/").get(getAllCompanies).delete(deleteCompany).patch(updateCompany);
-router.post("/company",upload.single("company"), addCompany);
+router.post("/company",up.single("company"), addCompany);
 router.route("/company/name/").get(getCompanyByName);
 
 // New route for alumni by admins
-router.route("/alumni/").get(getAlumni).post(addAlumni);
+router
+  .route("/alumni/")
+  .get(getAlumni)
+router.post("/alumni",multerUpload.single("alumniimage"), geturl, addAlumni);
 router
   .route("/alumni/email/")
   .get(getAlumniByEmail)
@@ -122,16 +126,16 @@ router
   .delete(deleteAlumniByEmail);
 router.route
 ("/alumni/company/").get(getAlumniByCompany);
-router.patch(
-  "/alumni/image/",
-  multerUpload.single("image"),
-  geturl,
-  updatealumniimage
-);
+// router.patch(
+//   "/alumni/image/",
+//   multerUpload.single("image"),
+//   geturl,
+//   updatealumniimage
+// );
 
 // New route for Tnp Cordinator by admins
 router.route("/tnpcoordinator/").get(getTnp).delete(deleteTnp);
-router.post("/tnpcoordinator", upload.single("tnpcoordinator"), addTnp);
+router.post("/tnpcoordinator", up.single("tnpcoordinator"), addTnp);
 router
   .route("/tnpcoordinator/email/")
   .get(getTnpByEmail)

@@ -1,15 +1,14 @@
 const multer = require("multer");
-// const { Datauri}= require("datauri");
-// const { path} =require("path");
+
 const multerUpload = multer({
   limits: {
     fileSize: 2000000,
   },
   fileFilter(req, file, cb) {
     if (!file.originalname.match(/\.(png)$/)) {
-      return cb(new Error("please upload png"));
+      return cb(new Error("Please upload PNG files only"));
     }
-    cb(undefined, true);
+    cb(null, true);
   },
 });
 
@@ -19,9 +18,9 @@ const Uploadpdf = multer({
   },
   fileFilter(req, file, cb) {
     if (!file.originalname.match(/\.(pdf)$/)) {
-      return cb(new Error("please upload pdf"));
+      return cb(new Error("Please upload PDF files only"));
     }
-    cb(undefined, true);
+    cb(null, true);
   },
 });
 
@@ -31,9 +30,10 @@ const Uploadcsv = multer({
   },
   fileFilter(req, file, cb) {
     if (!file.originalname.match(/\.(csv)$/)) {
-      return cb(new Error("please upload csv"));
+      return cb(new Error("Please upload CSV files only"));
     }
-    cb(undefined, true);
+    cb(null, true);
   },
 });
+
 module.exports = { multerUpload, Uploadpdf, Uploadcsv };

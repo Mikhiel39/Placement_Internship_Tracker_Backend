@@ -1,0 +1,105 @@
+const fs = require('fs');
+const { google } = require('googleapis');
+
+clientId =process.env.GOOGLE_DRIVE_CLIENT_ID; 
+  clientSecret = process.env.GOOGLE_DRIVE_CLIENT_SECRET;
+  redirectUri = process.env.GOOGLE_DRIVE_REDIRECT_URI;
+  refreshToken = process.env.GOOGLE_DRIVE_REFRESH_TOKEN;
+class GoogleDriveService {
+      constructor(clientId, clientSecret, redirectUri, refreshToken) {
+        this.driveClient = this.createDriveClient(
+          clientId,
+          clientSecret,
+          redirectUri,
+          refreshToken
+        );
+      }
+
+      createDriveClient(clientId, clientSecret, redirectUri, refreshToken) {
+        const client = new google.auth.OAuth2(
+          clientId,
+          clientSecret,
+          redirectUri
+        );
+
+        client.setCredentials({ refresh_token: refreshToken });
+
+        return google.drive({
+          version: "v3",
+          auth: client,
+        });
+      }
+
+      async getFileContent(fileId) {
+        try {
+          const response = await this.driveClient.files.get({
+            fileId: fileId,
+            alt: "media",
+          });
+
+          return response.data;
+        } catch (error) {
+          console.error("Error getting file content:", error);
+          throw error;
+        }
+      }
+
+      async createFolder(folderName) {
+        try {
+          const response = await this.driveClient.files.create({
+            requestBody: {
+              name: folderName,
+              mimeType: "application/vnd.google-apps.folder",
+            },
+            fields: "id, name",
+          });
+          return response.data;
+        } catch (error) {
+          console.error("Error creating folder:", error);
+          throw error;
+        }
+      }
+
+      async searchFolder(folderName) {
+        try {
+          const response = await this.driveClient.files.list({
+            q: `mimeType='application/vnd.google-apps.folder' and name='${folderName}'`,
+            fields: "files(id, name)",
+          });
+          return response.data.files.length > 0 ? response.data.files[0] : null;
+        } catch (error) {
+          console.error("Error searching folder:", error);
+          throw error;
+        }
+      }
+
+      async saveFile(fileName, fileStream, mimeType, folderId = null) {
+        try {
+          const media = {
+            mimeType: mimeType,
+            body: fileStream,
+          };
+
+          const requestBody = {
+            name: fileName,
+            mimeType: mimeType,
+          };
+
+          if (folderId) {
+            requestBody.parents = [folderId];
+          }
+
+          const response = await this.driveClient.files.create({
+            requestBody: requestBody,
+            media: media,
+          });
+
+          return response.data;
+        } catch (error) {
+          console.error("Error saving file:", error);
+          throw error;
+        }
+      }
+    };
+
+module.exports = GoogleDriveService;

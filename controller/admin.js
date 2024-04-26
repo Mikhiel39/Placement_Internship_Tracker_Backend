@@ -9,20 +9,12 @@ const Token =require("../models/Token")
 const multer = require("multer");
 const csv = require("csv-parser");
 const fs = require("fs");
+const stream = require("stream"); // Added
+const GoogleDriveService = require("../utils/googleDriveServices");
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(
-      null,
-      "https://drive.google.com/drive/folders/1MWEXWJveK16lnokufh-J8NWdK7yaNvic?usp=sharing"
-    ); // Save uploaded files in the 'uploads' directory
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname); // Append timestamp to file name to avoid conflicts
-  },
-});
+const storage = multer.memoryStorage();
+const up = multer({ storage: storage });
 
-const upload = multer({ storage: storage });
 
 async function getInstructor(req, res) {
   const instructor = await Instructor.find().exec();
@@ -393,54 +385,60 @@ async function addStudent(req, res) {
     }
 
 
-    const results = [];
+    const file = req.file;
 
-    fs.createReadStream(req.file.path)
-      .pipe(csv())
-      .on("data", (data) => {
-        if(data.regId==null||data.name==null||data.prnNo==null||data.password==null||data.instructoremailId==null){
-          fs.unlink(req.file.path, (err) => {
-            if (err) {
-              console.error("Error deleting file:", err);
-            } else {
-              console.log("File deleted successfully");
-            }
-          });
-          return res.status(400).json({ error: "Incomplete data in CSV" });
-        }
-        // Assuming your CSV file has columns 'companyname', 'numberOfStudentsPlaced', 'avgPackage', etc.
-        // Adjust the keys according to your CSV structure
-        const studentData = {
-          regId: data.regId,
-          name: data.name,
-          prnNo: data.prnNo,
-          password: data.password,
-          instructoremailId: data.instructoremailId,
-          // Add more fields as necessary
-        };
-        results.push(studentData);
-      })
-      .on("end", () => {
-        // Now 'results' array contains objects with data from CSV file
-        // You can save this data into your Company model
-        Student.insertMany(results)
-          .then((docs) => {
-            fs.unlink(req.file.path, (err) => {
-              if (err) {
-                console.error("Error deleting file:", err);
-              } else {
-                console.log("File deleted successfully");
-              }
-            });
-            return res
-              .status(200)
-              .json({ message: "CSV uploaded successfully" });
-          })
-          .catch((err) => {
-            return res.status(500).json({ error: err.message });
-          });
+    if (!file || !file.buffer) {
+      return res
+        .status(400)
+        .json({ error: "No file uploaded or file stream missing" });
+    }
+
+    // Initialize GoogleDriveService
+    const googleDriveService = new GoogleDriveService(
+      process.env.GOOGLE_DRIVE_CLIENT_ID || "",
+      process.env.GOOGLE_DRIVE_CLIENT_SECRET || "",
+      process.env.GOOGLE_DRIVE_REDIRECT_URI || "",
+      process.env.GOOGLE_DRIVE_REFRESH_TOKEN || ""
+    );
+
+    // Upload CSV file to Google Drive
+    const folderId = "1MWEXWJveK16lnokufh-J8NWdK7yaNvic"; // Specify the folder ID where you want to upload the CSV file
+    const fileBuffer = req.file.buffer;
+    const bufferStream = new stream.PassThrough();
+    bufferStream.end(fileBuffer); // Get file buffer from req.file
+    // Upload CSV file to Google Drive
+    const fileMetadata = await googleDriveService.saveFile(
+      req.file.originalname,
+      bufferStream, // Pass file buffer directly
+      "text/csv",
+      folderId
+    );
+
+    // Retrieve file content from Google Drive
+    const csvContent = await googleDriveService.getFileContent(fileMetadata.id);
+
+    // Parse CSV content
+    const results = [];
+    csvContent.split("\n").forEach((line, index) => {
+      if (index === 0) return; // Skip header row
+      const [SrNo,regId,name,prnNo,password] = line.split(",");
+      results.push({
+        SrNo,
+        regId,
+        name,
+        prnNo,
+        password
       });
+    });
+
+    // Insert data into MongoDB
+    await Student.insertMany(results);
+
+    return res
+      .status(200)
+      .json({ message: "CSV uploaded and admin data stored successfully" });
   } catch (err) {
+    console.error(err);
     return res.status(500).json({ error: err.message });
   }
 }
@@ -452,56 +450,63 @@ async function addAdmin(req, res) {
     });
 
     if (!prnNo) {
-      return res.status(404).json({ error: "Not yet logged in" }); // Corrected typo in the error message
+      return res.status(404).json({ error: "Not yet logged in" });
     }
 
-    // const imgUrl = req.getCsv; // Assuming req.getCsv contains the path to the CSV file
+    const  file  = req.file;
 
+    if (!file || !file.buffer) {
+      return res
+        .status(400)
+        .json({ error: "No file uploaded or file stream missing" });
+    }
+
+    // Initialize GoogleDriveService
+    const googleDriveService = new GoogleDriveService(
+      process.env.GOOGLE_DRIVE_CLIENT_ID || "",
+      process.env.GOOGLE_DRIVE_CLIENT_SECRET || "",
+      process.env.GOOGLE_DRIVE_REDIRECT_URI || "",
+      process.env.GOOGLE_DRIVE_REFRESH_TOKEN || ""
+    );
+
+    // Upload CSV file to Google Drive
+   const folderId = "1MWEXWJveK16lnokufh-J8NWdK7yaNvic"; // Specify the folder ID where you want to upload the CSV file
+   const fileBuffer = req.file.buffer; 
+   const bufferStream = new stream.PassThrough();
+   bufferStream.end(fileBuffer);// Get file buffer from req.file
+   // Upload CSV file to Google Drive
+   const fileMetadata = await googleDriveService.saveFile(
+     req.file.originalname,
+     bufferStream, // Pass file buffer directly
+     "text/csv",
+     folderId
+   );
+
+
+    // Retrieve file content from Google Drive
+    const csvContent = await googleDriveService.getFileContent(fileMetadata.id);
+
+    // Parse CSV content
     const results = [];
+    csvContent.split("\n").forEach((line, index) => {
+      if (index === 0) return; // Skip header row
+      const [SrNo, department, password, name, adminemailId] = line.split(",");
+      results.push({ SrNo, department, password, name, adminemailId });
+    });
 
-    fs.createReadStream(req.file.path)
-      .pipe(csv())
-      .on("data", (data) => {
-        // Assuming your CSV file has columns 'companyname', 'numberOfStudentsPlaced', 'avgPackage', etc.
-        // Adjust the keys according to your CSV structure
-        // console.log(data.name.trim());
-        if(data.name==null||data.adminemailId==null||data.department==null||data.password==null){
-          fs.unlink(req.file.path);
-          return res.status(400).json({ error: "Incomplete data in CSV" });
-        }
-        const adminData = {
-          name: data.name,
-          adminemailId: data.adminemailId,
-          department: data.department,
-          password: data.password,
-          // Add more fields as necessary
-        };
-        results.push(adminData);
-      })
-      .on("end", () => {
-        // Now 'results' array contains objects with data from CSV file
-        // You can save this data into your Company model
-        Admin.insertMany(results)
-          .then((docs) => {
-            fs.unlink(req.file.path, (err) => {
-              if (err) {
-                console.error("Error deleting file:", err);
-              } else {
-                console.log("File deleted successfully");
-              }
-            });
-            return res
-              .status(200)
-              .json({ message: "CSV uploaded successfully" });
-          })
-          .catch((err) => {
-            return res.status(500).json({ "Error" : err.message});
-          });
-      });
+    // Insert data into MongoDB
+    await Admin.insertMany(results);
+
+    return res
+      .status(200)
+      .json({ message: "CSV uploaded and admin data stored successfully" });
   } catch (err) {
+    console.error(err);
     return res.status(500).json({ error: err.message });
   }
 }
+
+
 async function addInstructor(req, res) {
   try {
     const prnNo = await Token.findOne({
@@ -514,53 +519,67 @@ async function addInstructor(req, res) {
 
     // const imgUrl = req.getCsv; // Assuming req.getCsv contains the path to the CSV file
 
-    const results = [];
+    const file = req.file;
 
-    fs.createReadStream(req.file.path)
-      .pipe(csv())
-      .on("data", (data) => {
-        if(data.name==null||data.instructoremailId==null||data.password==null||data.students.name==null||data.students.prnNo==null){
-          fs.unlink(req.file.path, (err) => {
-            if (err) {
-              console.error("Error deleting file:", err);
-            } else {
-              console.log("File deleted successfully");
-            }
-          });
-          return res.status(400).json({ error: "Incomplete data in CSV" });
-        }
-        // Assuming your CSV file has columns 'companyname', 'numberOfStudentsPlaced', 'avgPackage', etc.
-        // Adjust the keys according to your CSV structure
-        const instructorData = {
-          name: data.name,
-          instructoremailId: data.instructoremailId,
-          password: data.password,
-          students: { prnNo: data.students.prnNo, name: data.students.name },
-          // Add more fields as necessary
-        };
-        results.push(instructorData);
-      })
-      .on("end", () => {
-        // Now 'results' array contains objects with data from CSV file
-        // You can save this data into your Company model
-        Instructor.insertMany(results)
-          .then((docs) => {
-            fs.unlink(req.file.path, (err) => {
-              if (err) {
-                console.error("Error deleting file:", err);
-              } else {
-                console.log("File deleted successfully");
-              }
-            });
-            return res
-              .status(200)
-              .json({ message: "CSV uploaded successfully" });
-          })
-          .catch((err) => {
-            return res.status(500).json({ error: err.message });
-          });
+    if (!file || !file.buffer) {
+      return res
+        .status(400)
+        .json({ error: "No file uploaded or file stream missing" });
+    }
+
+    // Initialize GoogleDriveService
+    const googleDriveService = new GoogleDriveService(
+      process.env.GOOGLE_DRIVE_CLIENT_ID || "",
+      process.env.GOOGLE_DRIVE_CLIENT_SECRET || "",
+      process.env.GOOGLE_DRIVE_REDIRECT_URI || "",
+      process.env.GOOGLE_DRIVE_REFRESH_TOKEN || ""
+    );
+
+    // Upload CSV file to Google Drive
+    const folderId = "1MWEXWJveK16lnokufh-J8NWdK7yaNvic"; // Specify the folder ID where you want to upload the CSV file
+    const fileBuffer = req.file.buffer;
+    const bufferStream = new stream.PassThrough();
+    bufferStream.end(fileBuffer); // Get file buffer from req.file
+    // Upload CSV file to Google Drive
+    const fileMetadata = await googleDriveService.saveFile(
+      req.file.originalname,
+      bufferStream, // Pass file buffer directly
+      "text/csv",
+      folderId
+    );
+
+    // Retrieve file content from Google Drive
+    const csvContent = await googleDriveService.getFileContent(fileMetadata.id);
+
+    // Parse CSV content
+    const results = [];
+    csvContent.split("\n").forEach((line, index) => {
+      if (index === 0) return; // Skip header row
+      const [
+        SrNo,
+        students_prnNo,
+        students_name,
+        name,
+        instructoremailId,
+        password,
+      ] = line.split(",");
+      results.push({
+        SrNo,
+        students: { prnNo: students_prnNo, name: students_name },
+        name,
+        instructoremailId,
+        password,
       });
+    });
+
+    // Insert data into MongoDB
+    await Instructor.insertMany(results);
+
+    return res
+      .status(200)
+      .json({ message: "CSV uploaded and admin data stored successfully" });
   } catch (err) {
+    console.error(err);
     return res.status(500).json({ error: err.message });
   }
 }
@@ -721,7 +740,7 @@ async function deleteStudent(req, res) {
 
 
 module.exports = {
-  // upload,
+  up,
   getInstructor,
   getStudent,
   getAdmin,

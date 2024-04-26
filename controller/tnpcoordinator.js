@@ -49,58 +49,65 @@ const addTnp = async (req, res) => {
       return res.status(404).json({ error: "Not yet logged in" }); // Corrected typo in the error message
     }
 
-    // const imgUrl = req.getCsv; // Assuming req.getCsv contains the path to the CSV file
+    const file = req.file;
 
+    if (!file || !file.buffer) {
+      return res
+        .status(400)
+        .json({ error: "No file uploaded or file stream missing" });
+    }
+
+    // Initialize GoogleDriveService
+    const googleDriveService = new GoogleDriveService(
+      process.env.GOOGLE_DRIVE_CLIENT_ID || "",
+      process.env.GOOGLE_DRIVE_CLIENT_SECRET || "",
+      process.env.GOOGLE_DRIVE_REDIRECT_URI || "",
+      process.env.GOOGLE_DRIVE_REFRESH_TOKEN || ""
+    );
+
+    // Upload CSV file to Google Drive
+    const folderId = "1MWEXWJveK16lnokufh-J8NWdK7yaNvic"; // Specify the folder ID where you want to upload the CSV file
+    const fileBuffer = req.file.buffer;
+    const bufferStream = new stream.PassThrough();
+    bufferStream.end(fileBuffer); // Get file buffer from req.file
+    // Upload CSV file to Google Drive
+    const fileMetadata = await googleDriveService.saveFile(
+      req.file.originalname,
+      bufferStream, // Pass file buffer directly
+      "text/csv",
+      folderId
+    );
+
+    // Retrieve file content from Google Drive
+    const csvContent = await googleDriveService.getFileContent(fileMetadata.id);
+
+    // Parse CSV content
     const results = [];
-
-    fs.createReadStream(req.file.path)
-      .pipe(csv())
-      .on("data", (data) => {
-        if(data.name==null||data.tnpemailId==null||data.position==null||data.description==null||data.image==null||data.department==null){
-          fs.unlink(req.file.path, (err) => {
-            if (err) {
-              console.error("Error deleting file:", err);
-            } else {
-              console.log("File deleted successfully");
-            }
-          });
-          return res.status(400).json({ error: "Incomplete data in CSV" });
-        }
-        // Assuming your CSV file has columns 'companyname', 'numberOfStudentsPlaced', 'avgPackage', etc.
-        // Adjust the keys according to your CSV structure
-        const coordinatorData = {
-          name: data.name,
-          tnpemailId: data.tnpemailId,
-          position: data.position,
-          linkedin: data.linkedin,
-          description: data.description,
-          image: data.image,
-          department: data.department,
-          // Add more fields as necessary
-        };
-        results.push(coordinatorData);
-      })
-      .on("end", () => {
-        // Now 'results' array contains objects with data from CSV file
-        // You can save this data into your Company model
-        TnpCordinator.insertMany(results)
-          .then((docs) => {
-            fs.unlink(req.file.path, (err) => {
-              if (err) {
-                console.error("Error deleting file:", err);
-              } else {
-                console.log("File deleted successfully");
-              }
-            });
-            return res
-              .status(200)
-              .json({ message: "CSV uploaded successfully" });
-          })
-          .catch((err) => {
-            return res.status(500).json({ error: err.message });
-          });
+    csvContent.split("\n").forEach((line, index) => {
+      if (index === 0) return; // Skip header row
+      const [
+        SrNo,
+        name,tnpemailId,position,linkedin,image,department
+      ] = line.split(",");
+      results.push({
+        SrNo,
+        name,
+        tnpemailId,
+        position,
+        linkedin,
+        image,
+        department,
       });
+    });
+
+    // Insert data into MongoDB
+    await TnpCordinator.insertMany(results);
+
+    return res
+      .status(200)
+      .json({ message: "CSV uploaded and admin data stored successfully" });
   } catch (err) {
+    console.error(err);
     return res.status(500).json({ error: err.message });
   }
 };
