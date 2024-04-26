@@ -32,14 +32,22 @@ async function getAlumniByEmail(req, res) {
 // Add new alumni
 const addAlumni = async (req, res) => {
   const prnNo = await Token.findOne({
-      encrypted: req.query.adminemailId,
-    });
+    encrypted: req.query.adminemailId,
+  });
 
-    if (!prnNo) {
-      return res.status(404).json({ error: "Not yet logged in" }); // Corrected typo in the error message
-    }
+  if (!prnNo) {
+    return res.status(404).json({ error: "Not yet logged in" }); // Corrected typo in the error message
+  }
 
-  const { name, yearOfPassout, alumniemailId, company, testimonial, department,linkedin, } = req.body;
+  const {
+    name,
+    yearOfPassout,
+    alumniemailId,
+    company,
+    testimonial,
+    department,
+    linkedin,
+  } = req.body;
 
   try {
     const newAlumni = new Alumni({
@@ -53,11 +61,15 @@ const addAlumni = async (req, res) => {
     });
 
     const alumni = await newAlumni.save();
+
+    // Respond with success message after saving the record
+    res.status(200).json({ message: "Alumni record saved successfully" });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
   }
 };
+
 
 async function updatealumniimage(req, res) {
   if (!req.query.adminemailId) {

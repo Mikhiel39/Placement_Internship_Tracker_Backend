@@ -34,13 +34,16 @@ const addAnnouncement = async (req, res) => {
     // Save the new announcement to the database
     const announcement = await newAnnouncement.save();
 
-    // Send a success response
-    res.status(200).json(announcement);
+    // Send a success response with the announcement object
+    res
+      .status(200)
+      .json({ message: "Announcement added successfully"});
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
   }
 };
+
 
 
 async function deleteAnnouncement(req, res) {
