@@ -200,11 +200,11 @@ async function getQuestionBycompanyname(req, res) {
   return res.json(question);
 }
 
-async function getToken(req, res) {
-  const token = await Token.find({
-    encryptedprnNo: req.query.encryptedprnNo,
+async function logout(req, res) {
+  const token = await Token.findOneAndDelete({
+    encryptedprnNo: req.params.encryptedprnNo,
   }).exec();
-  if (!token) return res.status(404).json({ error: "No question available" });
+  if (!token) return res.status(404).json({ error: "No token available" });
   return res.json(token);
 }
 async function getQuestionByprnnocompanyname(req, res) {
@@ -327,11 +327,23 @@ async function getStudentByInstructor(req, res) {
 }
 
 async function addQuestion(req, res) {
-  const prnNo = await Token.findOne({
-    encrypted: req.query.prnNo,
-  });
-  if (!prnNo) {
-    return res.status(404).json({ error: "Not yet Login" });
+  if (!req.query.prnNo) {
+    return res.status(400).json({ error: "PRN number is missing" });
+  }
+
+  // Attempt to find Token with the provided prnNo
+  const token = await Token.findOne({ encrypted: req.query.prnNo });
+
+  // If Token is not found, return 404 error
+  if (!token) {
+    return res.status(404).json({ error: "Token not found" });
+  }
+
+  const imgUrl = req.imgURI; // Assuming you have imgUrl available in the request
+
+  // Check if imgUrl is present in the request
+  if (!imgUrl) {
+    return res.status(400).json({ error: "Image URL is missing" });
   }
 
   const body = req.body;
@@ -360,20 +372,10 @@ async function addQuestion(req, res) {
     ) {
       return res.status(400).json({ msg: "All fields are required" });
     }
-    const companylogo = "https://img.collegepravesh.com/2017/02/PICT-Logo.jpg"; // Changed const to let
-    // // await upload.single("companylogo")(req, res); // Moved multer middleware here to properly handle the file upload
-
-    // // Access the uploaded file path from req.file
-    // if (req.file) {
-    //   companylogo = req.file.path;
-    // } else {
-    //   throw new Error("No companylogo uploaded");
-    // }
-    // Create the new question
     const newQuestion = await Question.create({
       prnNo: prnNo.user,
       Question_no: body.Question_no,
-      companylogo: companylogo,
+      companylogo: imgUrl,
       puzzlelink: {
         question: body.puzzlelink.question,
         answer: body.puzzlelink.answer,
@@ -398,7 +400,7 @@ async function addQuestion(req, res) {
       const nQuestion = {
         Question_no: body.Question_no,
         companyname: body.companyname,
-        companylogo: companylogo,
+        companylogo: imgUrl,
       };
       questionModel.questions.push(nQuestion);
       await questionModel.save();
@@ -409,7 +411,7 @@ async function addQuestion(req, res) {
       questions: {
         Question_no: body.Question_no,
         companyname: body.companyname,
-        companylogo: companylogo,
+        companylogo: imgUrl,
       },
     });
 
@@ -493,5 +495,5 @@ module.exports = {
   getQuestionByprncompanyoopen,
   getStudentByInstructor,
   getStudentByprnno,
-  getToken,
+  logout,
 };

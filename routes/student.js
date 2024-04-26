@@ -14,7 +14,7 @@ const {
   getStudentByprnno,
   deleteQuestionByprnno,
   getQuestionByprncompanyoopen,
-  getToken,
+  logout,
   updateresume,
 } = require("../controller/student");
 const {
@@ -29,18 +29,24 @@ const {
 router
   .get("/", getStudentByprnno)
   .patch("/", updateProfile)
-  // .post("/", upload.single("companylogo"), addQuestion);
-router.route("/token").get(getToken)
+router.post("/", multerUpload.single("image"), geturl, addQuestion);
+router.route("/logout").delete(logout);
 router
   .get("/internship",getInternshipByprnno)
-//   .post("/internship",upload.single("offer"), addInternship)
-// router.patch(
-//   "/updateCompletionLetter",
-//   upload.single("completion"),
-//   updateCompletionLetterInternship
-// );
+router.post(
+  "/internship",
+  Uploadpdf.single("internship"),
+  getUrl,
+  addInternship
+);
+router.patch(
+  "/updateCompletionLetter",
+  Uploadpdf.single("completion"),
+  getUrl,
+  updateCompletionLetterInternship
+);
 router.get("/placement",getPlacementByprnno)
-// .post("/placement",upload.single("offer"),addPlacement);
+router.post("/placement", Uploadpdf.single("placement"), getUrl, addPlacement);
 router
   .route("/questions")
   .get(getQuestionByprnno)

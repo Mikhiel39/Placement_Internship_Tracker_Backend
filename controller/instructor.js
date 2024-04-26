@@ -24,80 +24,83 @@ const upload = multer({ storage: storage });
 
 async function addBatch(req, res) {
   try {
-    if (req.query.prnNo != body.prnNo) {
-      return res.status(404).json({ msg: "prnNo does not match" });
+    if (!req.query.instructoremailId) {
+      return res.status(400).json({ error: "instructoremailId is missing" });
     }
-    const { prnNo, instructoremailId } = req.query;
-    const { students } = req.body;
+
+    // Attempt to find Token with the provided prnNo
+    const token = await Token.findOne({
+      encrypted: req.query.instructoremailId,
+    });
+
+    // If Token is not found, return 404 error
+    if (!token) {
+      return res.status(404).json({ error: "Token not found" });
+    }
+
+    const { instructoremailId } = req.query;
+    const { prnNo, name } = req.body;
 
     // Find the instructor by email
-    const instructor = await Instructor.findOne({ instructoremailId });
+    const instructor = await Instructor.find({
+      instructoremailId: instructoremailId,
+    });
 
     // Check if the instructor exists
     if (!instructor) {
       return res.status(404).json({ msg: "Instructor not found" });
     }
 
-    // Check if all required fields are provided for each student
-    if (students.some((student) => !student.firstname || !student.lastname)) {
-      return res
-        .status(400)
-        .json({ msg: "All fields are required for each student" });
-    }
+    // Get the first student record from the instructor's students array
+    const studentRecord = instructor[0]; // Assuming you want the first record
 
-    // Ensure each student object has a unique _id field
-    const formattedStudents = students.map((student) => ({
-      _id: new mongoose.Types.ObjectId(), // Generate a new ObjectId
-      ...student,
-    }));
+    // Create a new student object
+    const newStudent = {
+      instructoremailId,
+      students: [
+        {
+          prnNo,
+          name,
+        },
+      ],
+      instructorName: studentRecord.name,
+      instructorPassword: studentRecord.password,
+    };
 
-    // Find each student by prnNo and update their instructoremailId
-    const updatedStudents = await Promise.all(
-      formattedStudents.map(async (studentData) => {
-        const updatedStudent = await Student.findOneAndUpdate(
-          { prnNo: studentData.prnNo },
-          { instructoremailId },
-          { new: true } // Return the updated document
-        );
+    // Save the new student
+    const savedStudent = await Instructor.create(newStudent);
 
-        // If student not found, return 404
-        if (!updatedStudent) {
-          throw new Error(`Student with PRN ${studentData.prnNo} not found`);
-        }
-
-        return updatedStudent;
-      })
-    );
-
-    // Add students to instructor's list of students
-    instructor.students.push(...updatedStudents);
-    await instructor.save(); // Save changes to the instructor
-
-    return res.status(201).json({ msg: "Success", students: updatedStudents });
+    return res.status(201).json({ msg: "Success", student: savedStudent });
   } catch (err) {
     console.error(err.message);
     return res.status(500).json({ msg: "Server Error" });
   }
 }
 
+
 async function deleteBatch(req, res) {
   try {
-    // console.log("Instructor email:", req.params.instructoremailId);
-    // console.log("Student PRN:", req.params.prnNo);
+    if (!req.query.instructoremailId) {
+      return res.status(400).json({ error: "instructoremailId is missing" });
+    }
 
-    const result = await Instructor.updateOne(
-      { instructoremailId: req.query.instructoremailId },
-      { $pull: { students: { prnNo: req.query.prnNo } } }
-    );
+    // Attempt to find Token with the provided prnNo
+    const token = await Token.findOne({
+      encrypted: req.query.instructoremailId,
+    });
 
-    // console.log("Update result:", result);
+    // If Token is not found, return 404 error
+    if (!token) {
+      return res.status(404).json({ error: "Token not found" });
+    }
+     const instructors = await Instructor.find({
+       instructoremailId,
+     });
 
-    // Update the student's instructor email to null
-    await Student.findOneAndUpdate(
-      { prnNo: req.query.prnNo },
-      { instructoremailId: null }
-    );
-
+    for (const instructor of instructors) {
+      instructor.students = []; // Remove all students from instructor's list
+      await instructor.save();
+    }
     return res.status(201).json({
       success: true,
       message: "Student removed from batch successfully.",
@@ -108,29 +111,38 @@ async function deleteBatch(req, res) {
   }
 }
 
-// async function updatebgimage(req, res) {
-//   try {
-//     let img = null; // Changed const to let
-//     // await upload.single("bgimage")(req, res); // Moved multer middleware here to properly handle the file upload
+async function updatebgimage(req, res) {
+  // Check if prnNo is present in the request query
+  if (!req.query.instructoremailId) {
+    return res
+      .status(400)
+      .json({ error: "instructoremailId is missing" });
+  }
 
-//     // Access the uploaded file path from req.file
-//     if (req.file) {
-//       img = req.file.path;
-//     } else {
-//       throw new Error("No bgimage uploaded");
-//     }
-//     await Instructor.findOneAndUpdate(
-//       { instructoremailId: req.query.instructoremailId },
-//       {
-//         bgimage: img,
-//       }
-//     );
-//     return res.status(201).json({ msg: "success" });
-//   } catch (error) {
-//     console.error(error.message);
-//     return res.status(500).json({ msg: "Internal server error" });
-//   }
-// }
+  // Attempt to find Token with the provided prnNo
+  const token = await Token.findOne({ encrypted: req.query.instructoremailId });
+
+  // If Token is not found, return 404 error
+  if (!token) {
+    return res.status(404).json({ error: "Token not found" });
+  }
+
+  const imgUrl = req.imgURI; // Assuming you have imgUrl available in the request
+
+  // Check if imgUrl is present in the request
+  if (!imgUrl) {
+    return res.status(400).json({ error: "Image URL is missing" });
+  }
+  await Instructor.findOneAndUpdate(
+    { instructoremailId: token.user },
+    { bgimage: imgUrl }
+  );
+
+  // Return success message
+  return res
+    .status(200)
+    .json({ message: "Background image updated successfully" });
+}
 
 async function getInstructorByEmailID(req, res) {
   try {
@@ -156,33 +168,37 @@ async function getInstructorByEmailID(req, res) {
 }
 
 async function updateimage(req, res) {
-  try {
-    let img = null; // Changed const to let
-    // await upload.single("image")(req, res); // Moved multer middleware here to properly handle the file upload
-
-    // Access the uploaded file path from req.file
-    if (req.file) {
-      img = req.file.path;
-    } else {
-      throw new Error("No image uploaded");
-    }
-    await Instructor.findOneAndUpdate(
-      { instructoremailId: req.query.instructoremailId },
-      {
-        image: img,
-      }
-    );
-    return res.status(201).json({ msg: "success" });
-  } catch (error) {
-    console.error(error.message);
-    return res.status(500).json({ msg: "Internal server error" });
+  if (!req.query.instructoremailId) {
+    return res.status(400).json({ error: "instructoremailId is missing" });
   }
+
+  // Attempt to find Token with the provided prnNo
+  const token = await Token.findOne({ encrypted: req.query.instructoremailId });
+
+  // If Token is not found, return 404 error
+  if (!token) {
+    return res.status(404).json({ error: "Token not found" });
+  }
+
+  const imgUrl = req.imgURI; // Assuming you have imgUrl available in the request
+
+  // Check if imgUrl is present in the request
+  if (!imgUrl) {
+    return res.status(400).json({ error: "Image URL is missing" });
+  }
+  await Instructor.findOneAndUpdate(
+    { instructoremailId: token.user },
+    { image: imgUrl }
+  );
+
+  // Return success message
+  return res.status(200).json({ message: "Image updated successfully" });
 }
 
 module.exports = {
   getInstructorByEmailID,
   addBatch,
-  // updatebgimage,
+  updatebgimage,
   updateimage,
   deleteBatch,
 };

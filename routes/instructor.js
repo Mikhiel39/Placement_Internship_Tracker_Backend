@@ -1,6 +1,6 @@
 const express = require("express");
-const multer = require("multer");
-// const upload = multer({ dest: "uploads/" });
+const { geturl} = require("../utils/cloudinary");
+const { multerUpload} = require("../middlewares/multer");
 const router = express.Router();
 const {
   addBatch,
@@ -17,11 +17,12 @@ const {
   getQuestionByprnno,
 } = require("../controller/admin");
 
-const { getQuestionByprnnoopen } = require("../controller/student");
+const { getQuestionByprnnoopen, logout } = require("../controller/student");
 
 router.route("/").get(getInstructorByEmailID);
-// router.patch("/image", upload.single("image"), updateimage);
-// router.patch("/bgimage", upload.single("bgimage"), updatebgimage);
+router.route("/logout").delete(logout);
+router.patch("/image", multerUpload.single("image"), geturl, updateimage);
+router.patch("/bgimage", multerUpload.single("bgimage"), geturl, updatebgimage);
 router
   .route("/student/")
   .get(getStudentByprnno)

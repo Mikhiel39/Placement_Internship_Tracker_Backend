@@ -249,26 +249,25 @@ async function getQuestionByprnno(req, res) {
 }
 async function addInternship(req, res) {
   try {
-    const prn = await Token.findOne({
+    const prnNo = await Token.findOne({
       encrypted: req.query.prnNo,
     });
-    if (!prn) {
+    if (!prnNo) {
       return res.status(404).json({ error: "Not yet Login" });
     }
+    const imgUrl = req.imgURI; // Assuming you have imgUrl available in the request
+
+    // Check if imgUrl is present in the request
+    if (!imgUrl) {
+      return res.status(400).json({ error: "Offer letter URL is missing" });
+    }
     const body = req.body;
-    const prnNo = prn.user; // Corrected to access prnNo from query parameters
+    const p = prnNo.user; // Corrected to access prnNo from query parameters
 
     const internship = await Internship.findOne({
-      prnNo: prnNo, // Corrected to use the prnNo variable
+      prnNo: p, // Corrected to use the prnNo variable
       noInternship: req.body.noInternship,
     });
-    const offer = "https://img.collegepravesh.com/2017/02/PICT-Logo.jpg";
-    // console.log(req.file);
-    // if (req.file) {
-    //   offer = req.file.path;
-    // } else {
-    //   throw new Error("No image uploaded");
-    // }
     if (!internship) {
       // Add validation for required fields here
       const result = await Internship.create({
@@ -277,7 +276,7 @@ async function addInternship(req, res) {
         internshipDescription: body.internshipDescription,
         duration: body.duration,
         location: body.location,
-        offerLetter: offer,
+        offerLetter: imgUrl,
         stipend: body.stipend,
         companyname: body.companyname,
         internTitle: body.internTitle,
@@ -286,7 +285,7 @@ async function addInternship(req, res) {
       });
 
       await Student.findOneAndUpdate(
-        { prnNo: prnNo }, // Corrected to use the prnNo variable
+        { prnNo: p }, // Corrected to use the prnNo variable
         { internshipStatus: "Yes" }
       );
 
@@ -299,7 +298,7 @@ async function addInternship(req, res) {
           duration: body.duration,
           location: body.location,
           stipend: body.stipend,
-          offerLetter:offer,
+          offerLetter: imgUrl,
           internTitle: body.internTitle,
           domain: body.domain,
           externalInstructors: body.externalInstructors,
@@ -322,18 +321,17 @@ async function addPlacement(req, res) {
     if (!prnNo) {
       return res.status(404).json({ error: "Not yet Login" });
     }
+    const imgUrl = req.imgURI; // Assuming you have imgUrl available in the request
+
+    // Check if imgUrl is present in the request
+    if (!imgUrl) {
+      return res.status(400).json({ error: "Offer Letter URL is missing" });
+    }
     const body = req.body;
     const placement = await Placement.findOne({
       companyname: body.companyname,
       prnNo: prnNo.user,
     });
-    const offer = "https://img.collegepravesh.com/2017/02/PICT-Logo.jpg";
-    // console.log(req.file);
-    // if (req.file) {
-    //   offer = req.file.path;
-    // } else {
-    //   throw new Error("No image uploaded");
-    // }
     if (!placement) {
       if (
         !body.role ||
@@ -351,7 +349,7 @@ async function addPlacement(req, res) {
         role: body.role,
         jobDescription: body.jobDescription, // Fix typo
         location: body.location,
-        offerLetter: offer,
+        offerLetter: imgUrl,
         companyname: body.companyname,
         salary: body.salary,
         domain: body.domain,
@@ -367,7 +365,7 @@ async function addPlacement(req, res) {
         {
           role: body.role,
           jobDescription: body.jobDescription,
-          offerLetter: offer,
+          offerLetter: imgUrl,
           location: body.location,
           salary: body.salary,
           domain: body.domain,
@@ -453,6 +451,7 @@ async function addAdmin(req, res) {
       .on("data", (data) => {
         // Assuming your CSV file has columns 'companyname', 'numberOfStudentsPlaced', 'avgPackage', etc.
         // Adjust the keys according to your CSV structure
+        // console.log(data.name.trim());
         const adminData = {
           name: data.name,
           adminemailId: data.adminemailId,
@@ -539,46 +538,31 @@ async function addInstructor(req, res) {
   }
 }
 
-// async function updateCompletionLetterInternship(req, res) {
-//   try {
-//     const prnNo = await Token.findOne({ encrypted: req.query.prnNo });
-//     if (!prnNo) {
-//       return res.status(404).json({ error: "Not yet Login" });
-//     }
+async function updateCompletionLetterInternship(req, res) {
+  const prnNo = await Token.findOne({
+    encrypted: req.query.prnNo,
+  });
+  if (!prnNo) {
+    return res.status(404).json({ error: "Not yet Login" });
+  }
+  const imgUrl = req.imgURI; // Assuming you have imgUrl available in the request
 
-//     const completionRecord = await Internship.findOne({
-//       noInternship: req.query.noInternship,
-//       prnNo: prnNo.user,
-//     });
-
-//     if (!completionRecord) {
-//       return res.status(404).json({ error: "Internship record not found" });
-//     }
-
-//     let completion = null;
-
-//     if (req.file) {
-//       completion = req.file.path;
-//     } else {
-//       throw new Error("No image uploaded");
-//     }
-
-//     await Internship.findOneAndUpdate(
-//       {
-//         prnNo: prnNo.user,
-//         noInternship: req.query.noInternship,
-//       },
-//       {
-//         completionLetter: completion,
-//       }
-//     );
-
-//     return res.status(201).json({ msg: "Success" });
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ msg: "Internal server error" });
-//   }
-// }
+  // Check if imgUrl is present in the request
+  if (!imgUrl) {
+    return res.status(400).json({ error: "Completion letter URL is missing" });
+  }
+  try {
+    await Internship.findOneAndUpdate(
+      { prnNo: prnNo.user },
+      {
+        completionLetter: imgUrl,
+      }
+    );
+    return res.status(201).json({ msg: "success" });
+  } catch (error) {
+    return res.status(500).json({ msg: "Internal server error" });
+  }
+}
 
 // async function updateOfferLetterInternship(req, res) {
 //   const body = req.body;
@@ -730,7 +714,7 @@ module.exports = {
   getQuestionByprnno,
   getQuestionByInstructor,
   getQuestionByInstructoropen,
-  // updateCompletionLetterInternship,
+  updateCompletionLetterInternship,
   deleteAdmin,
   deleteInstructor,
   deleteStudent,

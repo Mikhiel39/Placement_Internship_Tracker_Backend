@@ -51,7 +51,7 @@ const {
   getAlumni,
   updatealumniimage,
 } = require("../controller/alumni");
-const { getQuestionByprnnoopen } = require("../controller/student");
+const { logout } = require("../controller/student");
 
 // Import the controller function for tnp coordinators
 const {
@@ -80,6 +80,7 @@ const {
 
 
 router.route("/").get(getAdminbyadminemailId);
+router.route("/logout").delete(logout);
 router
   .route("/instructor/")
   .get(getInstructor)
