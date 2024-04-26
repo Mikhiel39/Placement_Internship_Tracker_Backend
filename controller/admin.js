@@ -463,13 +463,7 @@ async function addAdmin(req, res) {
         // Adjust the keys according to your CSV structure
         // console.log(data.name.trim());
         if(data.name==null||data.adminemailId==null||data.department==null||data.password==null){
-          fs.unlink(req.file.path, (err) => {
-            if (err) {
-              console.error("Error deleting file:", err);
-            } else {
-              console.log("File deleted successfully");
-            }
-          });
+          fs.unlink(req.file.path);
           return res.status(400).json({ error: "Incomplete data in CSV" });
         }
         const adminData = {
