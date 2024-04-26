@@ -20,19 +20,18 @@ const alumniSchema = new mongoose.Schema({
   },
   department: {
     type: String,
-    required: true,
+    default: "IT",
   },
   image: {
     type: String,
     default: null,
   },
-  alumniemailId:{
+  alumniemailId: {
     type: String,
     required: true,
   },
   linkedin: {
     type: String,
-    required: true,
   },
 });
 

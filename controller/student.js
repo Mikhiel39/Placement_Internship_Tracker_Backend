@@ -339,7 +339,7 @@ async function addQuestion(req, res) {
     return res.status(404).json({ error: "Token not found" });
   }
 
-  const imgUrl = req.imgURI; // Assuming you have imgUrl available in the request
+  const imgUrl = req.body.imgURI; // Assuming you have imgUrl available in the request
 
   // Check if imgUrl is present in the request
   if (!imgUrl) {

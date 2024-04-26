@@ -250,7 +250,7 @@ async function addInternship(req, res) {
     if (!prnNo) {
       return res.status(404).json({ error: "Not yet Login" });
     }
-    const imgUrl = req.imgURI; // Assuming you have imgUrl available in the request
+    const imgUrl = req.body.imgURI; // Assuming you have imgUrl available in the request
 
     // Check if imgUrl is present in the request
     if (!imgUrl) {
@@ -316,7 +316,7 @@ async function addPlacement(req, res) {
     if (!prnNo) {
       return res.status(404).json({ error: "Not yet Login" });
     }
-    const imgUrl = req.imgURI; // Assuming you have imgUrl available in the request
+    const imgUrl = req.body.imgURI; // Assuming you have imgUrl available in the request
 
     // Check if imgUrl is present in the request
     if (!imgUrl) {

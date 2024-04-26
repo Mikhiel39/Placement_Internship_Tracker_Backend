@@ -37,38 +37,62 @@ const addAlumni = async (req, res) => {
     if (!prnNo) {
       return res.status(404).json({ error: "Not yet logged in" });
     }
-    const imgUrl = req.imgUrl;
 
+    const imgUrl = req.body.imgURI;
+
+    // Check if imgUrl is present in the request body
     if (!imgUrl) {
       return res.status(400).json({ error: "Image URL is missing" });
     }
 
-    const {
-      name,
-      yearOfPassout,
-      alumniemailId,
-      company,
-      testimonial,
-      department,
-      linkedin,
-    } = req.body;
+    const body = req.body;
 
-    const newAlumni = new Alumni({
-      name,
-      yearOfPassout,
-      alumniemailId,
-      company,
-      testimonial,
-      department,
-      linkedin,
-    });
+    // Check if all required fields are present
+    if (
+      !body.name ||
+      !body.yearOfPassout ||
+      !body.alumniemailId ||
+      !body.company ||
+      !body.testimonial ||
+      !body.linkedin
+    ) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
 
-    const alumni = await newAlumni.save();
+    let alumni = await Alumni.findOne({ alumniemailId: body.alumniemailId });
 
-    res.status(200).json({ message: "Alumni record saved successfully" });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    if (!alumni) {
+      // If alumni doesn't exist, create a new one
+      await Alumni.create({
+        name: body.name,
+        yearOfPassout: body.yearOfPassout,
+        alumniemailId: body.alumniemailId,
+        company: body.company,
+        image: imgUrl,
+        testimonial: body.testimonial,
+        department: body.department,
+        linkedin: body.linkedin,
+      });
+    } else {
+      // If alumni already exists, update the existing record
+      await Alumni.findOneAndUpdate(
+        { alumniemailId: body.alumniemailId },
+        {
+          name: body.name,
+          yearOfPassout: body.yearOfPassout,
+          company: body.company,
+          image: imgUrl,
+          testimonial: body.testimonial,
+          department: body.department,
+          linkedin: body.linkedin,
+        }
+      );
+    }
+
+    return res.status(201).json({ msg: "success" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
