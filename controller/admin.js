@@ -492,7 +492,7 @@ async function addAdmin(req, res) {
               .json({ message: "CSV uploaded successfully" });
           })
           .catch((err) => {
-            return res.status(500).json({ "Error"});
+            return res.status(500).json({ "Error" : err.message});
           });
       });
   } catch (err) {
