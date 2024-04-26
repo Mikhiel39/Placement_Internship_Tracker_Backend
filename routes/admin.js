@@ -24,7 +24,7 @@ const {
   deleteAdmin,
   deleteInstructor,
   deleteStudent,
-  // deleteAllStudent,
+  deleteAllStudent,
   getAdminbyadminemailId,
 } = require("../controller/admin");
 const { addBatch, deleteBatch } = require("../controller/instructor");
@@ -89,7 +89,7 @@ router.post("/admin", upload.single("admin"), addAdmin);
 router
   .route("/student/")
   .get(getStudent)
-  // .delete(deleteAllStudent);
+  .delete(deleteAllStudent);
 router.post("/student", upload.single("student"), addStudent);
 router.route("/instructor/ByEmail/")
   .get(getInstructorByEmailID)

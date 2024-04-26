@@ -644,46 +644,33 @@ async function deleteAdmin(req, res) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
-// async function deleteAllStudent(req, res) {
-//   try {
-//     // Find the student based on the student's PRN number
-//     const student = await Student.findOne({ prnNo: req.query.prnNo });
+async function deleteAllStudent(req, res) {
+  try {
+    // Delete all students and related information
+    await Student.deleteMany();
+    await Internship.deleteMany({}); // Delete all internships
+    await Placement.deleteMany({}); // Delete all placements
+    await Question.deleteMany({}); // Delete all questions
 
-//     // If student exists, proceed with deletion
-//     if (student) {
-//       const emailId = student.instructoremailId;
+    // Update all instructors' student lists
+    const instructors = await Instructor.find();
+    for (const instructor of instructors) {
+      instructor.students = []; // Remove all students from instructor's list
+      await instructor.save();
+    }
 
-//       // Delete student and related information
-//       await Student.findOneAndDelete({ prnNo: req.query.prnNo });
-//       await Internship.findOneAndDelete({ prnNo: req.query.prnNo });
-//       await Placement.findOneAndDelete({ prnNo: req.query.prnNo });
-//       await Question.findOneAndDelete({ prnNo: req.query.prnNo });
+    // Respond with success message
+    return res
+      .status(200)
+      .json({ msg: "All student data deleted successfully" });
+  } catch (error) {
+    // Handle errors
+    console.error(error);
+    return res.status(500).json({ error: error.message });
+  }
+}
 
-//       // Check if instructor exists based on the instructor's email
-//       const instructor = await Instructor.findOneAndDeleteOne({
-//         students:{
-
-//         }
-//       });
-
-//       // If instructor exists, update their list of students
-//       if (instructor) {
-//         const result = await Instructor.updateOne(
-//           { instructoremailId: emailId },
-//           { $pull: { students: { prnNo: req.query.prnNo } } }
-//         );
-//       }
-//     }
-
-//     // Respond with success message
-//     return res.status(200).json({ msg: "Student deleted successfully" });
-//   } catch (error) {
-//     // Handle errors
-//     console.error(error);
-//     return res.status(500).json({ error: error.message });
-//   }
-// }
-//deleteAllStudent
+// deleteAllStudent
 
 async function deleteStudent(req, res) {
   try {
@@ -701,16 +688,14 @@ async function deleteStudent(req, res) {
       await Question.findOneAndDelete({ prnNo: req.query.prnNo });
 
       // Check if instructor exists based on the instructor's email
-      const instructor = await Instructor.findOne({
+      const instructors = await Instructor.find({
         instructoremailId: emailId,
       });
 
       // If instructor exists, update their list of students
-      if (instructor) {
-        const result = await Instructor.updateOne(
-          { instructoremailId: emailId },
-          { $pull: { students: { prnNo: req.query.prnNo } } }
-        );
+      for (const instructor of instructors) {
+        instructor.students = []; // Remove all students from instructor's list
+        await instructor.save();
       }
     }
 
@@ -722,6 +707,7 @@ async function deleteStudent(req, res) {
     return res.status(500).json({ error: error.message });
   }
 }
+
 
 module.exports = {
   // upload,
@@ -748,4 +734,5 @@ module.exports = {
   deleteAdmin,
   deleteInstructor,
   deleteStudent,
+  deleteAllStudent,
 };
