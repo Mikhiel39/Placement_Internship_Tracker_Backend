@@ -395,6 +395,16 @@ async function addStudent(req, res) {
     fs.createReadStream(req.file.path)
       .pipe(csv())
       .on("data", (data) => {
+        if(data.regId==null||data.name==null||data.prnNo==null||data.password==null||data.instructoremailId==null){
+          fs.unlink(req.file.path, (err) => {
+            if (err) {
+              console.error("Error deleting file:", err);
+            } else {
+              console.log("File deleted successfully");
+            }
+          });
+          return res.status(400).json({ error: "Incomplete data in CSV" });
+        }
         // Assuming your CSV file has columns 'companyname', 'numberOfStudentsPlaced', 'avgPackage', etc.
         // Adjust the keys according to your CSV structure
         const studentData = {
@@ -452,6 +462,16 @@ async function addAdmin(req, res) {
         // Assuming your CSV file has columns 'companyname', 'numberOfStudentsPlaced', 'avgPackage', etc.
         // Adjust the keys according to your CSV structure
         // console.log(data.name.trim());
+        if(data.name==null||data.adminemailId==null||data.department==null||data.password==null){
+          fs.unlink(req.file.path, (err) => {
+            if (err) {
+              console.error("Error deleting file:", err);
+            } else {
+              console.log("File deleted successfully");
+            }
+          });
+          return res.status(400).json({ error: "Incomplete data in CSV" });
+        }
         const adminData = {
           name: data.name,
           adminemailId: data.adminemailId,
@@ -502,13 +522,23 @@ async function addInstructor(req, res) {
     fs.createReadStream(req.file.path)
       .pipe(csv())
       .on("data", (data) => {
+        if(data.name==null||data.instructoremailId==null||data.password==null||data.students.name==null||data.students.prnNo==null){
+          fs.unlink(req.file.path, (err) => {
+            if (err) {
+              console.error("Error deleting file:", err);
+            } else {
+              console.log("File deleted successfully");
+            }
+          });
+          return res.status(400).json({ error: "Incomplete data in CSV" });
+        }
         // Assuming your CSV file has columns 'companyname', 'numberOfStudentsPlaced', 'avgPackage', etc.
         // Adjust the keys according to your CSV structure
         const instructorData = {
           name: data.name,
           instructoremailId: data.instructoremailId,
           password: data.password,
-          students: { prnNo: data.students_prnNo, name: data.students_name },
+          students: { prnNo: data.students.prnNo, name: data.students.name },
           // Add more fields as necessary
         };
         results.push(instructorData);

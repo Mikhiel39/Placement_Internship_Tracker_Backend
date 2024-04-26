@@ -56,6 +56,16 @@ const addTnp = async (req, res) => {
     fs.createReadStream(req.file.path)
       .pipe(csv())
       .on("data", (data) => {
+        if(data.name==null||data.tnpemailId==null||data.position==null||data.description==null||data.image==null||data.department==null){
+          fs.unlink(req.file.path, (err) => {
+            if (err) {
+              console.error("Error deleting file:", err);
+            } else {
+              console.log("File deleted successfully");
+            }
+          });
+          return res.status(400).json({ error: "Incomplete data in CSV" });
+        }
         // Assuming your CSV file has columns 'companyname', 'numberOfStudentsPlaced', 'avgPackage', etc.
         // Adjust the keys according to your CSV structure
         const coordinatorData = {

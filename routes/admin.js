@@ -18,9 +18,6 @@ const {
   getInternshipByprnno,
   getPlacementByprnno,
   getPlacementByInstructor,
-  getQuestionByprnno,
-  getQuestionByInstructor,
-  getQuestionByInstructoropen,
   deleteAdmin,
   deleteInstructor,
   deleteStudent,
@@ -37,7 +34,6 @@ const {
   updateCompany,
   getAllCompanies,
   getCompanyByName,
-  updatelogo,
 } = require("../controller/company");
 
 
@@ -104,8 +100,6 @@ router
   .route("/placement/")
   .post(addPlacement)
   .get(getPlacementByprnno);
-// router.route("/question/ByPrnNo").get(getQuestionByprnno);
-// router.route("/question/ByPrnNo/open").get(getQuestionByprnnoopen);
 router
   .route("/student/ByInstructor/")
   .get(getStudentByInstructor)
@@ -113,14 +107,11 @@ router
   .delete(deleteBatch);
   router.route("/internship/ByInstructor/").get(getInternshipByInstructor);
   router.route("/placement/ByInstructor/").get(getPlacementByInstructor);
-  // router.route("/question/ByInstructor/").get(getQuestionByInstructor);
-  // router.route("/question/ByInstructor/open").get(getQuestionByInstructoropen);
 
   // New route for companies by admins
 router.route("/company/").get(getAllCompanies).delete(deleteCompany).patch(updateCompany);
 router.post("/company",upload.single("company"), addCompany);
 router.route("/company/name/").get(getCompanyByName);
-// router.route("/company/logo/").patch(updatelogo);
 
 // New route for alumni by admins
 router.route("/alumni/").get(getAlumni).post(addAlumni);
