@@ -1,16 +1,7 @@
 
 const Alumni = require("../models/Alumni");
-const multer = require("multer");
+const Token =require("../models/Token");
 
-const cloudinary = require("cloudinary").v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-const upload = multer({ storage: multer.memoryStorage() });
 //Function to get all alumni
 async function getAlumni(req, res) {
   try {
@@ -40,6 +31,14 @@ async function getAlumniByEmail(req, res) {
 
 // Add new alumni
 const addAlumni = async (req, res) => {
+  const prnNo = await Token.findOne({
+      encrypted: req.query.adminemailId,
+    });
+
+    if (!prnNo) {
+      return res.status(404).json({ error: "Not yet logged in" }); // Corrected typo in the error message
+    }
+
   const { name, yearOfPassout, alumniemailId, company, testimonial, department,linkedin, } = req.body;
 
   try {
@@ -60,29 +59,33 @@ const addAlumni = async (req, res) => {
   }
 };
 
-// async function updatealumniimage(req, res) {
-//   try {
-//     let img = null; // Changed const to let
-//     await upload.single("image")(req, res); // Moved multer middleware here to properly handle the file upload
+async function updatealumniimage(req, res) {
+  if (!req.query.adminemailId) {
+    return res.status(400).json({ error: "Admin EmailId is missing" });
+  }
 
-//     // Access the uploaded file path from req.file
-//     if (req.file) {
-//       img = req.file.path;
-//     } else {
-//       throw new Error("No image uploaded");
-//     }
-//     await Alumni.findOneAndUpdate(
-//       { alumniemailId: req.query.alumniemailId },
-//       {
-//         image: img,
-//       }
-//     );
-//     return res.status(201).json({ msg: "success" });
-//   } catch (error) {
-//     console.error(error.message);
-//     return res.status(500).json({ msg: "Internal server error" });
-//   }
-// }
+  // Attempt to find Token with the provided prnNo
+  const token = await Token.findOne({ encrypted: req.query.adminemailId });
+
+  // If Token is not found, return 404 error
+  if (!token) {
+    return res.status(404).json({ error: "Token not found" });
+  }
+
+  const imgUrl = req.imgURI; // Assuming you have imgUrl available in the request
+
+  // Check if imgUrl is present in the request
+  if (!imgUrl) {
+    return res.status(400).json({ error: "Image URL is missing" });
+  }
+  await Alumni.findOneAndUpdate(
+    { alumniemailId: req.query.alumniemailId },
+    { image: imgUrl }
+  );
+
+  // Return success message
+  return res.status(200).json({ message: "Image updated successfully" });
+}
 
 
 // Controller function to delete an alumni by name
@@ -143,7 +146,7 @@ module.exports = {
   deleteAlumniByEmail,
   updateAlumniByEmail,
   getAlumniByCompany,
-  // updatealumniimage,
+  updatealumniimage,
   getAlumni,
 };
 

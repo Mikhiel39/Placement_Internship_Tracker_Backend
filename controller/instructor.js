@@ -7,16 +7,19 @@ const Alumni = require("../models/Alumni");
 const Notification = require("../models/Notification");
 const Token =require("../models/Token");
 const multer = require("multer");
+const csv = require("csv-parser");
+const fs = require("fs");
 
-const cloudinary = require("cloudinary").v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads"); // Save uploaded files in the 'uploads' directory
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname); // Append timestamp to file name to avoid conflicts
+  },
 });
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ storage: storage });
 
 
 async function addBatch(req, res) {

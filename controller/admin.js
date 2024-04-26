@@ -7,16 +7,19 @@ const Instructor = require("../models/Instructor");
 const Question_model = require("../models/Question_model");
 const Token =require("../models/Token")
 const multer = require("multer");
+const csv = require("csv-parser");
+const fs = require("fs");
 
-const cloudinary = require("cloudinary").v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads"); // Save uploaded files in the 'uploads' directory
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname); // Append timestamp to file name to avoid conflicts
+  },
 });
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ storage: storage });
 
 async function getInstructor(req, res) {
   const instructor = await Instructor.find().exec();
@@ -379,174 +382,160 @@ async function addPlacement(req, res) {
   }
 }
 async function addStudent(req, res) {
-  const body = req.body;
-
   try {
-    if (
-      !body.prnNo ||
-      // !body.dateOfBirth ||
-      // !body.instructoremailId ||
-      // !body.about ||
-      // !body.skills ||
-      // !body.LinkedIN ||
-      // !body.Github ||
-      // !body.image ||
-      // !body.resume ||
-      !body.regId ||
-      // !body.firstname ||
-      !body.name ||
-      // !body.gender ||
-      // !body.internshipStatus ||
-      // !body.placementStatus ||
-      // !body.cgpa ||
-      // !body.year ||
-      // !body.department ||
-      // !body.contactNumber ||
-      // !body.studentemailId ||
-      !body.password
-    ) {
-      return res.status(400).json({ msg: "All fields are required" });
+    const prn = await Token.findOne({
+      encrypted: req.query.adminemailId,
+    });
+
+    if (!prn) {
+      return res.status(404).json({ error: "Not yet logged in" }); // Corrected typo in the error message
     }
 
-    let student = await Student.findOne({ prnNo: body.prnNo });
 
-    if (!student) {
-      student = await Student.create({
-        prnNo: body.prnNo,
-        // dateOfBirth: body.dateOfBirth,
-        // about: body.about,
-        // skills: null,
-        // LinkedIN: null,
-        // Github: null,
-        // image: null,
-        // resume: null,
-        // bgimage:null,
-        regId: body.regId,
-        // firstname: body.firstname,
-        name: body.name,
-        // gender: body.gender,
-        // contactNumber: body.contactNumber,
-        // internshipStatus: body.internshipStatus,
-        // placementStatus: body.placementStatus,
-        // cgpa: null,
-        // year: body.year,
-        // instructoremailId: null,
-        // department: body.department,
-        // studentemailId: body.studentemailId,
-        password: body.password,
+    const results = [];
+
+    fs.createReadStream(req.file.path)
+      .pipe(csv())
+      .on("data", (data) => {
+        // Assuming your CSV file has columns 'companyname', 'numberOfStudentsPlaced', 'avgPackage', etc.
+        // Adjust the keys according to your CSV structure
+        const studentData = {
+          regId: data.regId,
+          name: data.name,
+          prnNo: data.prnNo,
+          password: data.password,
+          instructoremailId: data.instructoremailId,
+          // Add more fields as necessary
+        };
+        results.push(studentData);
+      })
+      .on("end", () => {
+        // Now 'results' array contains objects with data from CSV file
+        // You can save this data into your Company model
+        Student.insertMany(results)
+          .then((docs) => {
+            fs.unlink(req.file.path, (err) => {
+              if (err) {
+                console.error("Error deleting file:", err);
+              } else {
+                console.log("File deleted successfully");
+              }
+            });
+            return res
+              .status(200)
+              .json({ message: "CSV uploaded successfully" });
+          })
+          .catch((err) => {
+            return res.status(500).json({ error: err.message });
+          });
       });
-    } else {
-      await Student.findOneAndUpdate(
-        { prnNo: body.prnNo },
-        {
-          // dateOfBirth: body.dateOfBirth,
-          // about: body.about,
-          // skills: null,
-          // LinkedIN: null,
-          // Github: null,
-          // image: null,
-          // resume: null,
-          // bgimage:null,
-          regId: body.regId,
-          // firstname: body.firstname,
-          name: body.name,
-          // gender: body.gender,
-          // contactNumber: body.contactNumber,
-          // internshipStatus: body.internshipStatus,
-          // placementStatus: body.placementStatus,
-          // cgpa: null,
-          // year: body.year,
-          // instructoremailId: null,
-          // department: body.department,
-          // studentemailId: body.studentemailId,
-          password: body.password,
-        }
-      );
-    }
-
-    return res.status(201).json({ msg: "Success" });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ msg: "Internal server error" });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 }
 
 async function addAdmin(req, res) {
-  const body = req.body;
-  const admin = await Admin.findOne({
-    adminemailId: body.adminemailId,
-  });
-  if (!admin) {
-    if (!body.name || !body.adminemailId || !body.password) {
-      return res.status(400).json({ msg: "msg:All field required" });
-    }
-    const result = await Admin.create({
-      name: body.name,
-      adminemailId: body.adminemailId,
-      password: body.password,
+  try {
+    const prnNo = await Token.findOne({
+      encrypted: req.query.adminemailId,
     });
-  } else {
-    await Admin.findOneAndUpdate(
-      { adminemailId: body.adminemailId },
-      {
-        name: body.name,
-        password: body.password,
-      }
-    );
+
+    if (!prnNo) {
+      return res.status(404).json({ error: "Not yet logged in" }); // Corrected typo in the error message
+    }
+
+    // const imgUrl = req.getCsv; // Assuming req.getCsv contains the path to the CSV file
+
+    const results = [];
+
+    fs.createReadStream(req.file.path)
+      .pipe(csv())
+      .on("data", (data) => {
+        // Assuming your CSV file has columns 'companyname', 'numberOfStudentsPlaced', 'avgPackage', etc.
+        // Adjust the keys according to your CSV structure
+        const adminData = {
+          name: data.name,
+          adminemailId: data.adminemailId,
+          department: data.department,
+          password: data.password,
+          // Add more fields as necessary
+        };
+        results.push(adminData);
+      })
+      .on("end", () => {
+        // Now 'results' array contains objects with data from CSV file
+        // You can save this data into your Company model
+        Admin.insertMany(results)
+          .then((docs) => {
+            fs.unlink(req.file.path, (err) => {
+              if (err) {
+                console.error("Error deleting file:", err);
+              } else {
+                console.log("File deleted successfully");
+              }
+            });
+            return res
+              .status(200)
+              .json({ message: "CSV uploaded successfully" });
+          })
+          .catch((err) => {
+            return res.status(500).json({ error: err.message });
+          });
+      });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
-  return res.status(201).json({ msg: "success" });
 }
 async function addInstructor(req, res) {
-  const body = req.body;
-
   try {
-    if (
-      !body.firstname ||
-      !body.lastname ||
-      !body.gender ||
-      !body.contactNumber ||
-      !body.instructoremailId ||
-      !body.password ||
-      !body.department
-    ) {
-      return res.status(400).json({ msg: "All fields are required" });
-    }
-
-    let instructor = await Instructor.findOne({
-      instructoremailId: body.instructoremailId,
+    const prnNo = await Token.findOne({
+      encrypted: req.query.adminemailId,
     });
 
-    if (!instructor) {
-      instructor = await Instructor.create({
-        firstname: body.firstname,
-        lastname: body.lastname,
-        gender: body.gender,
-        contactNumber: body.contactNumber,
-        instructoremailId: body.instructoremailId,
-        password: body.password,
-        bgimage: null,
-        image: null,
-        department: body.department,
-      });
-    } else {
-      await Instructor.findOneAndUpdate(
-        { instructoremailId: body.instructoremailId },
-        {
-          firstname: body.firstname,
-          lastname: body.lastname,
-          gender: body.gender,
-          contactNumber: body.contactNumber,
-          password: body.password,
-          bgimage: null,
-          image: null,
-          department: body.department,
-        }
-      );
+    if (!prnNo) {
+      return res.status(404).json({ error: "Not yet logged in" }); // Corrected typo in the error message
     }
-    return res.status(201).json({ msg: "Success" });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ msg: "Internal server error" });
+
+    // const imgUrl = req.getCsv; // Assuming req.getCsv contains the path to the CSV file
+
+    const results = [];
+
+    fs.createReadStream(req.file.path)
+      .pipe(csv())
+      .on("data", (data) => {
+        // Assuming your CSV file has columns 'companyname', 'numberOfStudentsPlaced', 'avgPackage', etc.
+        // Adjust the keys according to your CSV structure
+        const instructorData = {
+          name: data.name,
+          instructoremailId: data.instructoremailId,
+          password: data.password,
+          students: { prnNo: data.students_prnNo, name: data.students_name },
+          // Add more fields as necessary
+        };
+        results.push(instructorData);
+      })
+      .on("end", () => {
+        // Now 'results' array contains objects with data from CSV file
+        // You can save this data into your Company model
+        Instructor.insertMany(results)
+          .then((docs) => {
+            fs.unlink(req.file.path, (err) => {
+              if (err) {
+                console.error("Error deleting file:", err);
+              } else {
+                console.log("File deleted successfully");
+              }
+            });
+            return res
+              .status(200)
+              .json({ message: "CSV uploaded successfully" });
+          })
+          .catch((err) => {
+            return res.status(500).json({ error: err.message });
+          });
+      });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 }
 
@@ -655,6 +644,47 @@ async function deleteAdmin(req, res) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
+// async function deleteAllStudent(req, res) {
+//   try {
+//     // Find the student based on the student's PRN number
+//     const student = await Student.findOne({ prnNo: req.query.prnNo });
+
+//     // If student exists, proceed with deletion
+//     if (student) {
+//       const emailId = student.instructoremailId;
+
+//       // Delete student and related information
+//       await Student.findOneAndDelete({ prnNo: req.query.prnNo });
+//       await Internship.findOneAndDelete({ prnNo: req.query.prnNo });
+//       await Placement.findOneAndDelete({ prnNo: req.query.prnNo });
+//       await Question.findOneAndDelete({ prnNo: req.query.prnNo });
+
+//       // Check if instructor exists based on the instructor's email
+//       const instructor = await Instructor.findOneAndDeleteOne({
+//         students:{
+
+//         }
+//       });
+
+//       // If instructor exists, update their list of students
+//       if (instructor) {
+//         const result = await Instructor.updateOne(
+//           { instructoremailId: emailId },
+//           { $pull: { students: { prnNo: req.query.prnNo } } }
+//         );
+//       }
+//     }
+
+//     // Respond with success message
+//     return res.status(200).json({ msg: "Student deleted successfully" });
+//   } catch (error) {
+//     // Handle errors
+//     console.error(error);
+//     return res.status(500).json({ error: error.message });
+//   }
+// }
+//deleteAllStudent
+
 async function deleteStudent(req, res) {
   try {
     // Find the student based on the student's PRN number

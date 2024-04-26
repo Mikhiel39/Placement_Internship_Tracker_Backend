@@ -6,9 +6,20 @@ const Company = require("../models/Company");
 const Alumni = require("../models/Alumni");
 const Notification = require("../models/Notification");
 const Token = require("../models/Token");
-const{ resolve }=require("path");
-const{ uploader}=require("../utils/cloudinary");
-const { dataUri } =require("../middlewares/multer");
+const multer = require("multer");
+const csv = require("csv-parser");
+const fs = require("fs");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads"); // Save uploaded files in the 'uploads' directory
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname); // Append timestamp to file name to avoid conflicts
+  },
+});
+
+const upload = multer({ storage: storage });
 
 async function getQuestions(req, res) {
   const questions = await Question_model.find().exec();

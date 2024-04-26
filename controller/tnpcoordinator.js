@@ -1,15 +1,16 @@
 const TnpCordinator = require("../models/TnpCordinator");
+const Token =require("../models/Token");
 const multer = require("multer");
-
-const cloudinary = require("cloudinary").v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+const csv = require("csv-parser");
+const fs = require("fs");
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads"); // Save uploaded files in the 'uploads' directory
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname); // Append timestamp to file name to avoid conflicts
+  },
 });
-
-const upload = multer({ storage: multer.memoryStorage() });
 //Function to get all Tnp cordinator
 async function getTnp(req, res) {
   try {
@@ -39,47 +40,79 @@ async function getTnpByEmail(req, res) {
 
 // Add new Tnp cordinator
 const addTnp = async (req, res) => {
-  const { name, department, linkedin, position, tnpemailId } = req.body;
-
   try {
-    const newTnp = new TnpCordinator({
-      name,
-      department,
-      linkedin,
-      position,
-      tnpemailId,
+    const prnNo = await Token.findOne({
+      encrypted: req.query.adminemailId,
     });
 
-    const tnp = await newTnp.save();
+    if (!prnNo) {
+      return res.status(404).json({ error: "Not yet logged in" }); // Corrected typo in the error message
+    }
+
+    // const imgUrl = req.getCsv; // Assuming req.getCsv contains the path to the CSV file
+
+    const results = [];
+
+    fs.createReadStream(req.file.path)
+      .pipe(csv())
+      .on("data", (data) => {
+        // Assuming your CSV file has columns 'companyname', 'numberOfStudentsPlaced', 'avgPackage', etc.
+        // Adjust the keys according to your CSV structure
+        const coordinatorData = {
+          name: data.name,
+          tnpemailId: data.tnpemailId,
+          position: data.position,
+          linkedin: data.linkedin,
+          description: data.description,
+          image: data.image,
+          department: data.department,
+          // Add more fields as necessary
+        };
+        results.push(coordinatorData);
+      })
+      .on("end", () => {
+        // Now 'results' array contains objects with data from CSV file
+        // You can save this data into your Company model
+        TnpCordinator.insertMany(results)
+          .then((docs) => {
+            fs.unlink(req.file.path, (err) => {
+              if (err) {
+                console.error("Error deleting file:", err);
+              } else {
+                console.log("File deleted successfully");
+              }
+            });
+            return res
+              .status(200)
+              .json({ message: "CSV uploaded successfully" });
+          })
+          .catch((err) => {
+            return res.status(500).json({ error: err.message });
+          });
+      });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    return res.status(500).json({ error: err.message });
   }
 };
 
-// async function updatetnpimage(req, res) {
-//   try {
-//     let img = null; // Changed const to let
-//     await upload.single("image")(req, res); // Moved multer middleware here to properly handle the file upload
+async function deleteTnp(req, res) {
+  if (!req.query.adminemailId) {
+    return res.status(400).json({ error: "Admin EmailId is missing" });
+  }
 
-//     // Access the uploaded file path from req.file
-//     if (req.file) {
-//       img = req.file.path;
-//     } else {
-//       throw new Error("No image uploaded");
-//     }
-//     await TnpCordinator.findOneAndUpdate(
-//       { tnpemailId: req.query.tnpemailId },
-//       {
-//         image: img,
-//       }
-//     );
-//     return res.status(201).json({ msg: "success" });
-//   } catch (error) {
-//     console.error(error.message);
-//     return res.status(500).json({ msg: "Internal server error" });
-//   }
-// }
+  // Attempt to find Token with the provided prnNo
+  const token = await Token.findOne({ encrypted: req.query.adminemailId });
+
+  // If Token is not found, return 404 error
+  if (!token) {
+    return res.status(404).json({ error: "Token not found" });
+  }
+
+  await TnpCordinator.deleteMany({});
+
+  // Return success message
+  return res.status(200).json({ message: "Deletion successfully" });
+}
 
 
 // Controller function to delete an Tnp cordinator by name
@@ -126,6 +159,6 @@ module.exports = {
   deleteTnpByEmail,
   updateTnpByEmail,
   getTnp,
-  // updatetnpimage,
+  deleteTnp,
 };
 

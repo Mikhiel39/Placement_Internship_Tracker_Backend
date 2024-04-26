@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { getCsv } = require("../utils/cloudinary");
-const { Uploadcsv } = require("../middlewares/multer");
+const { geturl } = require("../utils/cloudinary");
+const { multerUpload} = require("../middlewares/multer");
 const {
   getInstructor,
   getStudent,
@@ -24,6 +24,7 @@ const {
   deleteAdmin,
   deleteInstructor,
   deleteStudent,
+  // deleteAllStudent,
   getAdminbyadminemailId,
 } = require("../controller/admin");
 const { addBatch, deleteBatch } = require("../controller/instructor");
@@ -59,7 +60,7 @@ const {
   deleteTnpByEmail,
   updateTnpByEmail,
   getTnp,
-  updatetnpimage,
+  deleteTnp,
 } = require("../controller/tnpcoordinator");
 
   //Importing controller for Notification
@@ -82,12 +83,14 @@ router.route("/").get(getAdminbyadminemailId);
 router
   .route("/instructor/")
   .get(getInstructor)
-  .post(addInstructor)
-router.route("/admin/").get(getAdmin).post(addAdmin).delete(deleteAdmin);
+router.post("/instructor", upload.single("instructor"), addInstructor);
+router.route("/admin/").get(getAdmin).delete(deleteAdmin);
+router.post("/admin", upload.single("admin"), addAdmin);
 router
   .route("/student/")
-  .get(getStudent,)
-  .post(addStudent);
+  .get(getStudent)
+  // .delete(deleteAllStudent);
+router.post("/student", upload.single("student"), addStudent);
 router.route("/instructor/ByEmail/")
   .get(getInstructorByEmailID)
   .delete(deleteInstructor);
@@ -125,21 +128,23 @@ router
   .get(getAlumniByEmail)
   .patch(updateAlumniByEmail)
   .delete(deleteAlumniByEmail);
-// router.route
-// ("/alumni/company/").get(getAlumniByCompany);
-// router.route("/alumni/image/").patch(updatealumniimage);
+router.route
+("/alumni/company/").get(getAlumniByCompany);
+router.patch(
+  "/alumni/image/",
+  multerUpload.single("image"),
+  geturl,
+  updatealumniimage
+);
 
 // New route for Tnp Cordinator by admins
-router.route("/tnpcoordinator/").get(getTnp).post(addTnp);
+router.route("/tnpcoordinator/").get(getTnp).delete(deleteTnp);
+router.post("/tnpcoordinator", upload.single("tnpcoordinator"), addTnp);
 router
   .route("/tnpcoordinator/email/")
   .get(getTnpByEmail)
   .patch(updateTnpByEmail)
   .delete(deleteTnpByEmail);
-
-// router
-//   .route("/tnpcoordinator/image/")
-//   .patch(updatetnpimage)
 
 // New route for Notification by admins
 router.route("/notification/").get(getNotificationAll).post(addNotification);
