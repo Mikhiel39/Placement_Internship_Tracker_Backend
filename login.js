@@ -101,7 +101,7 @@ async function handleInstructorlogin(req, res) {
      });
      await token.save();
     if (!instructor) {
-      return res.status(404).json({ instructor: "NULL" });
+      return res.status(404).json({ instructor: "null" });
     }
     return res.status(200).send(randomToken);
   } catch (error) {
@@ -118,7 +118,7 @@ async function handleAdminlogin(req, res) {
     });
     console.log(admin)
     if (!admin) {
-      return res.status(200).json({ admin: "NULL" });
+      return res.status(200).json({ admin: "null" });
     }
     const randomToken = Math.random().toString(36).substring(2);
     const encryptedDataWithQuotes = '"' + randomToken + '"';
