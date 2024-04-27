@@ -43,10 +43,8 @@ async function getAdminbyadminemailId(req, res) {
     if (!adminToken) {
       return res.status(404).json({ error: "Admin Token not found" });
     }
-    const admin = await Admin.findOne({
-      adminemailId: adminToken.user,
-    });
-    // console.log(admin);
+    const admin = await Admin.findOne({ adminemailId: adminToken.user });
+    console.log(admin);
     if (!admin) {
       return res.status(404).json({ error: "No such admin found" });
     }
@@ -424,12 +422,13 @@ async function addStudent(req, res) {
     csvContent.split("\n").forEach((line, index) => {
       if (index === 0) return; // Skip header row
       const [SrNo,regId,name,prnNo,password] = line.split(",");
+      const sanitizedpassword = password.replace(/\r/g, ""); // Remove carriage return character
       results.push({
         SrNo,
         regId,
         name,
         prnNo,
-        password
+        password: sanitizedpassword,
       });
     });
 
@@ -493,7 +492,15 @@ async function addAdmin(req, res) {
     csvContent.split("\n").forEach((line, index) => {
       if (index === 0) return; // Skip header row
       const [SrNo, department, password, name, adminemailId] = line.split(",");
-      results.push({ SrNo, department, password, name, adminemailId });
+      const sanitizedAdminEmailId = adminemailId.replace(/\r/g, ""); // Remove carriage return character
+      results.push({
+        SrNo,
+        department,
+        password,
+        name,
+        adminemailId: sanitizedAdminEmailId,
+      });
+
     });
 
     // Insert data into MongoDB
@@ -565,13 +572,13 @@ async function addInstructor(req, res) {
         instructoremailId,
         password,
       ] = line.split(",");
-      results.push({
-        SrNo,
-        students: { prnNo: students_prnNo, name: students_name },
-        name,
-        instructoremailId,
-        password,
-      });
+        results.push({
+          SrNo,
+          students: { prnNo: students_prnNo, name: students_name },
+          name,
+          instructoremailId,
+          password,
+        });
     });
 
     // Insert data into MongoDB
