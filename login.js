@@ -111,20 +111,23 @@ async function handleInstructorlogin(req, res) {
 
 async function handleAdminlogin(req, res) {
   const adminemailId = req.body.adminemailId;
+   console.log(adminemailId);
   try {
-    const admin = await Admin.find({
-      adminemailId: adminemailId,
+    const admin = await Admin.findOne({
+      adminemailId,
     });
+    console.log(admin)
+    if (!admin) {
+      return res.status(200).json({ admin: "NULL" });
+    }
     const randomToken = Math.random().toString(36).substring(2);
     const encryptedDataWithQuotes = '"' + randomToken + '"';
+    // const adminemailIdWithQuotes = '"' + adminemailId + '"';
     const token = new Token({
       encrypted: encryptedDataWithQuotes,
       user: adminemailId,
     });
     await token.save();
-    if (!admin) {
-      return res.status(200).json({ admin: "NULL" });
-    }
     return res.status(200).send(randomToken);
   } catch (error) {
     res.status(500).json({ error: error });

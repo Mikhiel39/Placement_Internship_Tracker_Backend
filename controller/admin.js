@@ -35,27 +35,29 @@ async function getAdmin(req, res) {
 
 async function getAdminbyadminemailId(req, res) {
   try {
-    console.log(req.query.adminemailId);
-    const adminemailId = await Token.findOne({
+    // console.log(req.query.adminemailId);
+    const adminToken = await Token.findOne({
       encrypted: req.query.adminemailId,
     });
-    if (!adminemailId) {
-      return res.status(404).json({ error: adminemailId });
+
+    if (!adminToken) {
+      return res.status(404).json({ error: "Admin Token not found" });
     }
     const admin = await Admin.findOne({
-      adminemailId: adminemailId.user,
-    }).exec();
-
+      adminemailId: adminToken.user,
+    });
+    // console.log(admin);
     if (!admin) {
-      return res.status(404).json({ error: "No Such Admin available" });
+      return res.status(404).json({ error: "No such admin found" });
     }
 
     return res.json(admin);
   } catch (error) {
-    console.error("Error fetching instructor by email:", error);
+    console.error("Error fetching admin by email:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
 
 async function getInstructorByEmailID(req, res) {
   try {
