@@ -24,7 +24,7 @@ const alumniSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    default: null,
+    default: "https://image3.mouthshut.com/images/imagesp/925083859s.png",
   },
   alumniemailId: {
     type: String,

@@ -78,18 +78,16 @@ const addAlumni = async (req, res) => {
     const results = [];
     csvContent.split("\n").forEach((line, index) => {
       if (index === 0) return; // Skip header row
-      const [SrNo, name, company, yearOfPassout, testimonial, image] =
-        line.split(",");
+      const [SrNo, name, company, yearOfPassout, testimonial] = line.split(",");
       // console.log("Department :" + department);
-      const sanitizedImage = image.replace(/\r/g, ""); // Remove carriage return character
+      const sanitizedTestimonial = testimonial.replace(/\r/g, ""); // Remove carriage return character
       // console.log("SanitizedDepartment :" + sanitizedDepartment);
       results.push({
         SrNo,
         name,
         company,
         yearOfPassout,
-        testimonial,
-        image: sanitizedImage,
+        testimonial: sanitizedTestimonial,
       });
     });
 
