@@ -1,6 +1,10 @@
-
 const Alumni = require("../models/Alumni");
-const Token =require("../models/Token");
+const Token = require("../models/Token");
+const stream = require("stream");
+const GoogleDriveService = require("../utils/googleDriveServices");
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const up = multer({ storage: storage });
 
 //Function to get all alumni
 async function getAlumni(req, res) {
@@ -38,65 +42,68 @@ const addAlumni = async (req, res) => {
       return res.status(404).json({ error: "Not yet logged in" });
     }
 
-    const imgUrl = req.body.imgURI;
+    const file = req.file;
 
-    // Check if imgUrl is present in the request body
-    if (!imgUrl) {
-      return res.status(400).json({ error: "Image URL is missing" });
+    if (!file || !file.buffer) {
+      return res
+        .status(400)
+        .json({ error: "No file uploaded or file stream missing" });
     }
 
-    const body = req.body;
+    // Initialize GoogleDriveService
+    const googleDriveService = new GoogleDriveService(
+      process.env.GOOGLE_DRIVE_CLIENT_ID || "",
+      process.env.GOOGLE_DRIVE_CLIENT_SECRET || "",
+      process.env.GOOGLE_DRIVE_REDIRECT_URI || "",
+      process.env.GOOGLE_DRIVE_REFRESH_TOKEN || ""
+    );
 
-    // Check if all required fields are present
-    if (
-      !body.name ||
-      !body.yearOfPassout ||
-      !body.alumniemailId ||
-      !body.company ||
-      !body.testimonial ||
-      !body.linkedin
-    ) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
+    // Upload CSV file to Google Drive
+    const folderId = "1MWEXWJveK16lnokufh-J8NWdK7yaNvic"; // Specify the folder ID where you want to upload the CSV file
+    const fileBuffer = req.file.buffer;
+    const bufferStream = new stream.PassThrough();
+    bufferStream.end(fileBuffer); // Get file buffer from req.file
+    // Upload CSV file to Google Drive
+    const fileMetadata = await googleDriveService.saveFile(
+      req.file.originalname,
+      bufferStream, // Pass file buffer directly
+      "text/csv",
+      folderId
+    );
 
-    let alumni = await Alumni.findOne({ alumniemailId: body.alumniemailId });
+    // Retrieve file content from Google Drive
+    const csvContent = await googleDriveService.getFileContent(fileMetadata.id);
 
-    if (!alumni) {
-      // If alumni doesn't exist, create a new one
-      await Alumni.create({
-        name: body.name,
-        yearOfPassout: body.yearOfPassout,
-        alumniemailId: body.alumniemailId,
-        company: body.company,
-        image: imgUrl,
-        testimonial: body.testimonial,
-        department: body.department,
-        linkedin: body.linkedin,
+    // Parse CSV content
+    const results = [];
+    csvContent.split("\n").forEach((line, index) => {
+      if (index === 0) return; // Skip header row
+      const [SrNo, name, company, yearOfPassout, testimonial, image] =
+        line.split(",");
+      // console.log("Department :" + department);
+      const sanitizedImage = image.replace(/\r/g, ""); // Remove carriage return character
+      // console.log("SanitizedDepartment :" + sanitizedDepartment);
+      results.push({
+        SrNo,
+        name,
+        company,
+        yearOfPassout,
+        testimonial,
+        image: sanitizedImage,
       });
-    } else {
-      // If alumni already exists, update the existing record
-      await Alumni.findOneAndUpdate(
-        { alumniemailId: body.alumniemailId },
-        {
-          name: body.name,
-          yearOfPassout: body.yearOfPassout,
-          company: body.company,
-          image: imgUrl,
-          testimonial: body.testimonial,
-          department: body.department,
-          linkedin: body.linkedin,
-        }
-      );
-    }
+    });
 
-    return res.status(201).json({ msg: "success" });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Internal Server Error" });
+    // Insert data into MongoDB
+    await Alumni.insertMany(results);
+
+    return res
+      .status(200)
+      .json({ message: "CSV uploaded and alumni data stored successfully" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: err.message });
   }
 };
-
-
 
 async function updatealumniimage(req, res) {
   if (!req.query.adminemailId) {
@@ -125,7 +132,6 @@ async function updatealumniimage(req, res) {
   // Return success message
   return res.status(200).json({ message: "Image updated successfully" });
 }
-
 
 // Controller function to delete an alumni by name
 async function deleteAlumniByEmail(req, res) {
@@ -188,4 +194,3 @@ module.exports = {
   updatealumniimage,
   getAlumni,
 };
-

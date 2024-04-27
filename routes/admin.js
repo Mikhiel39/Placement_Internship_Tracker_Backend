@@ -118,7 +118,7 @@ router.route("/company/name/").get(getCompanyByName);
 router
   .route("/alumni/")
   .get(getAlumni)
-router.post("/alumni",multerUpload.single("alumniimage"), geturl, addAlumni);
+router.post("/alumni", up.single("alumni"), addAlumni);
 router
   .route("/alumni/email/")
   .get(getAlumniByEmail)

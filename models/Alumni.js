@@ -28,6 +28,7 @@ const alumniSchema = new mongoose.Schema({
   },
   alumniemailId: {
     type: String,
+    default: "placement@pict.edu",
     required: true,
   },
   linkedin: {
