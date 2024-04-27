@@ -126,12 +126,7 @@ router
   .delete(deleteAlumniByEmail);
 router.route
 ("/alumni/company/").get(getAlumniByCompany);
-// router.patch(
-//   "/alumni/image/",
-//   multerUpload.single("image"),
-//   geturl,
-//   updatealumniimage
-// );
+
 
 // New route for Tnp Cordinator by admins
 router.route("/tnpcoordinator/").get(getTnp).delete(deleteTnp);

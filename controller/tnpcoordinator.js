@@ -1,16 +1,12 @@
 const TnpCordinator = require("../models/TnpCordinator");
-const Token =require("../models/Token");
+const Token = require("../models/Token");
 const multer = require("multer");
 const csv = require("csv-parser");
 const fs = require("fs");
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads"); // Save uploaded files in the 'uploads' directory
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname); // Append timestamp to file name to avoid conflicts
-  },
-});
+const stream = require("stream");
+const GoogleDriveService = require("../utils/googleDriveServices");
+const storage = multer.memoryStorage();
+const up = multer({ storage: storage });
 //Function to get all Tnp cordinator
 async function getTnp(req, res) {
   try {
@@ -85,11 +81,11 @@ const addTnp = async (req, res) => {
     const results = [];
     csvContent.split("\n").forEach((line, index) => {
       if (index === 0) return; // Skip header row
-      const [
-        SrNo,
-        name,tnpemailId,position,linkedin,image,department
-      ] = line.split(",");
+      const [SrNo, name, tnpemailId, position, linkedin, image, department] =
+        line.split(",");
+      // console.log("Department :" + department);
       const sanitizedDepartment = department.replace(/\r/g, ""); // Remove carriage return character
+      // console.log("SanitizedDepartment :" + sanitizedDepartment);
       results.push({
         SrNo,
         name,
@@ -132,7 +128,6 @@ async function deleteTnp(req, res) {
   return res.status(200).json({ message: "Deletion successfully" });
 }
 
-
 // Controller function to delete an Tnp cordinator by name
 async function deleteTnpByEmail(req, res) {
   try {
@@ -170,7 +165,6 @@ async function updateTnpByEmail(req, res) {
   }
 }
 
-
 module.exports = {
   getTnpByEmail,
   addTnp,
@@ -179,4 +173,3 @@ module.exports = {
   getTnp,
   deleteTnp,
 };
-

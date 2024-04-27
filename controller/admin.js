@@ -573,13 +573,13 @@ async function addInstructor(req, res) {
         password,
       ] = line.split(",");
       const sanitizedpassword = password.replace(/\r/g, ""); // Remove carriage return character
-        results.push({
-          SrNo,
-          students: { prnNo: students_prnNo, name: students_name },
-          name,
-          instructoremailId,
-          password: sanitizedpassword,
-        });
+      results.push({
+        SrNo,
+        students: { prnNo: students_prnNo, name: students_name },
+        name,
+        instructoremailId,
+        password: sanitizedpassword,
+      });
     });
 
     // Insert data into MongoDB
