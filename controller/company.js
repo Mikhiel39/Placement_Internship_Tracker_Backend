@@ -69,8 +69,14 @@ async function addCompany(req, res) {
         logo,
         link,
       ] = line.split(",");
+      const sanitizedLink = link.replace(/\r/g, ""); // Remove carriage return character
       results.push({
-        SrNo,companyname,avgPackage,numberOfStudentsPlaced,logo,link
+        SrNo,
+        companyname,
+        avgPackage,
+        numberOfStudentsPlaced,
+        logo,
+        link: sanitizedLink,
       });
     });
 

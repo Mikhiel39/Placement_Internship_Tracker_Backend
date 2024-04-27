@@ -59,7 +59,7 @@ async function handleStudentLogin(req, res) {
   const prnNo = req.body.prnNo;
 
   try {
-    const student = await Student.find({ prnNo });
+    const student = await Student.findOne({ prnNo });
     if (!student) {
       return res.status(404).json({ error: "Student not found" });
     }
@@ -90,7 +90,7 @@ async function handleStudentLogin(req, res) {
 async function handleInstructorlogin(req, res) {
   const instructoremailId = req.body.instructoremailId;
   try {
-    const instructor = await Instructor.find({
+    const instructor = await Instructor.findOne({
       instructoremailId: instructoremailId,
     });
     const randomToken = Math.random().toString(36).substring(2);

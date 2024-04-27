@@ -572,12 +572,13 @@ async function addInstructor(req, res) {
         instructoremailId,
         password,
       ] = line.split(",");
+      const sanitizedpassword = password.replace(/\r/g, ""); // Remove carriage return character
         results.push({
           SrNo,
           students: { prnNo: students_prnNo, name: students_name },
           name,
           instructoremailId,
-          password,
+          password: sanitizedpassword,
         });
     });
 

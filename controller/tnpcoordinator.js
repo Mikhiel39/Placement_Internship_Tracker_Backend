@@ -89,6 +89,7 @@ const addTnp = async (req, res) => {
         SrNo,
         name,tnpemailId,position,linkedin,image,department
       ] = line.split(",");
+      const sanitizedDepartment = department.replace(/\r/g, ""); // Remove carriage return character
       results.push({
         SrNo,
         name,
@@ -96,7 +97,7 @@ const addTnp = async (req, res) => {
         position,
         linkedin,
         image,
-        department,
+        department: sanitizedDepartment,
       });
     });
 
