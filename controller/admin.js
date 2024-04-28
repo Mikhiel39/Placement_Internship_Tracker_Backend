@@ -102,7 +102,7 @@ async function getInternshipByprnno(req, res) {
     if (!prnNo) {
       return res.status(404).json({ error: "Not yet logged in" });
     }
-    const internship = await Internship.findOne({
+    const internship = await Internship.find({
       prnNo: prnNo.user,
     }).exec();
     return res.json(internship);
