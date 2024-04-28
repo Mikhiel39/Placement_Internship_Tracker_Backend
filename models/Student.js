@@ -69,7 +69,8 @@ const studentSchema = new mongoose.Schema({
   },
   bgimage: {
     type: String,
-    default: "https://images.app.goo.gl/yrxzxRzz2jD8FPg39",
+    default:
+      "https://www.campusoption.com/images/colleges/gallery/25_01_17_063629_College2.jpghttps://images.app.goo.gl/yrxzxRzz2jD8FPg39",
   },
   resume: {
     type: String,
