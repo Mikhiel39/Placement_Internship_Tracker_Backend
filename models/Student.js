@@ -65,12 +65,12 @@ const studentSchema = new mongoose.Schema({
   image: {
     type: String,
     default:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsq9tqudxCWoJMWzbqRQA1xSwZftG97Z5tNCtUtRll0w&s",
+      "https://tse2.mm.bing.net/th/id/OIP.sup6nxHto7ytOKBhMY1XNgAAAA?w=180&h=180&rs=1&pid=ImgDetMain",
   },
   bgimage: {
     type: String,
     default:
-      "https://tse4.mm.bing.net/th/id/OIP.dHkd14jfi_Oo1fuGyifuiwHaDt?w=736&h=368&rs=1&pid=ImgDetMain",
+      "https://www.campusoption.com/images/colleges/gallery/25_01_17_063629_College2.jpg",
   },
   resume: {
     type: String,
