@@ -65,7 +65,7 @@ const studentSchema = new mongoose.Schema({
   image: {
     type: String,
     default:
-      "https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg",
+      "https://tse4.mm.bing.net/th/id/OIP.dHkd14jfi_Oo1fuGyifuiwHaDt?w=736&h=368&rs=1&pid=ImgDetMain",
   },
   bgimage: {
     type: String,
