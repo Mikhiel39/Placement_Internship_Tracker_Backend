@@ -52,8 +52,8 @@ router
   .get(getQuestionByprnno)
   .delete(deleteQuestionByprnno);
 router.route("/questions/open").get(getQuestionByprnnoopen);
-router.route("student/questions").get(getQuestions);
-router.route("student/questions/company").get(getQuestionBycompanyname);
+router.route("/student/questions").get(getQuestions);
+router.route("/student/questions/company").get(getQuestionBycompanyname);
 router
   .route("student/questions/company/open")
   .get(getQuestionByprncompanyoopen);
