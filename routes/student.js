@@ -55,7 +55,7 @@ router.route("/questions/open").get(getQuestionByprnnoopen);
 router.route("/student/questions").get(getQuestions);
 router.route("/student/questions/company").get(getQuestionBycompanyname);
 router
-  .route("student/questions/company/open")
+  .route("/student/questions/company/open")
   .get(getQuestionByprncompanyoopen);
 router.patch("/image",  multerUpload.single("image"), geturl, updateimage);
 router.patch("/bgimage", multerUpload.single("bgimage"), geturl, updatebgimage);
