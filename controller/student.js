@@ -425,6 +425,12 @@ async function addQuestion(req, res) {
 }
 
 async function getQuestionByprncompanyoopen(req, res) {
+  // const prnNo = await Token.findOne({
+  //   encrypted: req.query.prnNo,
+  // });
+  // if (!prnNo) {
+  //   return res.status(404).json({ error: "Not yet Login" });
+  // }
   const question = await Question.findOne({
     prnNo: req.query.prnNo,
     companyname: req.query.companyname,
