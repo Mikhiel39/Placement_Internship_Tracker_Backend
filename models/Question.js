@@ -11,7 +11,8 @@ const questionSchema = new mongoose.Schema({
   },
   companylogo: {
     type: String,
-    required: true,
+    default:
+      "https://i.pinimg.com/736x/ec/d9/c2/ecd9c2e8ed0dbbc96ac472a965e4afda.jpg",
   },
   Question_no: {
     type: Number,
