@@ -401,7 +401,6 @@ async function addQuestion(req, res) {
 
     if (questionModel) {
       const nQuestion = {
-        prnNo:token.user,
         Question_no: body.Question_no,
         companyname: body.companyname,
         companylogo: imgUrl,
