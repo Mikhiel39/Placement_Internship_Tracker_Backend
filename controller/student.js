@@ -54,7 +54,7 @@ async function updateSkills(req, res) {
     return res.status(500).json({ msg: "Internal server error" });
   }
 }
-async function updateimage(req, res){
+async function updateimage(req, res) {
   if (!req.query.prnNo) {
     return res.status(400).json({ error: "PRN number is missing" });
   }
@@ -76,10 +76,8 @@ async function updateimage(req, res){
   await Student.findOneAndUpdate({ prnNo: token.user }, { image: imgUrl });
 
   // Return success message
-  return res
-    .status(200)
-    .json({ message: "Image updated successfully" });
-};
+  return res.status(200).json({ message: "Image updated successfully" });
+}
 // Function to update background image
 async function updatebgimage(req, res) {
   // Check if prnNo is present in the request query
@@ -108,7 +106,6 @@ async function updatebgimage(req, res) {
     .status(200)
     .json({ message: "Background image updated successfully" });
 }
-
 
 async function updateLinkedIN(req, res) {
   const body = req.body;
@@ -339,19 +336,25 @@ async function addQuestion(req, res) {
     return res.status(404).json({ error: "Token not found" });
   }
 
-  const imgUrl = req.body.imgURI; // Assuming you have imgUrl available in the request
+  // Assuming you have imgUrl available in the request
+  let imgUrl = req.body.imgURI;
 
   // Check if imgUrl is present in the request
   if (!imgUrl) {
-    return res.status(400).json({ error: "Image URL is missing" });
+    imgUrl =
+      "https://i.pinimg.com/736x/ec/d9/c2/ecd9c2e8ed0dbbc96ac472a965e4afda.jpg";
+    // Optionally, you can log or notify that a default image URL is being used
+    console.log("Image URL is missing, using default image URL.");
   }
+
+  // Continue with the rest of your logic here
 
   const body = req.body;
 
   try {
     // Check if the question already exists
     const existingQuestion = await Question.findOne({
-      prnNo: prnNo.user,
+      prnNo: token.user,
       Question_no: body.Question_no,
     });
 
@@ -373,7 +376,7 @@ async function addQuestion(req, res) {
       return res.status(400).json({ msg: "All fields are required" });
     }
     const newQuestion = await Question.create({
-      prnNo: prnNo.user,
+      prnNo: token.user,
       Question_no: body.Question_no,
       companylogo: imgUrl,
       puzzlelink: {
@@ -393,7 +396,7 @@ async function addQuestion(req, res) {
 
     // Find the question model and update it
     const questionModel = await Question_model.findOne({
-      prnNo: prnNo.user,
+      prnNo: token.user,
     });
 
     if (questionModel) {
@@ -407,7 +410,7 @@ async function addQuestion(req, res) {
       return res.status(400).json({ msg: "Question model is found" });
     }
     const nQuestion = await Question_model.create({
-      prnNo: prnNo.user,
+      prnNo: token.user,
       questions: {
         Question_no: body.Question_no,
         companyname: body.companyname,
@@ -420,7 +423,7 @@ async function addQuestion(req, res) {
     return res.status(201).json({ msg: "Question added successfully" });
   } catch (error) {
     console.error("Error adding question:", error);
-    return res.status(500).json({ msg: "Internal server error" });
+    return res.status(500).json({ msg: error });
   }
 }
 
