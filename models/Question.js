@@ -23,34 +23,16 @@ const questionSchema = new mongoose.Schema({
     required: true,
   },
   puzzlelink: {
-    question: {
-      type: String,
-      required: true,
-    },
-    answer: {
-      type: String,
-      required: true,
-    },
+    type: String,
+    required: true,
   },
-  interview: {
-    question: {
+  interviewQuestion: {
       type: String,
       required: true,
-    },
-    answer: {
-      type: String,
-      required: true,
-    },
   },
-  QA: {
-    question: {
+  onlineAssementQuestion: {
       type: String,
       required: true,
-    },
-    answer: {
-      type: String,
-      required: true,
-    },
   },
 });
 

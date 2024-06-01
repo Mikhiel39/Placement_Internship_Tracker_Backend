@@ -343,8 +343,6 @@ async function addQuestion(req, res) {
   if (!imgUrl) {
     imgUrl =
       "https://i.pinimg.com/736x/ec/d9/c2/ecd9c2e8ed0dbbc96ac472a965e4afda.jpg";
-    // Optionally, you can log or notify that a default image URL is being used
-    console.log("Image URL is missing, using default image URL.");
   }
 
   // Continue with the rest of your logic here
@@ -366,12 +364,9 @@ async function addQuestion(req, res) {
     if (
       !body.companyname ||
       !body.Question_no ||
-      !body.puzzlelink.question ||
-      !body.puzzlelink.answer ||
-      !body.interview.question ||
-      !body.interview.answer ||
-      !body.QA.question ||
-      !body.QA.answer
+      !body.puzzlelink ||
+      !body.interviewQuestion ||
+      !body.onlineAssementQuestion
     ) {
       return res.status(400).json({ msg: "All fields are required" });
     }
@@ -379,18 +374,9 @@ async function addQuestion(req, res) {
       prnNo: token.user,
       Question_no: body.Question_no,
       companylogo: imgUrl,
-      puzzlelink: {
-        question: body.puzzlelink.question,
-        answer: body.puzzlelink.answer,
-      },
-      interview: {
-        question: body.interview.question,
-        answer: body.interview.answer,
-      },
-      QA: {
-        question: body.QA.question,
-        answer: body.QA.answer,
-      },
+      puzzlelink: body.puzzlelink,
+      interviewQuestion: body.interviewQuestion,
+      onlineAssementQuestion:body.onlineAssementQuestion,
       companyname: body.companyname,
     });
 
@@ -407,7 +393,11 @@ async function addQuestion(req, res) {
       };
       questionModel.questions.push(nQuestion);
       await questionModel.save();
-      return res.status(400).json({ msg: "Question model is found" });
+      return res
+        .status(400)
+        .json({
+          msg: "Question model is found and question added successfully",
+        });
     }
     const nQuestion = await Question_model.create({
       prnNo: token.user,
