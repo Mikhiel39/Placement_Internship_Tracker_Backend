@@ -1,14 +1,10 @@
 const Student = require("./models/Student");
 const Instructor = require("./models/Instructor");
 const Admin = require("./models/Admin");
-const CryptoJS = require("crypto-js");
 const Token = require("./models/Token");
-const express = require("express");
-
-const secretKey = process.env.SECRET_KEY;
 
 // async function handleStudentLogin(req, res) {
-//   const prnNo = req.body.prnNo; 
+//   const prnNo = req.body.prnNo;
 //   // const secretKey = secretKey ;
 
 //   try {
@@ -85,8 +81,6 @@ async function handleStudentLogin(req, res) {
   }
 }
 
-
-
 async function handleInstructorlogin(req, res) {
   const instructoremailId = req.body.instructoremailId;
   try {
@@ -95,11 +89,11 @@ async function handleInstructorlogin(req, res) {
     });
     const randomToken = Math.random().toString(36).substring(2);
     const encryptedDataWithQuotes = '"' + randomToken + '"';
-     const token = new Token({
-       encrypted:encryptedDataWithQuotes,
-       user:instructoremailId,
-     });
-     await token.save();
+    const token = new Token({
+      encrypted: encryptedDataWithQuotes,
+      user: instructoremailId,
+    });
+    await token.save();
     if (!instructor) {
       return res.status(404).json({ instructor: "null" });
     }
@@ -111,12 +105,12 @@ async function handleInstructorlogin(req, res) {
 
 async function handleAdminlogin(req, res) {
   const adminemailId = req.body.adminemailId;
-   console.log(adminemailId);
+  console.log(adminemailId);
   try {
     const admin = await Admin.findOne({
       adminemailId,
     });
-    console.log(admin)
+    console.log(admin);
     if (!admin) {
       return res.status(200).json({ admin: "null" });
     }
